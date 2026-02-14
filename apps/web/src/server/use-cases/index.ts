@@ -106,3 +106,10 @@ export type {
   ApprovePetAdminResult,
   Principal as ApprovePetAdminPrincipal,
 } from './admin/approve-pet-admin.use-case'
+
+export { rejectPetAdmin } from './admin/reject-pet-admin.use-case'
+export type {
+  RejectPetAdminInput,
+  RejectPetAdminResult,
+  Principal as RejectPetAdminPrincipal,
+} from './admin/reject-pet-admin.use-case'

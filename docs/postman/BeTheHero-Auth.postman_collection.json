@@ -459,6 +459,24 @@
             "url": "{{baseUrl}}/api/admin/pets/{{petId}}/approve",
             "description": "Aprova pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura da cidade do workspace. Pet deve ter 1-5 imagens, 1 isCover. Workspace ativo. Retorna pet atualizado (status APPROVED, approvedAt, approvedByUserId)."
           }
+        },
+        {
+          "name": "Reject Pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewNote\": \"Imagens de baixa qualidade. Favor enviar fotos mais nítidas.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/pets/{{petId}}/reject",
+            "description": "Rejeita pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura. reviewNote obrigatório. Workspace ativo. Transacional + AuditLog REJECT com motivo em metadata. Retorna pet (status REJECTED, approvedAt, approvedByUserId)."
+          }
         }
       ]
     }

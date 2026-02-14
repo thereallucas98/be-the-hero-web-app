@@ -89,6 +89,11 @@ export interface ApprovedPetItem extends CreatedPetItem {
   approvedByUserId: string
 }
 
+export interface RejectedPetItem extends CreatedPetItem {
+  approvedAt: Date | null
+  approvedByUserId: string | null
+}
+
 export interface AddPetImageData {
   url: string
   storagePath: string
@@ -166,6 +171,11 @@ export interface PetRepository {
     id: string,
   ): Promise<PetWithImagesAndWorkspaceForAdminItem | null>
   approvePet(id: string, actorUserId: string): Promise<ApprovedPetItem | null>
+  rejectPet(
+    id: string,
+    actorUserId: string,
+    reviewNote: string,
+  ): Promise<RejectedPetItem | null>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -785,6 +795,57 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         adoptionRequirements: pet.adoptionRequirements,
         approvedAt: pet.approvedAt!,
         approvedByUserId: pet.approvedByUserId!,
+      }
+    },
+
+    async rejectPet(id, actorUserId, reviewNote) {
+      const pet = await prisma.$transaction(async (tx) => {
+        const updated = await tx.pet.update({
+          where: { id },
+          data: {
+            status: 'REJECTED',
+            approvedAt: new Date(),
+            approvedByUserId: actorUserId,
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            species: true,
+            sex: true,
+            size: true,
+            ageCategory: true,
+            energyLevel: true,
+            independenceLevel: true,
+            environment: true,
+            adoptionRequirements: true,
+            status: true,
+            workspaceId: true,
+            approvedAt: true,
+            approvedByUserId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        })
+        await tx.auditLog.create({
+          data: {
+            actorUserId,
+            action: 'REJECT',
+            entityType: 'PET',
+            entityId: id,
+            metadata: { reviewNote },
+          },
+        })
+        return updated
+      })
+      return {
+        ...pet,
+        energyLevel: pet.energyLevel,
+        independenceLevel: pet.independenceLevel,
+        environment: pet.environment,
+        adoptionRequirements: pet.adoptionRequirements,
+        approvedAt: pet.approvedAt,
+        approvedByUserId: pet.approvedByUserId,
       }
     },
   }

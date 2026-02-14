@@ -52,3 +52,11 @@ export const UpdatePetSchema = z
   .strict()
 
 export type UpdatePetInput = z.infer<typeof UpdatePetSchema>
+
+export const RejectPetSchema = z
+  .object({
+    reviewNote: z.string().min(1, 'Review note is required'),
+  })
+  .strict()
+
+export type RejectPetInput = z.infer<typeof RejectPetSchema>

@@ -160,7 +160,8 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | INVALID_CITY      | 400         |
 | INVALID_STATUS    | 409         |
 | INVALID_IMAGES    | 400         |
-| WORKSPACE_BLOCKED | 403         |
+| WORKSPACE_BLOCKED     | 403         |
+| MISSING_REVIEW_NOTE   | 400         |
 
 ## Endpoints disponíveis
 
@@ -184,6 +185,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | PATCH | /api/pets/:petId/images/:imageId | Atualiza position e/ou isCover. Transacional (swap de posição, desmarca cover). AuditLog. Não altera status. |
 | DELETE | /api/pets/:petId/images/:imageId | Remove imagem. OWNER/EDITOR. Se cover removida, próxima por position vira cover. Não remove última imagem se pet PENDING_REVIEW. 204. AuditLog DELETE. |
 | POST | /api/admin/pets/:id/approve | Aprova pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura da cidade do workspace. Pet: 1-5 imagens, 1 isCover. Workspace ativo. Transacional + AuditLog APPROVE. |
+| POST | /api/admin/pets/:id/reject | Rejeita pet em PENDING_REVIEW. Body: `{ reviewNote: string }`. SUPER_ADMIN ou ADMIN com cobertura. Workspace ativo. Transacional + AuditLog REJECT com reviewNote em metadata. |
 
 ## Zod
 
