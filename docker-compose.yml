@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  bethehero-postgres:
+    image: postgres:15
+    container_name: bethehero-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: bethehero
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    volumes:
+      - bethehero_pgdata:/var/lib/postgresql/data
+
+volumes:
+  bethehero_pgdata:
+    name: bethehero_pgdata

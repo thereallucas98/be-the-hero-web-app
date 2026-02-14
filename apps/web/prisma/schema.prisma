@@ -1,0 +1,635 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  GUARDIAN
+  PARTNER_MEMBER
+}
+
+enum PartnerType {
+  ONG
+  CLINIC
+  PETSHOP
+  INDEPENDENT
+}
+
+model User {
+  id                          String                       @id @default(uuid())
+  fullName                    String
+  email                       String                       @unique
+  passwordHash                String
+  role                        UserRole
+  phone                       String?
+  isActive                    Boolean                      @default(true)
+  emailVerified               Boolean                      @default(false)
+  resetToken                  String?
+  resetTokenExpires           DateTime?
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  partnerWorkspacesVerified   PartnerWorkspace[]           @relation("WorkspaceVerifier")
+  partnerMembers              PartnerMember[]
+  petsApproved                Pet[]                        @relation("PetApprover")
+  petImagesApproved           PetImage[]                   @relation("PetImageApprover")
+  adoptionInterests           AdoptionInterest[]
+  campaignsApproved           Campaign[]                   @relation("CampaignApprover")
+  campaignDocumentsReviewed   CampaignDocument[]           @relation("CampaignDocumentReviewer")
+  donations                   Donation[]                   @relation("DonationDonor")
+  donationsReviewed           Donation[]                   @relation("DonationReviewer")
+  guardianAdoptions           Adoption[]                   @relation("GuardianAdoptions")
+  createdAdoptions            Adoption[]                   @relation("CreatedAdoptions")
+  followUpSubmissions         AdoptionFollowUpSubmission[] @relation("FollowUpSubmissionSubmitter")
+  followUpSubmissionsReviewed AdoptionFollowUpSubmission[] @relation("FollowUpSubmissionReviewer")
+  adminCoverage               AdminCoverage[]
+  auditLogs                   AuditLog[]
+
+  @@map("user")
+}
+
+enum GeoPlaceType {
+  COUNTRY
+  STATE
+  CITY
+}
+
+model GeoPlace {
+  id                        String                     @id @default(uuid())
+  type                      GeoPlaceType
+  name                      String
+  code                      String?
+  slug                      String                     @unique
+  parentId                  String?
+  parent                    GeoPlace?                  @relation("GeoPlaceParent", fields: [parentId], references: [id])
+  children                  GeoPlace[]                 @relation("GeoPlaceParent")
+  partnerWorkspaceLocations PartnerWorkspaceLocation[]
+  partnerCityCoverage       PartnerCityCoverage[]
+  adminCoverage             AdminCoverage[]
+  lat                       Float?
+  lng                       Float?
+  isActive                  Boolean                    @default(true)
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+
+  @@index([type])
+  @@index([parentId])
+  @@map("geo_place")
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PartnerWorkspace {
+  id                 String                     @id @default(uuid())
+  name               String
+  type               PartnerType
+  description        String
+  phone              String?
+  whatsapp           String?
+  emailPublic        String?
+  website            String?
+  instagram          String?
+  verificationStatus VerificationStatus         @default(PENDING)
+  verifiedAt         DateTime?
+  verifiedByUserId   String?
+  verifiedBy         User?                      @relation("WorkspaceVerifier", fields: [verifiedByUserId], references: [id])
+  isActive           Boolean                    @default(true)
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  members            PartnerMember[]
+  locations          PartnerWorkspaceLocation[]
+  cityCoverage       PartnerCityCoverage[]
+  pets               Pet[]
+  adoptionInterests  AdoptionInterest[]
+  campaigns          Campaign[]
+  donations          Donation[]
+  adoptions          Adoption[]
+  metricEvents       PetMetricEvent[]
+
+  @@index([verificationStatus])
+  @@map("partner_workspace")
+}
+
+enum PartnerMemberRole {
+  OWNER
+  EDITOR
+  FINANCIAL
+}
+
+model PartnerMember {
+  id          String            @id @default(uuid())
+  workspaceId String
+  workspace   PartnerWorkspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        PartnerMemberRole @default(OWNER)
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@index([workspaceId])
+  @@map("partner_member")
+}
+
+model PartnerWorkspaceLocation {
+  id           String           @id @default(uuid())
+  workspaceId  String
+  workspace    PartnerWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  label        String?
+  addressLine  String?
+  neighborhood String?
+  zipCode      String?
+  cityPlaceId  String
+  cityPlace    GeoPlace         @relation(fields: [cityPlaceId], references: [id])
+  lat          Float
+  lng          Float
+  isPrimary    Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([workspaceId])
+  @@index([cityPlaceId])
+  @@map("partner_workspace_location")
+}
+
+model PartnerCityCoverage {
+  id          String           @id @default(uuid())
+  workspaceId String
+  workspace   PartnerWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  cityPlaceId String
+  cityPlace   GeoPlace         @relation(fields: [cityPlaceId], references: [id])
+  createdAt   DateTime         @default(now())
+
+  @@unique([workspaceId, cityPlaceId])
+  @@index([workspaceId])
+  @@index([cityPlaceId])
+  @@map("partner_city_coverage")
+}
+
+enum PetSpecies {
+  DOG
+  CAT
+  RABBIT
+  BIRD
+  HORSE
+  COW
+  GOAT
+  PIG
+  TURTLE
+  OTHER
+}
+
+enum PetSex {
+  MALE
+  FEMALE
+}
+
+enum PetSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum PetAgeCategory {
+  PUPPY
+  YOUNG
+  ADULT
+  SENIOR
+}
+
+enum PetEnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum PetIndependenceLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum PetEnvironment {
+  HOUSE
+  APARTMENT
+  BOTH
+}
+
+enum PetStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  ADOPTED
+}
+
+model Pet {
+  id                   String                @id @default(uuid())
+  workspaceId          String
+  workspace            PartnerWorkspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name                 String
+  description          String
+  species              PetSpecies
+  sex                  PetSex
+  size                 PetSize
+  ageCategory          PetAgeCategory
+  energyLevel          PetEnergyLevel?
+  independenceLevel    PetIndependenceLevel?
+  environment          PetEnvironment?
+  adoptionRequirements String?
+  status               PetStatus             @default(DRAFT)
+  approvedAt           DateTime?
+  approvedByUserId     String?
+  approvedBy           User?                 @relation("PetApprover", fields: [approvedByUserId], references: [id])
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  images               PetImage[]
+  requirements         PetRequirement[]
+  interests            AdoptionInterest[]
+  campaigns            Campaign[]
+  adoption             Adoption?
+  metricEvents         PetMetricEvent[]
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([approvedByUserId])
+  @@map("pet")
+}
+
+enum PetImageStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model PetImage {
+  id               String         @id @default(uuid())
+  petId            String
+  pet              Pet            @relation(fields: [petId], references: [id], onDelete: Cascade)
+  url              String
+  storagePath      String
+  position         Int
+  isCover          Boolean        @default(false)
+  status           PetImageStatus @default(PENDING_REVIEW)
+  approvedAt       DateTime?
+  approvedByUserId String?
+  approvedBy       User?          @relation("PetImageApprover", fields: [approvedByUserId], references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@unique([petId, position])
+  @@index([petId])
+  @@index([status])
+  @@map("pet_image")
+}
+
+enum PetRequirementCategory {
+  HOME
+  EXPERIENCE
+  TIME_AVAILABILITY
+  FINANCIAL
+  SAFETY
+  HEALTH_CARE
+  OTHER
+}
+
+model PetRequirement {
+  id          String                 @id @default(uuid())
+  petId       String
+  pet         Pet                    @relation(fields: [petId], references: [id], onDelete: Cascade)
+  category    PetRequirementCategory
+  title       String
+  description String?
+  isMandatory Boolean                @default(true)
+  order       Int
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@unique([petId, order])
+  @@index([petId])
+  @@index([category])
+  @@map("pet_requirement")
+}
+
+enum AdoptionInterestChannel {
+  WHATSAPP
+}
+
+model AdoptionInterest {
+  id          String                  @id @default(uuid())
+  userId      String
+  user        User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  petId       String
+  pet         Pet                     @relation(fields: [petId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   PartnerWorkspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  message     String?
+  channel     AdoptionInterestChannel @default(WHATSAPP)
+  createdAt   DateTime                @default(now())
+
+  @@index([userId])
+  @@index([petId])
+  @@index([workspaceId])
+  @@index([createdAt])
+  @@map("adoption_interest")
+}
+
+enum CampaignStatus {
+  DRAFT
+  PENDING_DOCUMENTS
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  CLOSED
+}
+
+model Campaign {
+  id               String             @id @default(uuid())
+  workspaceId      String
+  workspace        PartnerWorkspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  petId            String?
+  pet              Pet?               @relation(fields: [petId], references: [id], onDelete: SetNull)
+  title            String
+  description      String
+  goalAmount       Decimal            @db.Decimal(12, 2)
+  currentAmount    Decimal            @default(0) @db.Decimal(12, 2)
+  currency         String             @default("BRL")
+  coverImageUrl    String?
+  status           CampaignStatus     @default(DRAFT)
+  approvedAt       DateTime?
+  approvedByUserId String?
+  approvedBy       User?              @relation("CampaignApprover", fields: [approvedByUserId], references: [id])
+  startsAt         DateTime?
+  endsAt           DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  documents        CampaignDocument[]
+  donations        Donation[]
+
+  @@index([workspaceId])
+  @@index([petId])
+  @@index([status])
+  @@index([approvedByUserId])
+  @@map("campaign")
+}
+
+enum CampaignDocumentType {
+  MEDICAL_REPORT
+  COST_ESTIMATE
+  INVOICE
+  PHOTO_EVIDENCE
+  OTHER
+}
+
+enum CampaignDocumentStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model CampaignDocument {
+  id               String                 @id @default(uuid())
+  campaignId       String
+  campaign         Campaign               @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type             CampaignDocumentType
+  title            String
+  description      String
+  fileUrl          String
+  storagePath      String
+  mimeType         String
+  fileSize         Int
+  status           CampaignDocumentStatus @default(PENDING_REVIEW)
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  reviewedBy       User?                  @relation("CampaignDocumentReviewer", fields: [reviewedByUserId], references: [id])
+  createdAt        DateTime               @default(now())
+
+  @@index([campaignId])
+  @@index([status])
+  @@index([reviewedByUserId])
+  @@map("campaign_document")
+}
+
+enum DonationStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum PaymentMethod {
+  PIX
+  TRANSFER
+  OTHER
+}
+
+model Donation {
+  id               String           @id @default(uuid())
+  campaignId       String
+  campaign         Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  workspaceId      String
+  workspace        PartnerWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User             @relation("DonationDonor", fields: [userId], references: [id], onDelete: Cascade)
+  amount           Decimal          @db.Decimal(12, 2)
+  currency         String           @default("BRL")
+  paymentMethod    PaymentMethod
+  proofUrl         String
+  storagePath      String
+  mimeType         String
+  fileSize         Int
+  status           DonationStatus   @default(PENDING_REVIEW)
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  reviewedBy       User?            @relation("DonationReviewer", fields: [reviewedByUserId], references: [id])
+  reviewNote       String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([campaignId])
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([status])
+  @@index([reviewedByUserId])
+  @@map("donation")
+}
+
+enum AdoptionStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+model Adoption {
+  id              String             @id @default(uuid())
+  petId           String             @unique
+  pet             Pet                @relation(fields: [petId], references: [id], onDelete: Restrict)
+  workspaceId     String
+  workspace       PartnerWorkspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  guardianUserId  String
+  guardian        User               @relation("GuardianAdoptions", fields: [guardianUserId], references: [id], onDelete: Restrict)
+  adoptedAt       DateTime
+  notes           String?
+  status          AdoptionStatus     @default(ACTIVE)
+  createdByUserId String
+  createdBy       User               @relation("CreatedAdoptions", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  followUps       AdoptionFollowUp[]
+
+  @@index([workspaceId])
+  @@index([guardianUserId])
+  @@index([createdByUserId])
+  @@index([status])
+  @@map("adoption")
+}
+
+enum AdoptionFollowUpType {
+  DAYS_30
+  MONTHS_6
+  YEAR_1
+}
+
+enum AdoptionFollowUpStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model AdoptionFollowUp {
+  id                  String                       @id @default(uuid())
+  adoptionId          String
+  adoption            Adoption                     @relation(fields: [adoptionId], references: [id], onDelete: Cascade)
+  type                AdoptionFollowUpType
+  scheduledAt         DateTime
+  status              AdoptionFollowUpStatus       @default(PENDING)
+  currentSubmissionId String?                      @unique
+  currentSubmission   AdoptionFollowUpSubmission?  @relation("CurrentFollowUpSubmission", fields: [currentSubmissionId], references: [id])
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+  submissions         AdoptionFollowUpSubmission[] @relation("FollowUpSubmissions")
+
+  @@unique([adoptionId, type])
+  @@index([adoptionId])
+  @@index([status])
+  @@map("adoption_follow_up")
+}
+
+enum FollowUpSubmissionStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model AdoptionFollowUpSubmission {
+  id                 String                   @id @default(uuid())
+  followUpId         String
+  followUp           AdoptionFollowUp         @relation("FollowUpSubmissions", fields: [followUpId], references: [id], onDelete: Cascade)
+  submittedByUserId  String
+  submittedBy        User                     @relation("FollowUpSubmissionSubmitter", fields: [submittedByUserId], references: [id], onDelete: Restrict)
+  photoUrl           String
+  storagePath        String
+  mimeType           String
+  fileSize           Int
+  message            String?
+  submittedAt        DateTime                 @default(now())
+  status             FollowUpSubmissionStatus @default(SUBMITTED)
+  reviewedAt         DateTime?
+  reviewedByUserId   String?
+  reviewedBy         User?                    @relation("FollowUpSubmissionReviewer", fields: [reviewedByUserId], references: [id])
+  reviewNote         String?
+  createdAt          DateTime                 @default(now())
+  currentForFollowUp AdoptionFollowUp?        @relation("CurrentFollowUpSubmission")
+
+  @@index([followUpId])
+  @@index([submittedByUserId])
+  @@index([status])
+  @@index([reviewedByUserId])
+  @@map("adoption_follow_up_submission")
+}
+
+model AdminCoverage {
+  id          String   @id @default(uuid())
+  adminUserId String
+  adminUser   User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  cityPlaceId String
+  cityPlace   GeoPlace @relation(fields: [cityPlaceId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([adminUserId, cityPlaceId])
+  @@index([adminUserId])
+  @@index([cityPlaceId])
+  @@map("admin_coverage")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  SUBMIT_FOR_REVIEW
+  APPROVE
+  REJECT
+  STATUS_CHANGE
+}
+
+enum AuditEntityType {
+  PARTNER_WORKSPACE
+  PET
+  PET_IMAGE
+  CAMPAIGN
+  CAMPAIGN_DOCUMENT
+  DONATION
+  ADOPTION
+  FOLLOW_UP
+  FOLLOW_UP_SUBMISSION
+  USER
+}
+
+model AuditLog {
+  id          String          @id @default(uuid())
+  actorUserId String
+  actor       User            @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  action      AuditAction
+  entityType  AuditEntityType
+  entityId    String
+  metadata    Json?
+  createdAt   DateTime        @default(now())
+
+  @@index([actorUserId])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+enum PetMetricEventType {
+  VIEW_PET
+  CLICK_WHATSAPP
+  REGISTER_INTEREST
+}
+
+model PetMetricEvent {
+  id          String             @id @default(uuid())
+  petId       String
+  pet         Pet                @relation(fields: [petId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   PartnerWorkspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  type        PetMetricEventType
+  createdAt   DateTime           @default(now())
+
+  @@index([petId])
+  @@index([workspaceId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("pet_metric_event")
+}
