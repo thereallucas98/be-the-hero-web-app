@@ -1,0 +1,21 @@
+---
+description: BeTheHero API - SOLID, use cases, repositories
+globs: "**/server/**/*.ts,**/app/api/**/*.ts"
+alwaysApply: false
+---
+
+# BeTheHero API Architecture
+
+Ao criar ou modificar endpoints da API:
+
+1. **Rotas** (`app/api/`) são thin: parse body, validam com Zod, chamam use case, formatam resposta
+2. **Use cases** (`server/use-cases/`) contêm a lógica de negócio; recebem repositories por parâmetro
+3. **Repositories** (`server/repositories/`) encapsulam Prisma; exportam interfaces + funções create*
+4. **Schemas** (`server/schemas/`) concentram validação Zod
+5. **getPrincipal(req)** para autenticação; retorna null se não autenticado
+
+Fluxo: `Route → parse/validate → UseCase(repo, principal, input) → Repository → Response`
+
+Use `z.email()` e `z.uuid()` (Zod 4). Erros de validação: `details: parsed.error.issues`.
+
+Documentação completa: `docs/API-ARCHITECTURE.md`
