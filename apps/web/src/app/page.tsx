@@ -6,10 +6,25 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-2xl space-y-8">
         <div className="space-y-4 text-center">
-          <h1 className="text-4xl font-bold tracking-tight">BeTheHero 🧡🐾</h1>
-          <p className="text-muted-foreground text-lg">
-            Plataforma de adoção responsável e apoio a causas animais.
-            Conectando guardiões e projetos parceiros na Paraíba.
+          <h1 className="font-display text-hero font-extrabold tracking-[-0.01em]">
+            Be The Hero 🧡🐾
+          </h1>
+          <p className="text-body text-deep-navy">
+            <span className="text-deep-navy">Plataforma de </span>
+            <span className="text-responsible-green font-medium">
+              adoção responsável
+            </span>
+            <span className="text-deep-navy"> e </span>
+            <span className="text-hero-orange font-medium">
+              apoio a causas animais
+            </span>
+            <span className="text-deep-navy">. Conectando </span>
+            <span className="text-hero-orange font-medium">guardiões</span>
+            <span className="text-deep-navy"> e </span>
+            <span className="text-responsible-green font-medium">
+              projetos parceiros
+            </span>
+            <span className="text-deep-navy"> na Paraíba.</span>
           </p>
         </div>
 
