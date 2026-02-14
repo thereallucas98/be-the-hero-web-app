@@ -57,3 +57,10 @@ export type {
   RemoveWorkspaceMemberResult,
   Principal as RemoveWorkspaceMemberPrincipal,
 } from './workspaces/remove-workspace-member.use-case'
+
+export { createPet } from './pets/create-pet.use-case'
+export type {
+  CreatePetInput,
+  CreatePetResult,
+  Principal as CreatePetPrincipal,
+} from './pets/create-pet.use-case'

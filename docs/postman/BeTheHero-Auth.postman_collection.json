@@ -299,6 +299,24 @@
           }
         },
         {
+          "name": "Create Pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rex\",\n  \"description\": \"Cachorro dócil e carinhoso, castrado, vacinado. Adora crianças e outros pets.\",\n  \"species\": \"DOG\",\n  \"sex\": \"MALE\",\n  \"size\": \"MEDIUM\",\n  \"ageCategory\": \"ADULT\",\n  \"energyLevel\": \"MEDIUM\",\n  \"independenceLevel\": \"LOW\",\n  \"environment\": \"BOTH\",\n  \"adoptionRequirements\": \"Ter espaço e tempo para passeios diários.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}/pets",
+            "description": "Cadastra pet para adoção. Apenas OWNER/EDITOR. Pet inicia com status DRAFT. Obrigatório: name, description, species, sex, size, ageCategory."
+          }
+        },
+        {
           "name": "Remove Workspace Member",
           "request": {
             "method": "DELETE",
