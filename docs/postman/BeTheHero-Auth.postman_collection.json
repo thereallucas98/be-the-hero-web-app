@@ -368,6 +368,15 @@
             "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}/location",
             "description": "Atualiza localização primária do workspace (cidade, endereço, coordenadas). Adiciona cidade à cobertura se não existir. Acesso: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. cityPlaceId deve ser do tipo CITY."
           }
+        },
+        {
+          "name": "List Workspace Interests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}/interests?page=1&perPage=20",
+            "description": "Lista interesses de adoção dos pets do workspace. OWNER/EDITOR, SUPER_ADMIN ou ADMIN com cobertura. Query: page (1), perPage (20). Ordenação: mais recentes primeiro. Retorna pet, user, message, createdAt."
+          }
         }
       ]
     },

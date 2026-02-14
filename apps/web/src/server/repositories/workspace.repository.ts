@@ -129,6 +129,11 @@ export type AddMemberResult =
       code: 'WORKSPACE_NOT_FOUND' | 'USER_NOT_FOUND' | 'ALREADY_MEMBER'
     }
 
+export interface WorkspaceForInterestsAccessItem {
+  id: string
+  workspaceCityIds: string[]
+}
+
 export interface WorkspaceRepository {
   createWithLocationAndMember(
     data: CreateWorkspaceData,
@@ -139,6 +144,9 @@ export interface WorkspaceRepository {
     id: string,
     options?: FindByIdWithDetailsOptions,
   ): Promise<WorkspaceDetailsItem | null>
+  findByIdForInterestsAccess(
+    id: string,
+  ): Promise<WorkspaceForInterestsAccessItem | null>
   updateBasicData(
     id: string,
     data: UpdateWorkspaceBasicData,
@@ -383,6 +391,30 @@ export function createWorkspaceRepository(
       }
 
       return result
+    },
+
+    async findByIdForInterestsAccess(id) {
+      const workspace = await prisma.partnerWorkspace.findUnique({
+        where: { id, isActive: true },
+        select: {
+          id: true,
+          locations: {
+            where: { isPrimary: true },
+            select: { cityPlaceId: true },
+          },
+          cityCoverage: { select: { cityPlaceId: true } },
+        },
+      })
+      if (!workspace) return null
+
+      const cityIds = new Set<string>()
+      workspace.locations.forEach((l) => cityIds.add(l.cityPlaceId))
+      workspace.cityCoverage.forEach((c) => cityIds.add(c.cityPlaceId))
+
+      return {
+        id: workspace.id,
+        workspaceCityIds: Array.from(cityIds),
+      }
     },
 
     async updateBasicData(id, data) {

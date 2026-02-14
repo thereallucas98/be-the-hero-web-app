@@ -52,6 +52,12 @@ export type {
 } from './workspaces/add-workspace-member.use-case'
 
 export { removeWorkspaceMember } from './workspaces/remove-workspace-member.use-case'
+export { listWorkspaceInterests } from './workspaces/list-workspace-interests.use-case'
+export type {
+  ListWorkspaceInterestsInput,
+  ListWorkspaceInterestsResult,
+  Principal as ListWorkspaceInterestsPrincipal,
+} from './workspaces/list-workspace-interests.use-case'
 export type {
   RemoveWorkspaceMemberInput,
   RemoveWorkspaceMemberResult,

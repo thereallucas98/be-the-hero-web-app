@@ -54,3 +54,12 @@ export const CreateWorkspaceSchema = z.object({
   neighborhood: z.string().optional(),
   zipCode: z.string().optional(),
 })
+
+export const ListWorkspaceInterestsQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional().default(1),
+  perPage: z.coerce.number().int().positive().max(20).optional().default(20),
+})
+
+export type ListWorkspaceInterestsQueryInput = z.infer<
+  typeof ListWorkspaceInterestsQuerySchema
+>

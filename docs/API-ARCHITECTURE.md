@@ -181,6 +181,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | PATCH | /api/workspaces/:id/location | Atualiza localização primária (cityPlaceId, lat, lng, endereço). Adiciona cidade à cobertura automaticamente. cityPlaceId deve existir e ser tipo CITY. Transacional. AuditLog. |
 | POST | /api/workspaces/:id/members | Adiciona membro por e-mail (payload: email, role). Apenas OWNER. Role: OWNER/EDITOR/FINANCIAL. Transacional. 409 se já membro. AuditLog. |
 | DELETE | /api/workspaces/:id/members/:memberId | Remove membro (soft delete, isActive=false). Apenas OWNER. Não pode remover último OWNER. AuditLog. |
+| GET | /api/workspaces/:id/interests | Lista interesses de adoção dos pets do workspace. OWNER/EDITOR, SUPER_ADMIN ou ADMIN com cobertura. Query: page (1), perPage (20). |
 | POST | /api/workspaces/:id/pets | Cadastra pet (status DRAFT). Apenas OWNER/EDITOR. Workspace deve existir e estar ativo. AuditLog. |
 | GET | /api/pets | Lista pets públicos (APPROVED, ativos). Público. Query: cityPlaceId, species, page (1), perPage (20). Workspace ativo e APPROVED. |
 | PATCH | /api/pets/:id | Atualiza pet (parcial). Apenas OWNER/EDITOR. Bloqueado se ADOPTED. Não altera status/approvedAt. AuditLog. |
