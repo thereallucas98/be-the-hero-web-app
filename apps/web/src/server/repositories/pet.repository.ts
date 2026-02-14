@@ -1,3 +1,4 @@
+import { Prisma } from '~/generated/prisma/client'
 import type { PrismaClient } from '~/generated/prisma/client'
 
 export interface CreatePetData {
@@ -74,6 +75,29 @@ export interface PetWithImagesAndWorkspaceItem extends PetWithWorkspaceItem {
   workspace: { isActive: boolean; verificationStatus: string }
 }
 
+export interface AddPetImageData {
+  url: string
+  storagePath: string
+  position: number
+  isCover: boolean
+}
+
+export interface CreatedPetImageItem {
+  id: string
+  url: string
+  storagePath: string
+  position: number
+  isCover: boolean
+  status: string
+}
+
+export type AddPetImageResult =
+  | { success: true; image: CreatedPetImageItem }
+  | {
+      success: false
+      code: 'MAX_IMAGES_REACHED' | 'POSITION_ALREADY_TAKEN' | 'PET_NOT_FOUND'
+    }
+
 export interface PetRepository {
   create(data: CreatePetData): Promise<CreatedPetItem>
   findByIdWithWorkspace(id: string): Promise<PetWithWorkspaceItem | null>
@@ -85,6 +109,12 @@ export interface PetRepository {
     id: string,
     actorUserId: string,
   ): Promise<CreatedPetItem | null>
+  countImages(petId: string): Promise<number>
+  addPetImage(
+    petId: string,
+    data: AddPetImageData,
+    actorUserId: string,
+  ): Promise<AddPetImageResult>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -362,6 +392,86 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         independenceLevel: pet.independenceLevel,
         environment: pet.environment,
         adoptionRequirements: pet.adoptionRequirements,
+      }
+    },
+
+    async countImages(petId) {
+      return prisma.petImage.count({ where: { petId } })
+    },
+
+    async addPetImage(petId, data, actorUserId) {
+      try {
+        const pet = await prisma.pet.findUnique({
+          where: { id: petId, isActive: true },
+        })
+        if (!pet) {
+          return { success: false, code: 'PET_NOT_FOUND' }
+        }
+
+        const imageCount = await prisma.petImage.count({ where: { petId } })
+        if (imageCount >= 5) {
+          return { success: false, code: 'MAX_IMAGES_REACHED' }
+        }
+
+        const image = await prisma.$transaction(async (tx) => {
+          if (data.isCover) {
+            await tx.petImage.updateMany({
+              where: { petId },
+              data: { isCover: false },
+            })
+          }
+
+          const created = await tx.petImage.create({
+            data: {
+              petId,
+              url: data.url,
+              storagePath: data.storagePath,
+              position: data.position,
+              isCover: data.isCover,
+              status: 'PENDING_REVIEW',
+            },
+            select: {
+              id: true,
+              url: true,
+              storagePath: true,
+              position: true,
+              isCover: true,
+              status: true,
+            },
+          })
+
+          await tx.auditLog.create({
+            data: {
+              actorUserId,
+              action: 'CREATE',
+              entityType: 'PET_IMAGE',
+              entityId: created.id,
+              metadata: { petId },
+            },
+          })
+
+          return created
+        })
+
+        return {
+          success: true as const,
+          image: {
+            id: image.id,
+            url: image.url,
+            storagePath: image.storagePath,
+            position: image.position,
+            isCover: image.isCover,
+            status: image.status,
+          },
+        }
+      } catch (e: unknown) {
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === 'P2002'
+        ) {
+          return { success: false, code: 'POSITION_ALREADY_TAKEN' }
+        }
+        throw e
       }
     },
   }

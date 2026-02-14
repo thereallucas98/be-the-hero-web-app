@@ -78,3 +78,10 @@ export type {
   SubmitPetForReviewResult,
   Principal as SubmitPetForReviewPrincipal,
 } from './pets/submit-pet-for-review.use-case'
+
+export { addPetImage } from './pets/add-pet-image.use-case'
+export type {
+  AddPetImageInput,
+  AddPetImageResult,
+  Principal as AddPetImagePrincipal,
+} from './pets/add-pet-image.use-case'

@@ -371,6 +371,24 @@
       "name": "Pets",
       "item": [
         {
+          "name": "Add Pet Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.supabase.co/storage/v1/object/public/bethehero-pet-images/pets/{{petId}}/photo.jpg\",\n  \"storagePath\": \"pets/{{petId}}/photo.jpg\",\n  \"position\": 1,\n  \"isCover\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/pets/{{petId}}/images",
+            "description": "Registra imagem do pet (arquivo já em storage). storagePath deve começar com pets/{petId}/. Max 5 imagens. Se isCover=true, desmarca cover anterior."
+          }
+        },
+        {
           "name": "Submit Pet for Review",
           "request": {
             "method": "POST",
