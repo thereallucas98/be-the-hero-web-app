@@ -127,6 +127,13 @@ export interface PetForInterestItem {
   workspace: { isActive: boolean; verificationStatus: string }
 }
 
+export interface PetForAdoptionItem {
+  workspaceId: string
+  status: string
+  workspace: { isActive: boolean; verificationStatus: string }
+  hasAdoption: boolean
+}
+
 export interface AddPetImageData {
   url: string
   storagePath: string
@@ -211,6 +218,7 @@ export interface PetRepository {
   ): Promise<RejectedPetItem | null>
   listPublicPets(input: ListPublicPetsInput): Promise<ListPublicPetsResult>
   findByIdForInterest(id: string): Promise<PetForInterestItem | null>
+  findByIdForAdoption(id: string): Promise<PetForAdoptionItem | null>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -975,6 +983,27 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         },
       })
       return pet
+    },
+
+    async findByIdForAdoption(id) {
+      const pet = await prisma.pet.findUnique({
+        where: { id },
+        select: {
+          workspaceId: true,
+          status: true,
+          workspace: {
+            select: { isActive: true, verificationStatus: true },
+          },
+          adoption: { select: { id: true } },
+        },
+      })
+      if (!pet) return null
+      return {
+        workspaceId: pet.workspaceId,
+        status: pet.status,
+        workspace: pet.workspace,
+        hasAdoption: pet.adoption !== null,
+      }
     },
   }
 }

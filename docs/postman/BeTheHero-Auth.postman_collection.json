@@ -50,6 +50,10 @@
       "value": ""
     },
     {
+      "key": "guardianUserId",
+      "value": ""
+    },
+    {
       "key": "imageId",
       "value": ""
     }
@@ -512,6 +516,29 @@
             },
             "url": "{{baseUrl}}/api/admin/pets/{{petId}}/reject",
             "description": "Rejeita pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura. reviewNote obrigatório. Workspace ativo. Transacional + AuditLog REJECT com motivo em metadata. Retorna pet (status REJECTED, approvedAt, approvedByUserId)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Adoptions",
+      "item": [
+        {
+          "name": "Register Adoption",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"guardianUserId\": \"{{guardianUserId}}\",\n  \"adoptedAt\": \"2025-02-14T12:00:00.000Z\",\n  \"notes\": \"Adoção realizada após entrevista e visita domiciliar.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/adoptions",
+            "description": "Registra adoção de pet por guardian. OWNER/EDITOR do workspace, SUPER_ADMIN ou ADMIN com cobertura. Pet APPROVED, não adotado. guardianUserId deve ser GUARDIAN. Cria Adoption (ACTIVE), atualiza pet (ADOPTED), cria follow-ups 30d/6m/1y. AuditLog CREATE ADOPTION + STATUS_CHANGE PET. Execute Login (Partner) antes."
           }
         }
       ]

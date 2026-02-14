@@ -35,6 +35,7 @@ export interface UserRepository {
     }>
   } | null>
   findByEmail(email: string): Promise<{ id: string } | null>
+  findByIdWithRole(id: string): Promise<{ id: string; role: string } | null>
   create(data: {
     fullName: string
     email: string
@@ -109,6 +110,13 @@ export function createUserRepository(prisma: PrismaClient): UserRepository {
             },
           },
         },
+      })
+    },
+
+    async findByIdWithRole(id) {
+      return prisma.user.findUnique({
+        where: { id, isActive: true },
+        select: { id: true, role: true },
       })
     },
 

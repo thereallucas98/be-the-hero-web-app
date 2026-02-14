@@ -165,6 +165,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | PET_NOT_APPROVED      | 409         |
 | PET_INACTIVE          | 409         |
 | PET_ALREADY_ADOPTED   | 409         |
+| GUARDIAN_NOT_FOUND    | 404         |
 
 ## Endpoints disponíveis
 
@@ -192,6 +193,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | POST | /api/pets/:id/interests | Registra interesse em adoção. Apenas GUARDIAN. Body opcional: `{ message }`. Pet APPROVED, ativo. Workspace ativo e APPROVED. AuditLog CREATE ADOPTION_INTEREST. |
 | POST | /api/admin/pets/:id/approve | Aprova pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura da cidade do workspace. Pet: 1-5 imagens, 1 isCover. Workspace ativo. Transacional + AuditLog APPROVE. |
 | POST | /api/admin/pets/:id/reject | Rejeita pet em PENDING_REVIEW. Body: `{ reviewNote: string }`. SUPER_ADMIN ou ADMIN com cobertura. Workspace ativo. Transacional + AuditLog REJECT com reviewNote em metadata. |
+| POST | /api/adoptions | Registra adoção. Body: `{ petId, guardianUserId, adoptedAt?, notes? }`. OWNER/EDITOR, SUPER_ADMIN ou ADMIN com cobertura. Pet APPROVED. Cria Adoption + follow-ups 30d/6m/1y. AuditLog CREATE ADOPTION + STATUS_CHANGE PET. |
 
 ## Zod
 
