@@ -375,6 +375,15 @@
       "name": "Pets",
       "item": [
         {
+          "name": "List Pets (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/pets?page=1&perPage=20",
+            "description": "Lista pets públicos (APPROVED, ativos). Sem auth. Query: cityPlaceId (uuid), species (DOG, CAT, etc), page (default 1), perPage (max 20). Ordenação: mais recentes primeiro. Retorna coverImage e workspace básico."
+          }
+        },
+        {
           "name": "Remove Pet Image",
           "request": {
             "method": "DELETE",

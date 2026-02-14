@@ -94,6 +94,32 @@ export interface RejectedPetItem extends CreatedPetItem {
   approvedByUserId: string | null
 }
 
+export interface PublicPetListItem {
+  id: string
+  name: string
+  description: string
+  species: string
+  sex: string
+  size: string
+  ageCategory: string
+  coverImage: { url: string } | null
+  workspace: { id: string; name: string }
+}
+
+export interface ListPublicPetsInput {
+  cityPlaceId?: string
+  species?: string
+  page?: number
+  perPage?: number
+}
+
+export interface ListPublicPetsResult {
+  items: PublicPetListItem[]
+  total: number
+  page: number
+  perPage: number
+}
+
 export interface AddPetImageData {
   url: string
   storagePath: string
@@ -176,6 +202,7 @@ export interface PetRepository {
     actorUserId: string,
     reviewNote: string,
   ): Promise<RejectedPetItem | null>
+  listPublicPets(input: ListPublicPetsInput): Promise<ListPublicPetsResult>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -847,6 +874,84 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         approvedAt: pet.approvedAt,
         approvedByUserId: pet.approvedByUserId,
       }
+    },
+
+    async listPublicPets(input) {
+      const page = Math.max(1, input.page ?? 1)
+      const perPage = Math.min(20, Math.max(1, input.perPage ?? 20))
+
+      const workspaceFilter: Record<string, unknown> = {
+        isActive: true,
+        verificationStatus: 'APPROVED',
+      }
+      if (input.cityPlaceId) {
+        workspaceFilter.locations = {
+          some: {
+            isPrimary: true,
+            cityPlaceId: input.cityPlaceId,
+          },
+        }
+      }
+
+      const where = {
+        status: 'APPROVED' as const,
+        isActive: true,
+        workspace: workspaceFilter,
+        ...(input.species && {
+          species: input.species as
+            | 'DOG'
+            | 'CAT'
+            | 'RABBIT'
+            | 'BIRD'
+            | 'HORSE'
+            | 'COW'
+            | 'GOAT'
+            | 'PIG'
+            | 'TURTLE'
+            | 'OTHER',
+        }),
+      }
+
+      const [rows, total] = await Promise.all([
+        prisma.pet.findMany({
+          where,
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            species: true,
+            sex: true,
+            size: true,
+            ageCategory: true,
+            images: {
+              where: { isCover: true },
+              take: 1,
+              select: { url: true },
+            },
+            workspace: {
+              select: { id: true, name: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          skip: (page - 1) * perPage,
+          take: perPage,
+        }),
+        prisma.pet.count({ where }),
+      ])
+
+      const items: PublicPetListItem[] = rows.map((p) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        species: p.species,
+        sex: p.sex,
+        size: p.size,
+        ageCategory: p.ageCategory,
+        coverImage: p.images[0] ? { url: p.images[0].url } : null,
+        workspace: p.workspace,
+      }))
+
+      return { items, total, page, perPage }
     },
   }
 }

@@ -60,3 +60,12 @@ export const RejectPetSchema = z
   .strict()
 
 export type RejectPetInput = z.infer<typeof RejectPetSchema>
+
+export const ListPetsQuerySchema = z.object({
+  cityPlaceId: z.string().uuid().optional(),
+  species: speciesEnum.optional(),
+  page: z.coerce.number().int().positive().optional().default(1),
+  perPage: z.coerce.number().int().positive().max(20).optional().default(20),
+})
+
+export type ListPetsQueryInput = z.infer<typeof ListPetsQuerySchema>
