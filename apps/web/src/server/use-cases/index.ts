@@ -129,16 +129,12 @@ export type {
   RegisterAdoptionInterestResult,
 } from './adoption-interests/register-adoption-interest.use-case'
 
-export { registerAdoption } from './adoptions/register-adoption.use-case'
-export type {
-  RegisterAdoptionInput,
-  RegisterAdoptionResult,
-  Principal as RegisterAdoptionPrincipal,
-} from './adoptions/register-adoption.use-case'
-
-export { getAdoptionById } from './adoptions/get-adoption-by-id.use-case'
+export { getAdoptionById, registerAdoption } from './adoptions'
 export type {
   GetAdoptionByIdInput,
   GetAdoptionByIdResult,
-  Principal as GetAdoptionByIdPrincipal,
-} from './adoptions/get-adoption-by-id.use-case'
+  GetAdoptionByIdPrincipal,
+  RegisterAdoptionInput,
+  RegisterAdoptionResult,
+  RegisterAdoptionPrincipal,
+} from './adoptions'
