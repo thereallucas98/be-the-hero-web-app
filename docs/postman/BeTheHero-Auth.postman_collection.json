@@ -32,6 +32,10 @@
     {
       "key": "partnerPassword",
       "value": "senha1234"
+    },
+    {
+      "key": "cityPlaceId",
+      "value": ""
     }
   ],
   "item": [
@@ -216,6 +220,29 @@
             "header": [],
             "url": "{{baseUrl}}/api/me",
             "description": "Retorna usuário autenticado + contexto (memberships, adminCities). Requer cookie bth_access - execute Login primeiro."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workspaces",
+      "item": [
+        {
+          "name": "Create Workspace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ONG Amigos dos Bichos\",\n  \"type\": \"ONG\",\n  \"description\": \"Organização sem fins lucrativos de proteção animal na região metropolitana.\",\n  \"cityPlaceId\": \"{{cityPlaceId}}\",\n  \"lat\": -23.5505,\n  \"lng\": -46.6333,\n  \"addressLine\": \"Rua Exemplo, 123\",\n  \"neighborhood\": \"Centro\",\n  \"zipCode\": \"01310-100\"\n}"
+            },
+            "url": "{{baseUrl}}/api/workspaces",
+            "description": "Cria workspace + location (primary) + city coverage + member OWNER. Requer PARTNER_MEMBER. Execute Login (Partner) antes."
           }
         }
       ]
