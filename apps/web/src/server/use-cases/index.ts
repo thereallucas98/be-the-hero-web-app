@@ -99,3 +99,10 @@ export type {
   RemovePetImageResult,
   Principal as RemovePetImagePrincipal,
 } from './pets/remove-pet-image.use-case'
+
+export { approvePetAdmin } from './admin/approve-pet-admin.use-case'
+export type {
+  ApprovePetAdminInput,
+  ApprovePetAdminResult,
+  Principal as ApprovePetAdminPrincipal,
+} from './admin/approve-pet-admin.use-case'

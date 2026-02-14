@@ -75,6 +75,20 @@ export interface PetWithImagesAndWorkspaceItem extends PetWithWorkspaceItem {
   workspace: { isActive: boolean; verificationStatus: string }
 }
 
+export interface PetWithImagesAndWorkspaceForAdminItem extends PetWithWorkspaceItem {
+  images: PetImageItem[]
+  workspace: {
+    isActive: boolean
+    verificationStatus: string
+    workspaceCityIds: string[]
+  }
+}
+
+export interface ApprovedPetItem extends CreatedPetItem {
+  approvedAt: Date
+  approvedByUserId: string
+}
+
 export interface AddPetImageData {
   url: string
   storagePath: string
@@ -148,6 +162,10 @@ export interface PetRepository {
         code: 'IMAGE_NOT_FOUND' | 'CANNOT_REMOVE_LAST_IMAGE'
       }
   >
+  findByIdWithImagesAndWorkspaceForAdmin(
+    id: string,
+  ): Promise<PetWithImagesAndWorkspaceForAdminItem | null>
+  approvePet(id: string, actorUserId: string): Promise<ApprovedPetItem | null>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -664,6 +682,110 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
       })
 
       return { success: true }
+    },
+
+    async findByIdWithImagesAndWorkspaceForAdmin(id) {
+      const pet = await prisma.pet.findUnique({
+        where: { id, isActive: true },
+        select: {
+          id: true,
+          workspaceId: true,
+          status: true,
+          name: true,
+          description: true,
+          species: true,
+          sex: true,
+          size: true,
+          ageCategory: true,
+          energyLevel: true,
+          independenceLevel: true,
+          environment: true,
+          adoptionRequirements: true,
+          createdAt: true,
+          updatedAt: true,
+          images: {
+            select: { id: true, position: true, isCover: true },
+          },
+          workspace: {
+            select: {
+              isActive: true,
+              verificationStatus: true,
+              locations: {
+                where: { isPrimary: true },
+                select: { cityPlaceId: true },
+              },
+              cityCoverage: { select: { cityPlaceId: true } },
+            },
+          },
+        },
+      })
+      if (!pet) return null
+
+      const ws = pet.workspace
+      const workspaceCityIds = new Set<string>()
+      ws.locations.forEach((l) => workspaceCityIds.add(l.cityPlaceId))
+      ws.cityCoverage.forEach((c) => workspaceCityIds.add(c.cityPlaceId))
+
+      return {
+        ...pet,
+        images: pet.images,
+        workspace: {
+          isActive: ws.isActive,
+          verificationStatus: ws.verificationStatus,
+          workspaceCityIds: Array.from(workspaceCityIds),
+        },
+      }
+    },
+
+    async approvePet(id, actorUserId) {
+      const pet = await prisma.$transaction(async (tx) => {
+        const updated = await tx.pet.update({
+          where: { id },
+          data: {
+            status: 'APPROVED',
+            approvedAt: new Date(),
+            approvedByUserId: actorUserId,
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            species: true,
+            sex: true,
+            size: true,
+            ageCategory: true,
+            energyLevel: true,
+            independenceLevel: true,
+            environment: true,
+            adoptionRequirements: true,
+            status: true,
+            workspaceId: true,
+            approvedAt: true,
+            approvedByUserId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        })
+        await tx.auditLog.create({
+          data: {
+            actorUserId,
+            action: 'APPROVE',
+            entityType: 'PET',
+            entityId: id,
+            metadata: {},
+          },
+        })
+        return updated
+      })
+      return {
+        ...pet,
+        energyLevel: pet.energyLevel,
+        independenceLevel: pet.independenceLevel,
+        environment: pet.environment,
+        adoptionRequirements: pet.adoptionRequirements,
+        approvedAt: pet.approvedAt!,
+        approvedByUserId: pet.approvedByUserId!,
+      }
     },
   }
 }

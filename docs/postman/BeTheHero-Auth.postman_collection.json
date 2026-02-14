@@ -447,6 +447,20 @@
           }
         }
       ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Approve Pet",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/admin/pets/{{petId}}/approve",
+            "description": "Aprova pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura da cidade do workspace. Pet deve ter 1-5 imagens, 1 isCover. Workspace ativo. Retorna pet atualizado (status APPROVED, approvedAt, approvedByUserId)."
+          }
+        }
+      ]
     }
   ]
 }
