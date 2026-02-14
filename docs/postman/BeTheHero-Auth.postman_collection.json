@@ -1,0 +1,215 @@
+{
+  "info": {
+    "name": "BeTheHero - Auth",
+    "description": "Coleção para testar endpoints de autenticação do BeTheHero. Use variáveis de ambiente para trocar baseUrl e dados de teste.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "testFullName",
+      "value": "João Silva"
+    },
+    {
+      "key": "testEmail",
+      "value": "joao@test.com"
+    },
+    {
+      "key": "testPassword",
+      "value": "12345678"
+    },
+    {
+      "key": "partnerFullName",
+      "value": "Maria ONG"
+    },
+    {
+      "key": "partnerEmail",
+      "value": "maria@ong.org"
+    },
+    {
+      "key": "partnerPassword",
+      "value": "senha1234"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register - Success (GUARDIAN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{testFullName}}\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "description": "Registro com role GUARDIAN (default)"
+          }
+        },
+        {
+          "name": "Register - PARTNER_MEMBER",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{partnerFullName}}\",\n  \"email\": \"{{partnerEmail}}\",\n  \"password\": \"{{partnerPassword}}\",\n  \"role\": \"PARTNER_MEMBER\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "description": "Registro como PARTNER_MEMBER"
+          }
+        },
+        {
+          "name": "Register - Validation Error (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"J\",\n  \"email\": \"email-invalido\",\n  \"password\": \"123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "description": "Payload inválido - deve retornar 400 com details"
+          }
+        },
+        {
+          "name": "Register - Email Already in Use (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{testFullName}}\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "description": "E-mail duplicado - executar 2x com mesmo email para obter 409"
+          }
+        },
+        {
+          "name": "Register - Admin Blocked (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Admin\",\n  \"email\": \"admin@test.com\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "description": "Role ADMIN/SUPER_ADMIN bloqueado publicamente"
+          }
+        },
+        {
+          "name": "Login - Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "description": "Login com credenciais válidas. Define cookie bth_access."
+          }
+        },
+        {
+          "name": "Login - Success (Partner)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{partnerEmail}}\",\n  \"password\": \"{{partnerPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "description": "Login como PARTNER_MEMBER"
+          }
+        },
+        {
+          "name": "Login - Validation Error (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"email-invalido\",\n  \"password\": \"123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "description": "Payload inválido - deve retornar 400 com details"
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"senha-errada\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "description": "Senha incorreta - mesma mensagem que user inexistente"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/logout",
+            "description": "Remove o cookie bth_access"
+          }
+        }
+      ]
+    }
+  ]
+}
