@@ -29,6 +29,15 @@ export type UpdateWorkspaceLocationInput = z.infer<
   typeof UpdateWorkspaceLocationSchema
 >
 
+export const AddWorkspaceMemberSchema = z
+  .object({
+    email: z.email(),
+    role: z.enum(['OWNER', 'EDITOR', 'FINANCIAL']),
+  })
+  .strict()
+
+export type AddWorkspaceMemberInput = z.infer<typeof AddWorkspaceMemberSchema>
+
 export const CreateWorkspaceSchema = z.object({
   name: z.string().min(3),
   type: z.enum(['ONG', 'CLINIC', 'PETSHOP', 'INDEPENDENT']),

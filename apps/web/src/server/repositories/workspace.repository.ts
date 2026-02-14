@@ -1,3 +1,4 @@
+import { Prisma } from '~/generated/prisma/client'
 import type { PrismaClient } from '~/generated/prisma/client'
 
 export interface CreateWorkspaceData {
@@ -115,6 +116,19 @@ export interface UpdatePrimaryLocationData {
   zipCode?: string
 }
 
+export interface CreatedWorkspaceMemberItem {
+  id: string
+  role: string
+  user: { id: string; fullName: string }
+}
+
+export type AddMemberResult =
+  | { success: true; member: CreatedWorkspaceMemberItem }
+  | {
+      success: false
+      code: 'WORKSPACE_NOT_FOUND' | 'USER_NOT_FOUND' | 'ALREADY_MEMBER'
+    }
+
 export interface WorkspaceRepository {
   createWithLocationAndMember(
     data: CreateWorkspaceData,
@@ -133,6 +147,11 @@ export interface WorkspaceRepository {
     workspaceId: string,
     data: UpdatePrimaryLocationData,
   ): Promise<WorkspaceDetailsItem | null>
+  addMember(
+    workspaceId: string,
+    userId: string,
+    role: 'OWNER' | 'EDITOR' | 'FINANCIAL',
+  ): Promise<AddMemberResult>
 }
 
 export function createWorkspaceRepository(
@@ -441,6 +460,77 @@ export function createWorkspaceRepository(
       })
 
       return this.findByIdWithDetails(workspaceId)
+    },
+
+    async addMember(workspaceId, userId, role) {
+      type TxResult =
+        | { ok: false; code: 'WORKSPACE_NOT_FOUND' | 'USER_NOT_FOUND' }
+        | {
+            ok: true
+            member: {
+              id: string
+              role: string
+              user: { id: string; fullName: string }
+            }
+          }
+
+      try {
+        const result = (await prisma.$transaction(async (tx) => {
+          const workspace = await tx.partnerWorkspace.findUnique({
+            where: { id: workspaceId, isActive: true },
+          })
+          if (!workspace) {
+            return { ok: false, code: 'WORKSPACE_NOT_FOUND' as const }
+          }
+
+          const user = await tx.user.findUnique({
+            where: { id: userId, isActive: true },
+            select: { id: true, fullName: true },
+          })
+          if (!user) {
+            return { ok: false, code: 'USER_NOT_FOUND' as const }
+          }
+
+          const created = await tx.partnerMember.create({
+            data: {
+              workspaceId,
+              userId,
+              role: role as 'OWNER' | 'EDITOR' | 'FINANCIAL',
+            },
+            select: {
+              id: true,
+              role: true,
+              user: { select: { id: true, fullName: true } },
+            },
+          })
+          return { ok: true, member: created } satisfies TxResult
+        })) as TxResult
+
+        if (!result.ok) {
+          return {
+            success: false,
+            code: result.code,
+          }
+        }
+
+        const member = result.member
+        return {
+          success: true as const,
+          member: {
+            id: member.id,
+            role: member.role,
+            user: member.user,
+          },
+        }
+      } catch (e) {
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === 'P2002'
+        ) {
+          return { success: false, code: 'ALREADY_MEMBER' as const }
+        }
+        throw e
+      }
     },
   }
 }

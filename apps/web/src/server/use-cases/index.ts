@@ -43,3 +43,10 @@ export type {
   UpdateWorkspaceLocationResult,
   Principal as UpdateWorkspaceLocationPrincipal,
 } from './workspaces/update-workspace-location.use-case'
+
+export { addWorkspaceMember } from './workspaces/add-workspace-member.use-case'
+export type {
+  AddWorkspaceMemberInput,
+  AddWorkspaceMemberResult,
+  Principal as AddWorkspaceMemberPrincipal,
+} from './workspaces/add-workspace-member.use-case'

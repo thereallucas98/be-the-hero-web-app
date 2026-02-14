@@ -295,6 +295,24 @@
           }
         },
         {
+          "name": "Add Workspace Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"role\": \"EDITOR\"\n}"
+            },
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}/members",
+            "description": "Adiciona membro ao workspace por e-mail. Apenas OWNER pode adicionar. Role: OWNER, EDITOR ou FINANCIAL. Usuário deve existir no sistema."
+          }
+        },
+        {
           "name": "Patch Workspace Location",
           "request": {
             "method": "PATCH",
