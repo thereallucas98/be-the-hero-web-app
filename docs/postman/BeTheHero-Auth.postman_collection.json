@@ -371,6 +371,15 @@
       "name": "Pets",
       "item": [
         {
+          "name": "Submit Pet for Review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/pets/{{petId}}/submit-for-review",
+            "description": "Envia pet DRAFT para revisão (PENDING_REVIEW). Apenas OWNER/EDITOR. Requer: dados mínimos, 1-5 imagens, exatamente 1 isCover. Workspace ativo e não REJECTED."
+          }
+        },
+        {
           "name": "Update Pet (PATCH)",
           "request": {
             "method": "PATCH",

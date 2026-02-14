@@ -27,6 +27,12 @@ export interface UpdatePetData {
   adoptionRequirements?: string
 }
 
+export interface PetImageItem {
+  id: string
+  position: number
+  isCover: boolean
+}
+
 export interface PetWithWorkspaceItem {
   id: string
   workspaceId: string
@@ -63,10 +69,22 @@ export interface CreatedPetItem {
   updatedAt: Date
 }
 
+export interface PetWithImagesAndWorkspaceItem extends PetWithWorkspaceItem {
+  images: PetImageItem[]
+  workspace: { isActive: boolean; verificationStatus: string }
+}
+
 export interface PetRepository {
   create(data: CreatePetData): Promise<CreatedPetItem>
   findByIdWithWorkspace(id: string): Promise<PetWithWorkspaceItem | null>
+  findByIdWithImagesAndWorkspace(
+    id: string,
+  ): Promise<PetWithImagesAndWorkspaceItem | null>
   update(id: string, data: UpdatePetData): Promise<CreatedPetItem | null>
+  submitForReview(
+    id: string,
+    actorUserId: string,
+  ): Promise<CreatedPetItem | null>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -153,6 +171,84 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         },
       })
       return pet
+    },
+
+    async findByIdWithImagesAndWorkspace(id) {
+      const pet = await prisma.pet.findUnique({
+        where: { id, isActive: true },
+        select: {
+          id: true,
+          workspaceId: true,
+          status: true,
+          name: true,
+          description: true,
+          species: true,
+          sex: true,
+          size: true,
+          ageCategory: true,
+          energyLevel: true,
+          independenceLevel: true,
+          environment: true,
+          adoptionRequirements: true,
+          createdAt: true,
+          updatedAt: true,
+          images: {
+            select: { id: true, position: true, isCover: true },
+          },
+          workspace: {
+            select: { isActive: true, verificationStatus: true },
+          },
+        },
+      })
+      if (!pet) return null
+      return {
+        ...pet,
+        images: pet.images,
+        workspace: pet.workspace,
+      }
+    },
+
+    async submitForReview(id, actorUserId) {
+      const pet = await prisma.$transaction(async (tx) => {
+        const updated = await tx.pet.update({
+          where: { id },
+          data: { status: 'PENDING_REVIEW' },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            species: true,
+            sex: true,
+            size: true,
+            ageCategory: true,
+            energyLevel: true,
+            independenceLevel: true,
+            environment: true,
+            adoptionRequirements: true,
+            status: true,
+            workspaceId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        })
+        await tx.auditLog.create({
+          data: {
+            actorUserId,
+            action: 'SUBMIT_FOR_REVIEW',
+            entityType: 'PET',
+            entityId: id,
+            metadata: {},
+          },
+        })
+        return updated
+      })
+      return {
+        ...pet,
+        energyLevel: pet.energyLevel,
+        independenceLevel: pet.independenceLevel,
+        environment: pet.environment,
+        adoptionRequirements: pet.adoptionRequirements,
+      }
     },
 
     async update(id, data) {

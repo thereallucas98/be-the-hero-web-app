@@ -176,6 +176,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | DELETE | /api/workspaces/:id/members/:memberId | Remove membro (soft delete, isActive=false). Apenas OWNER. Não pode remover último OWNER. AuditLog. |
 | POST | /api/workspaces/:id/pets | Cadastra pet (status DRAFT). Apenas OWNER/EDITOR. Workspace deve existir e estar ativo. AuditLog. |
 | PATCH | /api/pets/:id | Atualiza pet (parcial). Apenas OWNER/EDITOR. Bloqueado se ADOPTED. Não altera status/approvedAt. AuditLog. |
+| POST | /api/pets/:id/submit-for-review | Envia pet DRAFT para PENDING_REVIEW. Requer 1-5 imagens, 1 isCover, dados mínimos. Workspace ativo. Transacional + AuditLog. |
 
 ## Zod
 

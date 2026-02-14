@@ -71,3 +71,10 @@ export type {
   UpdatePetResult,
   Principal as UpdatePetPrincipal,
 } from './pets/update-pet.use-case'
+
+export { submitPetForReview } from './pets/submit-pet-for-review.use-case'
+export type {
+  SubmitPetForReviewInput,
+  SubmitPetForReviewResult,
+  Principal as SubmitPetForReviewPrincipal,
+} from './pets/submit-pet-for-review.use-case'
