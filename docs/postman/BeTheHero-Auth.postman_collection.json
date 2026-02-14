@@ -208,6 +208,15 @@
             "url": "{{baseUrl}}/api/auth/logout",
             "description": "Remove o cookie bth_access"
           }
+        },
+        {
+          "name": "Me (get current user)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/me",
+            "description": "Retorna usuário autenticado + contexto (memberships, adminCities). Requer cookie bth_access - execute Login primeiro."
+          }
         }
       ]
     }

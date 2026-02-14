@@ -1,3 +1,4 @@
+import type { Role } from '@bethehero/auth'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
@@ -12,7 +13,7 @@ export function verifyPassword(password: string, hash: string) {
 
 export type JwtPayload = {
   sub: string // userId
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'GUARDIAN' | 'PARTNER_MEMBER'
+  role: Role
 }
 
 export function signAccessToken(payload: JwtPayload) {

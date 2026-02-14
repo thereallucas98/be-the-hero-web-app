@@ -1,3 +1,4 @@
+import { PUBLIC_REGISTRABLE_ROLES, roleSchema } from '@bethehero/auth'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { hashPassword, signAccessToken } from '~/lib/auth'
@@ -7,9 +8,7 @@ const RegisterSchema = z.object({
   fullName: z.string().min(2),
   email: z.email(),
   password: z.string().min(8),
-  role: z
-    .enum(['GUARDIAN', 'PARTNER_MEMBER', 'ADMIN', 'SUPER_ADMIN'])
-    .default('GUARDIAN'),
+  role: roleSchema.default('GUARDIAN'),
 })
 
 export async function POST(req: Request) {
@@ -26,7 +25,7 @@ export async function POST(req: Request) {
   const { fullName, email, password, role } = parsed.data
 
   // MVP: por segurança, não permita criar ADMIN/SUPER_ADMIN publicamente
-  if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+  if (!PUBLIC_REGISTRABLE_ROLES.includes(role)) {
     return NextResponse.json({ message: 'Not allowed' }, { status: 403 })
   }
 

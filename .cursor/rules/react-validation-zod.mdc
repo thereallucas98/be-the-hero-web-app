@@ -12,13 +12,15 @@ Use Zod for schema-based validation and type inference. Validate at boundaries: 
 
 ## Guidelines
 
-- **Schemas**: Define with z.object(), z.string().email(), z.number().min(), z.array(), etc. Use .optional(), .nullable(), .nullish() as needed
+- **Schemas**: Define with z.object(), z.email(), z.uuid(), z.number().min(), z.array(), etc. Use .optional(), .nullable(), .nullish() as needed. Use z.email() and z.uuid() — NOT z.string().email() or z.string().uuid()
 - **Parsing**: Use safeParse for non-throwing validation; returns { success, data } or { success: false, error }
 - **Type Inference**: Use z.infer<typeof schema> to derive TypeScript types from schemas; avoid duplicating types
 - **Integration**: Use ZodResolver with React Hook Form; validate env with createEnv (e.g., @t3-oss/env-nextjs)
 
 ## Rules
 
+- DO use z.email() for email validation — NOT z.string().email()
+- DO use z.uuid() for UUID validation — NOT z.string().uuid()
 - DO use safeParse when you need to handle validation failures gracefully
 - DO use parse only when invalid data should throw (e.g., env validation at startup)
 - DO validate API request inputs (filters, body) with Zod on backend
