@@ -106,6 +106,15 @@ export interface UpdateWorkspaceBasicData {
   instagram?: string
 }
 
+export interface UpdatePrimaryLocationData {
+  cityPlaceId: string
+  lat: number
+  lng: number
+  addressLine?: string
+  neighborhood?: string
+  zipCode?: string
+}
+
 export interface WorkspaceRepository {
   createWithLocationAndMember(
     data: CreateWorkspaceData,
@@ -119,6 +128,10 @@ export interface WorkspaceRepository {
   updateBasicData(
     id: string,
     data: UpdateWorkspaceBasicData,
+  ): Promise<WorkspaceDetailsItem | null>
+  updatePrimaryLocation(
+    workspaceId: string,
+    data: UpdatePrimaryLocationData,
   ): Promise<WorkspaceDetailsItem | null>
 }
 
@@ -374,6 +387,60 @@ export function createWorkspaceRepository(
       await prisma.partnerWorkspace.update({ where: { id }, data: payload })
 
       return this.findByIdWithDetails(id)
+    },
+
+    async updatePrimaryLocation(workspaceId, data) {
+      const workspace = await prisma.partnerWorkspace.findUnique({
+        where: { id: workspaceId, isActive: true },
+        select: { id: true },
+      })
+      if (!workspace) return null
+
+      await prisma.$transaction(async (tx) => {
+        const primary = await tx.partnerWorkspaceLocation.findFirst({
+          where: { workspaceId, isPrimary: true },
+        })
+
+        if (primary) {
+          await tx.partnerWorkspaceLocation.update({
+            where: { id: primary.id },
+            data: {
+              cityPlaceId: data.cityPlaceId,
+              lat: data.lat,
+              lng: data.lng,
+              addressLine: data.addressLine ?? null,
+              neighborhood: data.neighborhood ?? null,
+              zipCode: data.zipCode ?? null,
+            },
+          })
+        } else {
+          await tx.partnerWorkspaceLocation.create({
+            data: {
+              workspaceId,
+              cityPlaceId: data.cityPlaceId,
+              lat: data.lat,
+              lng: data.lng,
+              addressLine: data.addressLine ?? null,
+              neighborhood: data.neighborhood ?? null,
+              zipCode: data.zipCode ?? null,
+              isPrimary: true,
+            },
+          })
+        }
+
+        await tx.partnerCityCoverage.upsert({
+          where: {
+            workspaceId_cityPlaceId: {
+              workspaceId,
+              cityPlaceId: data.cityPlaceId,
+            },
+          },
+          create: { workspaceId, cityPlaceId: data.cityPlaceId },
+          update: {},
+        })
+      })
+
+      return this.findByIdWithDetails(workspaceId)
     },
   }
 }

@@ -171,6 +171,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | GET | /api/workspaces/my | Listar meus workspaces |
 | GET | /api/workspaces/:id | Detalhes do workspace (RBAC: membro, ADMIN com cobertura ou SUPER_ADMIN). Query: `membersPage`, `membersPerPage` (default 20) |
 | PATCH | /api/workspaces/:id | Atualiza dados básicos (nome, descrição, contatos, links). RBAC: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. Payload parcial. Registra AuditLog. |
+| PATCH | /api/workspaces/:id/location | Atualiza localização primária (cityPlaceId, lat, lng, endereço). Adiciona cidade à cobertura automaticamente. cityPlaceId deve existir e ser tipo CITY. Transacional. AuditLog. |
 
 ## Zod
 

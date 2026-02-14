@@ -36,3 +36,10 @@ export type {
   UpdateWorkspaceResult,
   Principal as UpdateWorkspacePrincipal,
 } from './workspaces/update-workspace.use-case'
+
+export { updateWorkspaceLocation } from './workspaces/update-workspace-location.use-case'
+export type {
+  UpdateWorkspaceLocationInput,
+  UpdateWorkspaceLocationResult,
+  Principal as UpdateWorkspaceLocationPrincipal,
+} from './workspaces/update-workspace-location.use-case'

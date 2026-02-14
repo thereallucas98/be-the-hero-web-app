@@ -293,6 +293,24 @@
             "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}",
             "description": "Atualiza dados básicos do workspace (nome, descrição, contatos, links). Acesso: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. Atualização parcial - só campos enviados."
           }
+        },
+        {
+          "name": "Patch Workspace Location",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cityPlaceId\": \"{{cityPlaceId}}\",\n  \"lat\": -23.5505,\n  \"lng\": -46.6333,\n  \"addressLine\": \"Rua Nova, 456\",\n  \"neighborhood\": \"Jardins\",\n  \"zipCode\": \"01415-001\"\n}"
+            },
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}/location",
+            "description": "Atualiza localização primária do workspace (cidade, endereço, coordenadas). Adiciona cidade à cobertura se não existir. Acesso: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. cityPlaceId deve ser do tipo CITY."
+          }
         }
       ]
     }
