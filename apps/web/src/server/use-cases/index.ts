@@ -22,3 +22,10 @@ export type {
 
 export { listMyWorkspaces } from './workspaces/list-my-workspaces.use-case'
 export type { ListMyWorkspacesResult } from './workspaces/list-my-workspaces.use-case'
+
+export { getWorkspaceById } from './workspaces/get-workspace-by-id.use-case'
+export type {
+  GetWorkspaceByIdInput,
+  GetWorkspaceByIdResult,
+  Principal as GetWorkspacePrincipal,
+} from './workspaces/get-workspace-by-id.use-case'

@@ -49,12 +49,61 @@ export interface WorkspaceMembershipItem {
   }
 }
 
+export interface WorkspaceDetailsItem {
+  id: string
+  name: string
+  type: string
+  description: string
+  phone: string | null
+  whatsapp: string | null
+  emailPublic: string | null
+  verificationStatus: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+  primaryLocation: {
+    id: string
+    isPrimary: boolean
+    lat: number
+    lng: number
+    addressLine: string | null
+    neighborhood: string | null
+    zipCode: string | null
+    cityPlace: { id: string; name: string; slug: string; type: string }
+  } | null
+  cityCoverage: Array<{
+    id: string
+    name: string
+    slug: string
+    type: string
+  }>
+  members?: {
+    items: Array<{
+      id: string
+      role: string
+      user: { id: string; fullName: string }
+    }>
+    total: number
+    page: number
+    perPage: number
+  }
+}
+
+export interface FindByIdWithDetailsOptions {
+  membersPage?: number
+  membersPerPage?: number
+}
+
 export interface WorkspaceRepository {
   createWithLocationAndMember(
     data: CreateWorkspaceData,
     userId: string,
   ): Promise<{ id: string; name: string; verificationStatus: string }>
   findMembershipsByUserId(userId: string): Promise<WorkspaceMembershipItem[]>
+  findByIdWithDetails(
+    id: string,
+    options?: FindByIdWithDetailsOptions,
+  ): Promise<WorkspaceDetailsItem | null>
 }
 
 export function createWorkspaceRepository(
@@ -177,6 +226,105 @@ export function createWorkspaceRepository(
         orderBy: { createdAt: 'desc' as const },
       })
       return memberships as WorkspaceMembershipItem[]
+    },
+
+    async findByIdWithDetails(id, options = {}) {
+      const { membersPage = 1, membersPerPage = 20 } = options
+
+      const [workspace, totalMembers] = await Promise.all([
+        prisma.partnerWorkspace.findUnique({
+          where: { id, isActive: true },
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            description: true,
+            phone: true,
+            whatsapp: true,
+            emailPublic: true,
+            verificationStatus: true,
+            isActive: true,
+            createdAt: true,
+            updatedAt: true,
+            locations: {
+              where: { isPrimary: true },
+              take: 1,
+              select: {
+                id: true,
+                isPrimary: true,
+                lat: true,
+                lng: true,
+                addressLine: true,
+                neighborhood: true,
+                zipCode: true,
+                cityPlace: {
+                  select: { id: true, name: true, slug: true, type: true },
+                },
+              },
+            },
+            cityCoverage: {
+              select: {
+                cityPlace: {
+                  select: { id: true, name: true, slug: true, type: true },
+                },
+              },
+            },
+            members: {
+              where: { isActive: true },
+              skip: (membersPage - 1) * membersPerPage,
+              take: membersPerPage,
+              select: {
+                id: true,
+                role: true,
+                user: {
+                  select: { id: true, fullName: true },
+                },
+              },
+            },
+          },
+        }),
+        prisma.partnerMember.count({
+          where: { workspaceId: id, isActive: true },
+        }),
+      ])
+
+      if (!workspace) return null
+
+      const primaryLocation = workspace.locations[0] ?? null
+      const cityCoverage = workspace.cityCoverage.map((c) => c.cityPlace)
+
+      const result: WorkspaceDetailsItem = {
+        id: workspace.id,
+        name: workspace.name,
+        type: workspace.type,
+        description: workspace.description,
+        phone: workspace.phone,
+        whatsapp: workspace.whatsapp,
+        emailPublic: workspace.emailPublic,
+        verificationStatus: workspace.verificationStatus,
+        isActive: workspace.isActive,
+        createdAt: workspace.createdAt,
+        updatedAt: workspace.updatedAt,
+        primaryLocation: primaryLocation
+          ? {
+              ...primaryLocation,
+              cityPlace: primaryLocation.cityPlace,
+            }
+          : null,
+        cityCoverage,
+        members: {
+          items: workspace.members.map((m) => ({
+            id: m.id,
+            role: m.role,
+            user: m.user,
+          })),
+          total: totalMembers,
+          page: membersPage,
+          perPage: membersPerPage,
+        },
+      }
+
+      return result
     },
   }
 }

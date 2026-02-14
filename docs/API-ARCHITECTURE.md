@@ -159,6 +159,18 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | EMAIL_IN_USE    | 409         |
 | INVALID_CITY    | 400         |
 
+## Endpoints disponíveis
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | /api/auth/register | Registro de usuário |
+| POST | /api/auth/login | Login |
+| POST | /api/auth/logout | Logout |
+| GET | /api/me | Usuário autenticado |
+| POST | /api/workspaces | Criar workspace (PARTNER_MEMBER) |
+| GET | /api/workspaces/my | Listar meus workspaces |
+| GET | /api/workspaces/:id | Detalhes do workspace (RBAC: membro, ADMIN com cobertura ou SUPER_ADMIN). Query: `membersPage`, `membersPerPage` (default 20) |
+
 ## Zod
 
 - Use `z.email()` e `z.uuid()` (Zod 4)

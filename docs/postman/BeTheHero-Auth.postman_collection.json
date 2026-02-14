@@ -36,6 +36,10 @@
     {
       "key": "cityPlaceId",
       "value": ""
+    },
+    {
+      "key": "workspaceId",
+      "value": ""
     }
   ],
   "item": [
@@ -252,6 +256,24 @@
             "header": [],
             "url": "{{baseUrl}}/api/workspaces/my",
             "description": "Lista workspaces em que o usuário logado é membro (role, status, localização primária, cidade). Execute Login primeiro."
+          }
+        },
+        {
+          "name": "Get Workspace by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}",
+            "description": "Retorna detalhes do workspace (localização primária, cidades de cobertura, membros paginados). Acesso: membro, ADMIN com cobertura ou SUPER_ADMIN. Use workspaceId de My Workspaces."
+          }
+        },
+        {
+          "name": "Get Workspace by ID - Paginated Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}?membersPage=1&membersPerPage=20",
+            "description": "Mesmo que Get Workspace by ID com paginação explícita de membros (20/página)."
           }
         }
       ]
