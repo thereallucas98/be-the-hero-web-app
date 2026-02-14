@@ -1,0 +1,25 @@
+---
+description: UI components - CVA, clsx, tailwind-merge, Compound Components
+globs: "**/components/**/*.tsx,**/ui/**/*.tsx"
+alwaysApply: false
+---
+
+# UI Components
+
+## Principle
+
+Build extensible, composable UI with variant-based styling and clear HTML semantics. Reuse only when there is genuine commonality.
+
+## Guidelines
+
+- **Styling**: Use CVA (class-variance-authority) for variants. Combine with clsx and tailwind-merge in a cn() utility for extensibility
+- **Props**: Extend React.HTMLAttributes (or ComponentPropsWithoutRef) to accept all native HTML attributes and spread them onto the element
+- **Compound Components**: Use Context to share data with sub-components (e.g., Postcard.Title, Postcard.Content). Sub-components consume context via a custom hook; throw if used outside provider
+- **Base Components**: Extract shared structure (e.g., BaseCard) only when both variants truly share layout and behavior
+
+## Rules
+
+- DO define variants in cva(); apply via className={cn(buttonVariants({ variant }), className)}
+- DO allow className override from parent; cn() merges and resolves Tailwind conflicts
+- DON'T create one component with many entity-specific conditionals; split into dedicated components and share only the base
+- DON'T use Compound Components for every component; use when same data needs flexible, reorderable presentation

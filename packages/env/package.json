@@ -1,0 +1,23 @@
+{
+  "name": "@bethehero/env",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "types": "index.ts",
+  "devDependencies": {
+    "@bethehero/eslint-config": "workspace:*",
+    "@bethehero/prettier": "workspace:*",
+    "@bethehero/tsconfig": "workspace:*",
+    "@types/node": "^25.2.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@bethehero/eslint-config/library"
+    ]
+  },
+  "prettier": "@bethehero/prettier",
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.10",
+    "zod": "4.3.6"
+  }
+}

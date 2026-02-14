@@ -1,0 +1,25 @@
+---
+description: Zod validation - schemas, safeParse, type inference
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# Zod Validation
+
+## Principle
+
+Use Zod for schema-based validation and type inference. Validate at boundaries: forms, API input, environment variables.
+
+## Guidelines
+
+- **Schemas**: Define with z.object(), z.string().email(), z.number().min(), z.array(), etc. Use .optional(), .nullable(), .nullish() as needed
+- **Parsing**: Use safeParse for non-throwing validation; returns { success, data } or { success: false, error }
+- **Type Inference**: Use z.infer<typeof schema> to derive TypeScript types from schemas; avoid duplicating types
+- **Integration**: Use ZodResolver with React Hook Form; validate env with createEnv (e.g., @t3-oss/env-nextjs)
+
+## Rules
+
+- DO use safeParse when you need to handle validation failures gracefully
+- DO use parse only when invalid data should throw (e.g., env validation at startup)
+- DO validate API request inputs (filters, body) with Zod on backend
+- DON'T manually duplicate types that can be inferred from Zod schemas

@@ -1,0 +1,25 @@
+---
+description: Server Components - boundaries, data fetching, composition
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# Server Components (Next.js App Router)
+
+## Principle
+
+Server components run only on the server. Use them for data fetching and reducing client bundle. Use client components for interactivity.
+
+## Guidelines
+
+- **No Client APIs**: Server components cannot use useState, useEffect, event handlers (onClick, etc.), or browser APIs
+- **Data Fetching**: Await fetch directly in server components; no loading state or useEffect needed. Data is available for initial HTML
+- **Bundle Size**: Server-only code (large libs, DB access) is never sent to the client
+- **Composition**: Import client components into server components. To keep a server component as a child of a client component, pass it as children from a server parent
+
+## Rules
+
+- DO fetch data with await in server components when no client interactivity is needed
+- DO pass server components as children from server parent through client wrapper (slot pattern)
+- DON'T import a server component directly into a file with 'use client'; it will run on client and lose benefits
+- DON'T use hooks or event handlers in server components

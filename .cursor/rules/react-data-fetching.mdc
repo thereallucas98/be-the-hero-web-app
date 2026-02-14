@@ -1,0 +1,25 @@
+---
+description: Data fetching - loaders, React Query, Server Components
+globs: "**/*.tsx,**/*.ts"
+alwaysApply: false
+---
+
+# Data Fetching
+
+## Principle
+
+Fetch data as close to where it is needed and as early as possible. Prefer route loaders for initial data; use React Query when client-side features (infinite scroll, refetch) are needed.
+
+## Guidelines
+
+- **Route Loaders**: Use loader functions (TanStack Router, React Router) to prefetch before component mount. Data is ready when component renders; reduces waterfalls
+- **useSuspenseQuery**: Use with loaders so components assume data exists; loading/error handled by Suspense/ErrorBoundary at router level
+- **React Query + Server Components**: Prefetch in server component with queryClient.prefetchQuery; pass dehydrated state via HydrationBoundary to client. Client useQuery reads from cache
+- **When to Use React Query**: For useInfiniteQuery, polling, optimistic updates, or when data must be refetched on client. For simple one-time fetch in RSC, use native fetch in the server component
+
+## Rules
+
+- DO prefetch in loaders when data is tied to the route and critical for initial render
+- DO use HydrationBoundary to transfer server-prefetched data to client QueryClient
+- DON'T fetch in server component and pass as props to client if client will mutate/refetch; use React Query with prefetch + hydrate instead
+- DON'T put non-critical or deferred data in loaders; fetch it in the component if it loads after mount

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Check if any web app files changed in commits being pushed
+CHANGED_WEB=$(git diff --name-only @{push}.. 2>/dev/null | grep "^apps/web/" || git diff --name-only HEAD~1 2>/dev/null | grep "^apps/web/" || true)
+
+if [ -n "$CHANGED_WEB" ]; then
+  echo "🔍 Running ESLint on web app..."
+  cd apps/web
+  pnpm run lint
+
+  echo "🔍 Running TypeScript check..."
+  pnpm run typecheck
+
+  echo "✅ Web app checks passed!"
+fi

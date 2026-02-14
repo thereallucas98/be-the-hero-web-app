@@ -1,0 +1,35 @@
+---
+description: Custom hooks - naming, extraction, cross-hook communication
+globs: "**/*.tsx,**/hooks/**/*.ts"
+alwaysApply: false
+---
+
+# React Custom Hooks
+
+## Principle
+
+Custom hooks encapsulate reusable logic. They are JavaScript functions that use React hooks; they do not return JSX.
+
+## Guidelines
+
+- **Naming**: Start with `use` (e.g., useFetchUser, useAddComment, useTrackPageView)
+- **Extraction**: Extract repeated data-fetching, form submission, or side-effect logic into custom hooks
+- **Cross-Hook Communication**: Use callback props (e.g., onSuccess) to trigger refetch or updates from one hook in another. Return refetch/setData from the owning hook; pass it as the callback
+- **Type Safety**: Use TypeScript for analytics/tracking hooks to enforce correct event IDs and payloads
+
+## Rules
+
+- DO wrap functions returned from hooks in useCallback to prevent unnecessary re-renders in consuming components
+- DO define hooks so each component gets its own instance (shared logic, not shared values)
+- DON'T return JSX from custom hooks
+- DON'T call hooks conditionally or inside loops
+
+## Example: Cross-Hook Communication
+
+```typescript
+// useFetchComments returns refetch
+const { comments, refetch } = useFetchComments()
+
+// useAddComment accepts onSuccess callback
+const { addComment } = useAddComment({ onSuccess: refetch })
+```

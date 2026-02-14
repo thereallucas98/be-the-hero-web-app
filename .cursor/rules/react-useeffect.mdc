@@ -1,0 +1,36 @@
+---
+description: useEffect best practices - use sparingly, dependency handling
+globs: "**/*.tsx,**/*.ts"
+alwaysApply: false
+---
+
+# useEffect Guidelines
+
+## Principle
+
+Use useEffect sparingly. It is for side effects (fetching, subscriptions, DOM); not for derived or computed values. Prefer alternatives when they exist.
+
+## Guidelines
+
+- **Dependencies**: Any non-primitive variable used inside useEffect must be in the dependency array. Never disable ESLint exhaustive-deps
+- **Non-Primitives**: Use useMemo for objects/arrays used in deps; useCallback for functions
+- **Alternative to useState + useEffect**: For derived values (filteredItems, displayName), use useMemo or compute during render. For event-driven updates, use event handlers instead of chained useEffects
+- **Variables Only in Effect**: If a variable is only used inside one useEffect, define it inside that effect to avoid dependency issues
+
+## Rules
+
+- DO use useMemo for computed/derived values (e.g., filteredItems from items + filters)
+- DO consolidate chained useEffects into a single event handler (e.g., handlePlaceNextCard) when multiple state updates depend on one action
+- DON'T use useState + useEffect to mirror a value that can be derived; derive it
+- DON'T chain useEffects where one updates state that triggers another
+
+## Example
+
+```typescript
+// BAD: useState + useEffect for derived value (causes extra render)
+const [filteredItems, setFilteredItems] = useState([])
+useEffect(() => { setFilteredItems(items.filter(...)) }, [items, filters])
+
+// GOOD: useMemo
+const filteredItems = useMemo(() => items.filter(...), [items, filters])
+```

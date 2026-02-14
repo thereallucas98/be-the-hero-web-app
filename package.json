@@ -1,0 +1,23 @@
+{
+  "name": "bethehero",
+  "version": "0.1.0",
+  "private": true,
+  "description": "BeTheHero - Plataforma de adoção responsável e apoio a causas animais",
+  "author": "David Lucas",
+  "scripts": {
+    "prepare": "husky",
+    "dev": "turbo run dev --filter=web",
+    "build": "turbo run build --filter=web",
+    "lint": "turbo run lint --filter=web",
+    "test:lint": "./scripts/test-lint.sh",
+    "test:lint:ci": "pnpm install --frozen-lockfile && pnpm --filter web lint && pnpm --filter web typecheck"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "turbo": "^2.8.8"
+  },
+  "packageManager": "pnpm@9.14.4",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

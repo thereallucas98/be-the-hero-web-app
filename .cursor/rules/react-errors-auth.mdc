@@ -1,0 +1,33 @@
+---
+description: Error handling and authentication patterns
+globs: "**/*.tsx,**/*.ts"
+alwaysApply: false
+---
+
+# Errors and Authentication
+
+## Principle
+
+Treat expected and unexpected errors differently. Use Error Boundaries for crashes; return/display for expected errors. Store access token in memory; refresh token in HTTP-only cookie.
+
+## Error Handling
+
+- **Expected Errors**: Invalid input, 404, validation failures. Return error messages; display in UI. Do not throw
+- **Unexpected Errors**: Rendering crashes, unhandled exceptions. Use Error Boundaries to catch and show fallback UI
+- **Async Errors**: Error Boundaries do not catch async errors. Use useErrorBoundary().showBoundary() to propagate async errors to the nearest boundary
+- **Libraries**: Prefer react-error-boundary for ErrorBoundary component, onError callback, and resetBoundary
+
+## Authentication
+
+- **Access Token**: Store in memory (useState); short expiry (e.g., 15 min). Send in Authorization header via Axios/Fetch interceptor
+- **Refresh Token**: Stored in HTTP-only cookie; server manages. Used to get new access token when expired
+- **Flow**: On 403/unauthorized, call refresh endpoint; update access token; retry original request
+- **AuthProvider**: Context for authToken, currentUser. Use undefined for loading, null for unauthenticated
+- **Protected Routes**: Component checks currentUser; if null or role not in allowedRoles, show "Permission Denied" or redirect
+
+## Rules
+
+- DO place Error Boundaries around route-level or feature-level sections
+- DO use showBoundary() for async errors (e.g., after failed fetch)
+- DON'T store access token in localStorage or cookies accessible to JS
+- DON'T throw for expected validation/API errors; return and handle in UI

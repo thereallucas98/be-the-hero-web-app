@@ -1,0 +1,33 @@
+---
+description: React architecture principles - single responsibility, abstraction levels, composition
+globs: "**/*.tsx,**/*.ts"
+alwaysApply: false
+---
+
+# React Architecture
+
+## Principle
+
+Every component or function should do one thing. Keep one level of abstraction per function or component. Break down large components into smaller, focused pieces.
+
+## Guidelines
+
+- **Single Responsibility**: When a component needs additional tasks, delegate to other components or functions
+- **One Level of Abstraction**: Do not mix low-level logic (e.g., conditional className logic) with high-level structure in the same function
+- **Component Composition**: Prefer composition over complex prop configuration. Pass server components as children to client components when needed
+- **Reusability**: Create reusable components only for genuine commonality. Avoid over-engineering a single component to handle multiple entity types via props; split into dedicated components (e.g., EmployeeCard, CustomerCard) and extract a BaseCard only if truly shared
+- **Internal Components**: Define smaller components within the same file if used only internally and not exported
+
+## Rules
+
+- DO extract logic into utility functions (e.g., evaluatePasswordStrength, hasMinimumLength)
+- DO use explicit naming (createProjectFormSchema, not formSchema) when context helps
+- DON'T add boolean props (isOnProfile, isOnSavedScreen) to conditionally render; use composition or separate components
+- DON'T create a single "smart" component that handles many entity types with extensive conditionals
+
+## Folder Structure
+
+- **Small projects**: Single file or flat files in one folder
+- **Medium**: Organize by file type (components/, hooks/, utils/, pages/)
+- **Large**: Organize by feature; each feature has its own components, hooks, utils, api
+- **Shared**: Use a shared/ folder for cross-feature code

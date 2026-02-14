@@ -1,0 +1,26 @@
+---
+description: React Hook Form + Zod - forms, validation, create vs edit
+globs: "**/*.tsx,**/forms/**/*.ts,**/*form*.tsx"
+alwaysApply: false
+---
+
+# React Forms
+
+## Principle
+
+Use React Hook Form with Zod for type-safe validation. Centralize validation in schemas; use ZodResolver to connect them.
+
+## Guidelines
+
+- **Setup**: useForm with resolver: zodResolver(schema). Use defaultValues for pre-population
+- **Default Values**: Assign each property explicitly in defaultValues; avoid spreading entire objects. Transform data if backend format differs (e.g., timestamp string to Date)
+- **Custom Inputs**: Use Controller/useController for custom components (date picker, select); set defaultValue on the custom input
+- **Create vs Edit**: Pass optional entity prop (e.g., user). Check presence to decide POST vs PATCH; include ID in PATCH URL
+- **Async Validation**: Use setError for errors from API calls; setError('root', { message }) for general form errors
+
+## Rules
+
+- DO use formState.isSubmitting for loading state and button disabling
+- DO use formState.errors to display validation messages
+- DO add onSuccess callback prop for parent actions (redirect, refetch) after successful submit
+- DON'T manually manage value/onChange for every input; use register or Controller

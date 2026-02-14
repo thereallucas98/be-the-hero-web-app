@@ -1,0 +1,26 @@
+---
+description: State management - derive vs store, useReducer, server vs client state
+globs: "**/*.tsx,**/*.ts"
+alwaysApply: false
+---
+
+# React State Management
+
+## Principle
+
+Derive state when possible. Use the right tool for the right kind of state. Avoid duplicating server data in client stores.
+
+## Guidelines
+
+- **Derive State**: Compute values from existing state during render (e.g., displayName from firstName + lastName, isFormValid from fields). Use useMemo for expensive computations
+- **useReducer**: Prefer for complex state with multiple related values and interdependent updates
+- **useRef**: Use for values that do not affect the UI (e.g., interval IDs, mutable refs). Do not use useState for non-UI values
+- **Server vs Client State**: React Query for server/async state; Zustand for client state (filters, UI toggles). Do not store the same server data in both
+- **URL State**: Use useQueryState (or similar) for filters/search that should persist or be shareable
+
+## Rules
+
+- DO use React Query for server data; pass filters from Zustand to the query
+- DO use useState with a function initializer when the initial value is expensive to compute
+- DON'T duplicate server-fetched data (e.g., users) in a Zustand store
+- DON'T use useState for values that never appear in JSX; use useRef

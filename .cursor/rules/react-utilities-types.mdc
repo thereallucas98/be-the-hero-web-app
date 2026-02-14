@@ -1,0 +1,29 @@
+---
+description: Utility functions, error handling, TypeScript composable types
+globs: "**/*.ts,**/lib/**/*.ts"
+alwaysApply: false
+---
+
+# Utilities and Types
+
+## Principle
+
+Keep utility functions simple and pure. Let callers handle errors. Use composable types so components depend on shape, not data origin.
+
+## Utility Functions
+
+- **Data Access**: Encapsulate DB/API logic in lib functions (e.g., getUser, updateUser). Return data or transformed result
+- **Error Handling**: Do not wrap in try-catch inside utilities if it obscures the failure. Use tryCatch pattern: return [data, null] on success, [null, error] on failure. Let the component decide how to handle
+- **Server Actions**: Return { success, error } object instead of throwing; enables type-safe handling and flexible UI (toasts, redirects)
+
+## TypeScript Composable Types
+
+- **Problem**: API returns Post with commentsCount; component needs Post & { commentsCount }. Coupling to API return type limits reuse
+- **Solution**: Define "with" types (PostWithCommentsCount, PostWithLikesCount). Compose: PostForList = Post & PostWithCommentsCount & PostWithLikesCount. Components depend on shape, not source
+
+## Rules
+
+- DO create utility functions in lib/ for reusable data/DB logic
+- DO use tryCatch or [data, error] return pattern for flexible error handling in components
+- DO compose types (Post & PostWithComments) so components accept only the props they need
+- DON'T bake error handling (e.g., toast, redirect) into utility functions; keep them generic
