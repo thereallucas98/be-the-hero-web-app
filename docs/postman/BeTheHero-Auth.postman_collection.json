@@ -454,6 +454,24 @@
             "url": "{{baseUrl}}/api/pets/{{petId}}",
             "description": "Atualiza dados do pet. Apenas OWNER/EDITOR do workspace. Não altera status/approvedAt. Bloqueado se pet ADOPTED. Update parcial."
           }
+        },
+        {
+          "name": "Register Adoption Interest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Tenho interesse em adotar. Tenho espaço e experiência com cachorros.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/pets/{{petId}}/interests",
+            "description": "Registra interesse em adotar pet. Apenas GUARDIAN. Pet APPROVED, ativo. Workspace ativo e APPROVED. Body opcional: { message }. AuditLog CREATE ADOPTION_INTEREST. Execute Login (Guardian) antes."
+          }
         }
       ]
     },

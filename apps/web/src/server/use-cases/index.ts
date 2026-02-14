@@ -111,6 +111,12 @@ export type {
 } from './admin/approve-pet-admin.use-case'
 
 export { rejectPetAdmin } from './admin/reject-pet-admin.use-case'
+
+export { registerAdoptionInterest } from './adoption-interests/register-adoption-interest.use-case'
+export type {
+  RegisterAdoptionInterestInput as RegisterAdoptionInterestUseCaseInput,
+  RegisterAdoptionInterestResult,
+} from './adoption-interests/register-adoption-interest.use-case'
 export type {
   RejectPetAdminInput,
   RejectPetAdminResult,

@@ -120,6 +120,13 @@ export interface ListPublicPetsResult {
   perPage: number
 }
 
+export interface PetForInterestItem {
+  workspaceId: string
+  status: string
+  isActive: boolean
+  workspace: { isActive: boolean; verificationStatus: string }
+}
+
 export interface AddPetImageData {
   url: string
   storagePath: string
@@ -203,6 +210,7 @@ export interface PetRepository {
     reviewNote: string,
   ): Promise<RejectedPetItem | null>
   listPublicPets(input: ListPublicPetsInput): Promise<ListPublicPetsResult>
+  findByIdForInterest(id: string): Promise<PetForInterestItem | null>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -952,6 +960,21 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
       }))
 
       return { items, total, page, perPage }
+    },
+
+    async findByIdForInterest(id) {
+      const pet = await prisma.pet.findUnique({
+        where: { id },
+        select: {
+          workspaceId: true,
+          status: true,
+          isActive: true,
+          workspace: {
+            select: { isActive: true, verificationStatus: true },
+          },
+        },
+      })
+      return pet
     },
   }
 }

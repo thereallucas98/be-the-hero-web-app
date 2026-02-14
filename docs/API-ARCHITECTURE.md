@@ -162,6 +162,9 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | INVALID_IMAGES    | 400         |
 | WORKSPACE_BLOCKED     | 403         |
 | MISSING_REVIEW_NOTE   | 400         |
+| PET_NOT_APPROVED      | 409         |
+| PET_INACTIVE          | 409         |
+| PET_ALREADY_ADOPTED   | 409         |
 
 ## Endpoints disponíveis
 
@@ -185,6 +188,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | POST | /api/pets/:id/images | Adiciona imagem (url, storagePath, position 1-5, isCover). storagePath: pets/{petId}/... Max 5. Transacional + cover swap. AuditLog. |
 | PATCH | /api/pets/:petId/images/:imageId | Atualiza position e/ou isCover. Transacional (swap de posição, desmarca cover). AuditLog. Não altera status. |
 | DELETE | /api/pets/:petId/images/:imageId | Remove imagem. OWNER/EDITOR. Se cover removida, próxima por position vira cover. Não remove última imagem se pet PENDING_REVIEW. 204. AuditLog DELETE. |
+| POST | /api/pets/:id/interests | Registra interesse em adoção. Apenas GUARDIAN. Body opcional: `{ message }`. Pet APPROVED, ativo. Workspace ativo e APPROVED. AuditLog CREATE ADOPTION_INTEREST. |
 | POST | /api/admin/pets/:id/approve | Aprova pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura da cidade do workspace. Pet: 1-5 imagens, 1 isCover. Workspace ativo. Transacional + AuditLog APPROVE. |
 | POST | /api/admin/pets/:id/reject | Rejeita pet em PENDING_REVIEW. Body: `{ reviewNote: string }`. SUPER_ADMIN ou ADMIN com cobertura. Workspace ativo. Transacional + AuditLog REJECT com reviewNote em metadata. |
 

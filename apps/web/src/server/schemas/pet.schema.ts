@@ -69,3 +69,13 @@ export const ListPetsQuerySchema = z.object({
 })
 
 export type ListPetsQueryInput = z.infer<typeof ListPetsQuerySchema>
+
+export const RegisterAdoptionInterestSchema = z
+  .object({
+    message: z.string().optional(),
+  })
+  .strict()
+
+export type RegisterAdoptionInterestInput = z.infer<
+  typeof RegisterAdoptionInterestSchema
+>
