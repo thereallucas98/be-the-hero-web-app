@@ -152,6 +152,12 @@ export interface WorkspaceRepository {
     userId: string,
     role: 'OWNER' | 'EDITOR' | 'FINANCIAL',
   ): Promise<AddMemberResult>
+  findMemberInWorkspace(
+    workspaceId: string,
+    memberId: string,
+  ): Promise<{ id: string; userId: string; role: string } | null>
+  countActiveOwners(workspaceId: string): Promise<number>
+  deactivateMember(workspaceId: string, memberId: string): Promise<boolean>
 }
 
 export function createWorkspaceRepository(
@@ -531,6 +537,40 @@ export function createWorkspaceRepository(
         }
         throw e
       }
+    },
+
+    async findMemberInWorkspace(workspaceId, memberId) {
+      const member = await prisma.partnerMember.findFirst({
+        where: {
+          id: memberId,
+          workspaceId,
+          isActive: true,
+        },
+        select: { id: true, userId: true, role: true },
+      })
+      return member
+    },
+
+    async countActiveOwners(workspaceId) {
+      return prisma.partnerMember.count({
+        where: {
+          workspaceId,
+          isActive: true,
+          role: 'OWNER',
+        },
+      })
+    },
+
+    async deactivateMember(workspaceId, memberId) {
+      const result = await prisma.partnerMember.updateMany({
+        where: {
+          id: memberId,
+          workspaceId,
+          isActive: true,
+        },
+        data: { isActive: false },
+      })
+      return result.count > 0
     },
   }
 }

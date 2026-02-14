@@ -173,6 +173,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | PATCH | /api/workspaces/:id | Atualiza dados básicos (nome, descrição, contatos, links). RBAC: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. Payload parcial. Registra AuditLog. |
 | PATCH | /api/workspaces/:id/location | Atualiza localização primária (cityPlaceId, lat, lng, endereço). Adiciona cidade à cobertura automaticamente. cityPlaceId deve existir e ser tipo CITY. Transacional. AuditLog. |
 | POST | /api/workspaces/:id/members | Adiciona membro por e-mail (payload: email, role). Apenas OWNER. Role: OWNER/EDITOR/FINANCIAL. Transacional. 409 se já membro. AuditLog. |
+| DELETE | /api/workspaces/:id/members/:memberId | Remove membro (soft delete, isActive=false). Apenas OWNER. Não pode remover último OWNER. AuditLog. |
 
 ## Zod
 

@@ -40,6 +40,10 @@
     {
       "key": "workspaceId",
       "value": ""
+    },
+    {
+      "key": "memberId",
+      "value": ""
     }
   ],
   "item": [
@@ -292,6 +296,15 @@
             },
             "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}",
             "description": "Atualiza dados básicos do workspace (nome, descrição, contatos, links). Acesso: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. Atualização parcial - só campos enviados."
+          }
+        },
+        {
+          "name": "Remove Workspace Member",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}/members/{{memberId}}",
+            "description": "Remove (desativa) membro do workspace. Soft delete (isActive=false). Apenas OWNER. OWNER não pode remover a si mesmo se for o único. Use memberId de Get Workspace by ID ou Add Workspace Member."
           }
         },
         {

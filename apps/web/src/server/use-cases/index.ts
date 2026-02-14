@@ -50,3 +50,10 @@ export type {
   AddWorkspaceMemberResult,
   Principal as AddWorkspaceMemberPrincipal,
 } from './workspaces/add-workspace-member.use-case'
+
+export { removeWorkspaceMember } from './workspaces/remove-workspace-member.use-case'
+export type {
+  RemoveWorkspaceMemberInput,
+  RemoveWorkspaceMemberResult,
+  Principal as RemoveWorkspaceMemberPrincipal,
+} from './workspaces/remove-workspace-member.use-case'
