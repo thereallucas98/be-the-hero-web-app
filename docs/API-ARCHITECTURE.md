@@ -194,6 +194,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | POST | /api/admin/pets/:id/approve | Aprova pet em PENDING_REVIEW. SUPER_ADMIN ou ADMIN com cobertura da cidade do workspace. Pet: 1-5 imagens, 1 isCover. Workspace ativo. Transacional + AuditLog APPROVE. |
 | POST | /api/admin/pets/:id/reject | Rejeita pet em PENDING_REVIEW. Body: `{ reviewNote: string }`. SUPER_ADMIN ou ADMIN com cobertura. Workspace ativo. Transacional + AuditLog REJECT com reviewNote em metadata. |
 | POST | /api/adoptions | Registra adoção. Body: `{ petId, guardianUserId, adoptedAt?, notes? }`. OWNER/EDITOR, SUPER_ADMIN ou ADMIN com cobertura. Pet APPROVED. Cria Adoption + follow-ups 30d/6m/1y. AuditLog CREATE ADOPTION + STATUS_CHANGE PET. |
+| GET | /api/adoptions/:id | Detalhes da adoção (pet, guardian, workspace, follow-ups). Acesso: guardian, OWNER/EDITOR do workspace, SUPER_ADMIN ou ADMIN com cobertura. |
 
 ## Zod
 

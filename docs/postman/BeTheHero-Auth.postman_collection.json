@@ -54,6 +54,10 @@
       "value": ""
     },
     {
+      "key": "adoptionId",
+      "value": ""
+    },
+    {
       "key": "imageId",
       "value": ""
     }
@@ -539,6 +543,15 @@
             },
             "url": "{{baseUrl}}/api/adoptions",
             "description": "Registra adoção de pet por guardian. OWNER/EDITOR do workspace, SUPER_ADMIN ou ADMIN com cobertura. Pet APPROVED, não adotado. guardianUserId deve ser GUARDIAN. Cria Adoption (ACTIVE), atualiza pet (ADOPTED), cria follow-ups 30d/6m/1y. AuditLog CREATE ADOPTION + STATUS_CHANGE PET. Execute Login (Partner) antes."
+          }
+        },
+        {
+          "name": "Get Adoption by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/adoptions/{{adoptionId}}",
+            "description": "Retorna detalhes da adoção (pet, guardian, workspace, follow-ups). Acesso: guardian da adoção, OWNER/EDITOR do workspace, SUPER_ADMIN ou ADMIN com cobertura."
           }
         }
       ]
