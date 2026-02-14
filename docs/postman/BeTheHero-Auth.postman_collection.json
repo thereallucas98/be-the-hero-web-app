@@ -375,6 +375,15 @@
       "name": "Pets",
       "item": [
         {
+          "name": "Remove Pet Image",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/pets/{{petId}}/images/{{imageId}}",
+            "description": "Remove imagem do pet. OWNER/EDITOR. Se cover removida, próxima por position vira cover. Não remove última imagem se pet PENDING_REVIEW. 204."
+          }
+        },
+        {
           "name": "Update Pet Image",
           "request": {
             "method": "PATCH",

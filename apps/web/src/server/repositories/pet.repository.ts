@@ -137,6 +137,17 @@ export interface PetRepository {
     data: UpdatePetImageData,
     actorUserId: string,
   ): Promise<UpdatePetImageResult>
+  deletePetImage(
+    imageId: string,
+    petId: string,
+    actorUserId: string,
+  ): Promise<
+    | { success: true }
+    | {
+        success: false
+        code: 'IMAGE_NOT_FOUND' | 'CANNOT_REMOVE_LAST_IMAGE'
+      }
+  >
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -605,6 +616,54 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         }
         throw e
       }
+    },
+
+    async deletePetImage(imageId, petId, actorUserId) {
+      const image = await prisma.petImage.findFirst({
+        where: { id: imageId, petId },
+        select: { id: true, isCover: true, storagePath: true },
+      })
+      if (!image) {
+        return { success: false, code: 'IMAGE_NOT_FOUND' }
+      }
+
+      const imageCount = await prisma.petImage.count({ where: { petId } })
+      const pet = await prisma.pet.findUnique({
+        where: { id: petId },
+        select: { status: true },
+      })
+      if (imageCount <= 1 && pet?.status === 'PENDING_REVIEW') {
+        return { success: false, code: 'CANNOT_REMOVE_LAST_IMAGE' }
+      }
+
+      await prisma.$transaction(async (tx) => {
+        if (image.isCover) {
+          const nextCover = await tx.petImage.findFirst({
+            where: { petId, id: { not: imageId } },
+            orderBy: { position: 'asc' },
+          })
+          if (nextCover) {
+            await tx.petImage.update({
+              where: { id: nextCover.id },
+              data: { isCover: true },
+            })
+          }
+        }
+
+        await tx.petImage.delete({ where: { id: imageId } })
+
+        await tx.auditLog.create({
+          data: {
+            actorUserId,
+            action: 'DELETE',
+            entityType: 'PET_IMAGE',
+            entityId: imageId,
+            metadata: { petId, storagePath: image.storagePath },
+          },
+        })
+      })
+
+      return { success: true }
     },
   }
 }

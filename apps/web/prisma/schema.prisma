@@ -576,6 +576,7 @@ model AdminCoverage {
 enum AuditAction {
   CREATE
   UPDATE
+  DELETE
   SUBMIT_FOR_REVIEW
   APPROVE
   REJECT

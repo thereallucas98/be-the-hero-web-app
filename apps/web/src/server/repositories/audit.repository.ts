@@ -2,7 +2,13 @@ import type { Prisma, PrismaClient } from '~/generated/prisma/client'
 
 export interface CreateAuditLogInput {
   actorUserId: string
-  action: 'CREATE' | 'UPDATE' | 'SUBMIT_FOR_REVIEW' | 'APPROVE' | 'REJECT'
+  action:
+    | 'CREATE'
+    | 'UPDATE'
+    | 'DELETE'
+    | 'SUBMIT_FOR_REVIEW'
+    | 'APPROVE'
+    | 'REJECT'
   entityType:
     | 'PARTNER_WORKSPACE'
     | 'PET'

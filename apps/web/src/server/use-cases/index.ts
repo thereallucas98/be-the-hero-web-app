@@ -92,3 +92,10 @@ export type {
   UpdatePetImageResult,
   Principal as UpdatePetImagePrincipal,
 } from './pets/update-pet-image.use-case'
+
+export { removePetImage } from './pets/remove-pet-image.use-case'
+export type {
+  RemovePetImageInput,
+  RemovePetImageResult,
+  Principal as RemovePetImagePrincipal,
+} from './pets/remove-pet-image.use-case'
