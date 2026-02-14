@@ -48,6 +48,10 @@
     {
       "key": "petId",
       "value": ""
+    },
+    {
+      "key": "imageId",
+      "value": ""
     }
   ],
   "item": [
@@ -370,6 +374,24 @@
     {
       "name": "Pets",
       "item": [
+        {
+          "name": "Update Pet Image",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"position\": 2,\n  \"isCover\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/pets/{{petId}}/images/{{imageId}}",
+            "description": "Atualiza position e/ou isCover da imagem. Se isCover=true, desmarca outras. Troca de position é transacional. Use imageId de Add Pet Image."
+          }
+        },
         {
           "name": "Add Pet Image",
           "request": {

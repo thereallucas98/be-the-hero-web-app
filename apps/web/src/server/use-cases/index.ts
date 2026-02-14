@@ -85,3 +85,10 @@ export type {
   AddPetImageResult,
   Principal as AddPetImagePrincipal,
 } from './pets/add-pet-image.use-case'
+
+export { updatePetImage } from './pets/update-pet-image.use-case'
+export type {
+  UpdatePetImageInput,
+  UpdatePetImageResult,
+  Principal as UpdatePetImagePrincipal,
+} from './pets/update-pet-image.use-case'

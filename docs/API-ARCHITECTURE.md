@@ -178,6 +178,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | PATCH | /api/pets/:id | Atualiza pet (parcial). Apenas OWNER/EDITOR. Bloqueado se ADOPTED. Não altera status/approvedAt. AuditLog. |
 | POST | /api/pets/:id/submit-for-review | Envia pet DRAFT para PENDING_REVIEW. Requer 1-5 imagens, 1 isCover, dados mínimos. Workspace ativo. Transacional + AuditLog. |
 | POST | /api/pets/:id/images | Adiciona imagem (url, storagePath, position 1-5, isCover). storagePath: pets/{petId}/... Max 5. Transacional + cover swap. AuditLog. |
+| PATCH | /api/pets/:petId/images/:imageId | Atualiza position e/ou isCover. Transacional (swap de posição, desmarca cover). AuditLog. Não altera status. |
 
 ## Zod
 

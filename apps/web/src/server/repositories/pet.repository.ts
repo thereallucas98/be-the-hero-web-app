@@ -98,6 +98,18 @@ export type AddPetImageResult =
       code: 'MAX_IMAGES_REACHED' | 'POSITION_ALREADY_TAKEN' | 'PET_NOT_FOUND'
     }
 
+export interface UpdatePetImageData {
+  position?: number
+  isCover?: boolean
+}
+
+export type UpdatePetImageResult =
+  | { success: true; image: CreatedPetImageItem }
+  | {
+      success: false
+      code: 'IMAGE_NOT_FOUND' | 'POSITION_ALREADY_TAKEN'
+    }
+
 export interface PetRepository {
   create(data: CreatePetData): Promise<CreatedPetItem>
   findByIdWithWorkspace(id: string): Promise<PetWithWorkspaceItem | null>
@@ -115,6 +127,16 @@ export interface PetRepository {
     data: AddPetImageData,
     actorUserId: string,
   ): Promise<AddPetImageResult>
+  findImageByIdAndPetId(
+    imageId: string,
+    petId: string,
+  ): Promise<{ id: string; position: number; isCover: boolean } | null>
+  updatePetImage(
+    imageId: string,
+    petId: string,
+    data: UpdatePetImageData,
+    actorUserId: string,
+  ): Promise<UpdatePetImageResult>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -452,6 +474,116 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
 
           return created
         })
+
+        return {
+          success: true as const,
+          image: {
+            id: image.id,
+            url: image.url,
+            storagePath: image.storagePath,
+            position: image.position,
+            isCover: image.isCover,
+            status: image.status,
+          },
+        }
+      } catch (e: unknown) {
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === 'P2002'
+        ) {
+          return { success: false, code: 'POSITION_ALREADY_TAKEN' }
+        }
+        throw e
+      }
+    },
+
+    async findImageByIdAndPetId(imageId, petId) {
+      const image = await prisma.petImage.findFirst({
+        where: { id: imageId, petId },
+        select: { id: true, position: true, isCover: true },
+      })
+      return image
+    },
+
+    async updatePetImage(imageId, petId, data, actorUserId) {
+      try {
+        const currentImage = await prisma.petImage.findFirst({
+          where: { id: imageId, petId },
+        })
+        if (!currentImage) {
+          return { success: false, code: 'IMAGE_NOT_FOUND' }
+        }
+
+        const image = await prisma.$transaction(async (tx) => {
+          if (
+            data.position !== undefined &&
+            data.position !== currentImage.position
+          ) {
+            const imageAtTarget = await tx.petImage.findFirst({
+              where: { petId, position: data.position, id: { not: imageId } },
+            })
+            if (imageAtTarget) {
+              await tx.petImage.update({
+                where: { id: imageAtTarget.id },
+                data: { position: currentImage.position },
+              })
+            }
+          }
+
+          if (data.isCover === true) {
+            await tx.petImage.updateMany({
+              where: { petId, id: { not: imageId } },
+              data: { isCover: false },
+            })
+          }
+
+          const updateData: { position?: number; isCover?: boolean } = {}
+          if (data.position !== undefined) updateData.position = data.position
+          if (data.isCover !== undefined) updateData.isCover = data.isCover
+
+          if (Object.keys(updateData).length === 0) {
+            return tx.petImage.findUnique({
+              where: { id: imageId },
+              select: {
+                id: true,
+                url: true,
+                storagePath: true,
+                position: true,
+                isCover: true,
+                status: true,
+              },
+            })
+          }
+
+          const updated = await tx.petImage.update({
+            where: { id: imageId },
+            data: updateData,
+            select: {
+              id: true,
+              url: true,
+              storagePath: true,
+              position: true,
+              isCover: true,
+              status: true,
+            },
+          })
+
+          await tx.auditLog.create({
+            data: {
+              actorUserId,
+              action: 'UPDATE',
+              entityType: 'PET_IMAGE',
+              entityId: imageId,
+              metadata: { petId, updatedFields: Object.keys(updateData) },
+            },
+          })
+
+          return updated
+        })
+
+        if (!image) {
+          return { success: false, code: 'IMAGE_NOT_FOUND' }
+        }
 
         return {
           success: true as const,

@@ -10,3 +10,12 @@ export const AddPetImageSchema = z
   .strict()
 
 export type AddPetImageInput = z.infer<typeof AddPetImageSchema>
+
+export const UpdatePetImageSchema = z
+  .object({
+    position: z.number().int().min(1).max(5).optional(),
+    isCover: z.boolean().optional(),
+  })
+  .strict()
+
+export type UpdatePetImageInput = z.infer<typeof UpdatePetImageSchema>
