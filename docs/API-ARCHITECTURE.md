@@ -175,6 +175,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | POST | /api/workspaces/:id/members | Adiciona membro por e-mail (payload: email, role). Apenas OWNER. Role: OWNER/EDITOR/FINANCIAL. Transacional. 409 se já membro. AuditLog. |
 | DELETE | /api/workspaces/:id/members/:memberId | Remove membro (soft delete, isActive=false). Apenas OWNER. Não pode remover último OWNER. AuditLog. |
 | POST | /api/workspaces/:id/pets | Cadastra pet (status DRAFT). Apenas OWNER/EDITOR. Workspace deve existir e estar ativo. AuditLog. |
+| PATCH | /api/pets/:id | Atualiza pet (parcial). Apenas OWNER/EDITOR. Bloqueado se ADOPTED. Não altera status/approvedAt. AuditLog. |
 
 ## Zod
 

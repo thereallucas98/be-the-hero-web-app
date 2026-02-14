@@ -14,6 +14,37 @@ export interface CreatePetData {
   adoptionRequirements?: string
 }
 
+export interface UpdatePetData {
+  name?: string
+  description?: string
+  species?: string
+  sex?: string
+  size?: string
+  ageCategory?: string
+  energyLevel?: string
+  independenceLevel?: string
+  environment?: string
+  adoptionRequirements?: string
+}
+
+export interface PetWithWorkspaceItem {
+  id: string
+  workspaceId: string
+  status: string
+  name: string
+  description: string
+  species: string
+  sex: string
+  size: string
+  ageCategory: string
+  energyLevel: string | null
+  independenceLevel: string | null
+  environment: string | null
+  adoptionRequirements: string | null
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface CreatedPetItem {
   id: string
   name: string
@@ -34,6 +65,8 @@ export interface CreatedPetItem {
 
 export interface PetRepository {
   create(data: CreatePetData): Promise<CreatedPetItem>
+  findByIdWithWorkspace(id: string): Promise<PetWithWorkspaceItem | null>
+  update(id: string, data: UpdatePetData): Promise<CreatedPetItem | null>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -70,6 +103,144 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
           adoptionRequirements: data.adoptionRequirements ?? null,
           status: 'DRAFT',
         },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          species: true,
+          sex: true,
+          size: true,
+          ageCategory: true,
+          energyLevel: true,
+          independenceLevel: true,
+          environment: true,
+          adoptionRequirements: true,
+          status: true,
+          workspaceId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+
+      return {
+        ...pet,
+        energyLevel: pet.energyLevel,
+        independenceLevel: pet.independenceLevel,
+        environment: pet.environment,
+        adoptionRequirements: pet.adoptionRequirements,
+      }
+    },
+
+    async findByIdWithWorkspace(id) {
+      const pet = await prisma.pet.findUnique({
+        where: { id, isActive: true },
+        select: {
+          id: true,
+          workspaceId: true,
+          status: true,
+          name: true,
+          description: true,
+          species: true,
+          sex: true,
+          size: true,
+          ageCategory: true,
+          energyLevel: true,
+          independenceLevel: true,
+          environment: true,
+          adoptionRequirements: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+      return pet
+    },
+
+    async update(id, data) {
+      const hasChanges = Object.keys(data).some(
+        (k) => data[k as keyof UpdatePetData] !== undefined,
+      )
+      if (!hasChanges) {
+        const existing = await prisma.pet.findUnique({
+          where: { id, isActive: true },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            species: true,
+            sex: true,
+            size: true,
+            ageCategory: true,
+            energyLevel: true,
+            independenceLevel: true,
+            environment: true,
+            adoptionRequirements: true,
+            status: true,
+            workspaceId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        })
+        return existing
+          ? {
+              ...existing,
+              energyLevel: existing.energyLevel,
+              independenceLevel: existing.independenceLevel,
+              environment: existing.environment,
+              adoptionRequirements: existing.adoptionRequirements,
+            }
+          : null
+      }
+
+      const updateData: {
+        name?: string
+        description?: string
+        species?:
+          | 'DOG'
+          | 'CAT'
+          | 'RABBIT'
+          | 'BIRD'
+          | 'HORSE'
+          | 'COW'
+          | 'GOAT'
+          | 'PIG'
+          | 'TURTLE'
+          | 'OTHER'
+        sex?: 'MALE' | 'FEMALE'
+        size?: 'SMALL' | 'MEDIUM' | 'LARGE'
+        ageCategory?: 'PUPPY' | 'YOUNG' | 'ADULT' | 'SENIOR'
+        energyLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | null
+        independenceLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | null
+        environment?: 'HOUSE' | 'APARTMENT' | 'BOTH' | null
+        adoptionRequirements?: string | null
+      } = {}
+      if (data.name !== undefined) updateData.name = data.name
+      if (data.description !== undefined)
+        updateData.description = data.description
+      if (data.species !== undefined)
+        updateData.species = data.species as typeof updateData.species
+      if (data.sex !== undefined)
+        updateData.sex = data.sex as typeof updateData.sex
+      if (data.size !== undefined)
+        updateData.size = data.size as typeof updateData.size
+      if (data.ageCategory !== undefined)
+        updateData.ageCategory =
+          data.ageCategory as typeof updateData.ageCategory
+      if (data.energyLevel !== undefined)
+        updateData.energyLevel =
+          (data.energyLevel as typeof updateData.energyLevel) || null
+      if (data.independenceLevel !== undefined)
+        updateData.independenceLevel =
+          (data.independenceLevel as typeof updateData.independenceLevel) ||
+          null
+      if (data.environment !== undefined)
+        updateData.environment =
+          (data.environment as typeof updateData.environment) || null
+      if (data.adoptionRequirements !== undefined)
+        updateData.adoptionRequirements = data.adoptionRequirements || null
+
+      const pet = await prisma.pet.update({
+        where: { id },
+        data: updateData,
         select: {
           id: true,
           name: true,

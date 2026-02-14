@@ -35,3 +35,20 @@ export const CreatePetSchema = z
   .strict()
 
 export type CreatePetInput = z.infer<typeof CreatePetSchema>
+
+export const UpdatePetSchema = z
+  .object({
+    name: z.string().min(2).optional(),
+    description: z.string().min(10).optional(),
+    species: speciesEnum.optional(),
+    sex: sexEnum.optional(),
+    size: sizeEnum.optional(),
+    ageCategory: ageCategoryEnum.optional(),
+    energyLevel: energyLevelEnum.optional(),
+    independenceLevel: independenceLevelEnum.optional(),
+    environment: environmentEnum.optional(),
+    adoptionRequirements: z.string().optional(),
+  })
+  .strict()
+
+export type UpdatePetInput = z.infer<typeof UpdatePetSchema>

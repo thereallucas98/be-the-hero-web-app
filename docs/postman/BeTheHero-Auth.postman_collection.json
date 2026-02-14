@@ -44,6 +44,10 @@
     {
       "key": "memberId",
       "value": ""
+    },
+    {
+      "key": "petId",
+      "value": ""
     }
   ],
   "item": [
@@ -359,6 +363,29 @@
             },
             "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}/location",
             "description": "Atualiza localização primária do workspace (cidade, endereço, coordenadas). Adiciona cidade à cobertura se não existir. Acesso: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. cityPlaceId deve ser do tipo CITY."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pets",
+      "item": [
+        {
+          "name": "Update Pet (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rex (atualizado)\",\n  \"description\": \"Descrição atualizada do pet.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/pets/{{petId}}",
+            "description": "Atualiza dados do pet. Apenas OWNER/EDITOR do workspace. Não altera status/approvedAt. Bloqueado se pet ADOPTED. Update parcial."
           }
         }
       ]

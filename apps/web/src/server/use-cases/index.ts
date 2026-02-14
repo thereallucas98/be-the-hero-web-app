@@ -64,3 +64,10 @@ export type {
   CreatePetResult,
   Principal as CreatePetPrincipal,
 } from './pets/create-pet.use-case'
+
+export { updatePet } from './pets/update-pet.use-case'
+export type {
+  UpdatePetInput,
+  UpdatePetResult,
+  Principal as UpdatePetPrincipal,
+} from './pets/update-pet.use-case'
