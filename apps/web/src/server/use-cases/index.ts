@@ -29,3 +29,10 @@ export type {
   GetWorkspaceByIdResult,
   Principal as GetWorkspacePrincipal,
 } from './workspaces/get-workspace-by-id.use-case'
+
+export { updateWorkspace } from './workspaces/update-workspace.use-case'
+export type {
+  UpdateWorkspaceInput,
+  UpdateWorkspaceResult,
+  Principal as UpdateWorkspacePrincipal,
+} from './workspaces/update-workspace.use-case'

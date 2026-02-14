@@ -170,6 +170,7 @@ Use cases retornam `{ success: false, code: '...' }`. A rota mapeia:
 | POST | /api/workspaces | Criar workspace (PARTNER_MEMBER) |
 | GET | /api/workspaces/my | Listar meus workspaces |
 | GET | /api/workspaces/:id | Detalhes do workspace (RBAC: membro, ADMIN com cobertura ou SUPER_ADMIN). Query: `membersPage`, `membersPerPage` (default 20) |
+| PATCH | /api/workspaces/:id | Atualiza dados básicos (nome, descrição, contatos, links). RBAC: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. Payload parcial. Registra AuditLog. |
 
 ## Zod
 

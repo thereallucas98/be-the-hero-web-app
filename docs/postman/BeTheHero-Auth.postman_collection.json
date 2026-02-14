@@ -275,6 +275,24 @@
             "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}?membersPage=1&membersPerPage=20",
             "description": "Mesmo que Get Workspace by ID com paginação explícita de membros (20/página)."
           }
+        },
+        {
+          "name": "Patch Workspace (Update)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ONG Amigos dos Bichos (atualizado)\",\n  \"description\": \"Nova descrição do workspace.\",\n  \"website\": \"https://amigosdosbichos.org.br\",\n  \"instagram\": \"@amigosdosbichos\"\n}"
+            },
+            "url": "{{baseUrl}}/api/workspaces/{{workspaceId}}",
+            "description": "Atualiza dados básicos do workspace (nome, descrição, contatos, links). Acesso: OWNER/EDITOR, ADMIN com cobertura ou SUPER_ADMIN. Atualização parcial - só campos enviados."
+          }
         }
       ]
     }

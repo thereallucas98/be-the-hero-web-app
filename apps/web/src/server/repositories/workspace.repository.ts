@@ -57,6 +57,8 @@ export interface WorkspaceDetailsItem {
   phone: string | null
   whatsapp: string | null
   emailPublic: string | null
+  website: string | null
+  instagram: string | null
   verificationStatus: string
   isActive: boolean
   createdAt: Date
@@ -94,6 +96,16 @@ export interface FindByIdWithDetailsOptions {
   membersPerPage?: number
 }
 
+export interface UpdateWorkspaceBasicData {
+  name?: string
+  description?: string
+  phone?: string
+  whatsapp?: string
+  emailPublic?: string
+  website?: string
+  instagram?: string
+}
+
 export interface WorkspaceRepository {
   createWithLocationAndMember(
     data: CreateWorkspaceData,
@@ -103,6 +115,10 @@ export interface WorkspaceRepository {
   findByIdWithDetails(
     id: string,
     options?: FindByIdWithDetailsOptions,
+  ): Promise<WorkspaceDetailsItem | null>
+  updateBasicData(
+    id: string,
+    data: UpdateWorkspaceBasicData,
   ): Promise<WorkspaceDetailsItem | null>
 }
 
@@ -242,6 +258,8 @@ export function createWorkspaceRepository(
             phone: true,
             whatsapp: true,
             emailPublic: true,
+            website: true,
+            instagram: true,
             verificationStatus: true,
             isActive: true,
             createdAt: true,
@@ -301,6 +319,8 @@ export function createWorkspaceRepository(
         phone: workspace.phone,
         whatsapp: workspace.whatsapp,
         emailPublic: workspace.emailPublic,
+        website: workspace.website,
+        instagram: workspace.instagram,
         verificationStatus: workspace.verificationStatus,
         isActive: workspace.isActive,
         createdAt: workspace.createdAt,
@@ -325,6 +345,35 @@ export function createWorkspaceRepository(
       }
 
       return result
+    },
+
+    async updateBasicData(id, data) {
+      const payload: {
+        name?: string
+        description?: string
+        phone?: string | null
+        whatsapp?: string | null
+        emailPublic?: string | null
+        website?: string | null
+        instagram?: string | null
+      } = {}
+      if (data.name !== undefined) payload.name = data.name
+      if (data.description !== undefined) payload.description = data.description
+      if (data.phone !== undefined) payload.phone = data.phone || null
+      if (data.whatsapp !== undefined) payload.whatsapp = data.whatsapp || null
+      if (data.emailPublic !== undefined)
+        payload.emailPublic = data.emailPublic || null
+      if (data.website !== undefined) payload.website = data.website || null
+      if (data.instagram !== undefined)
+        payload.instagram = data.instagram || null
+
+      if (Object.keys(payload).length === 0) {
+        return this.findByIdWithDetails(id)
+      }
+
+      await prisma.partnerWorkspace.update({ where: { id }, data: payload })
+
+      return this.findByIdWithDetails(id)
     },
   }
 }
