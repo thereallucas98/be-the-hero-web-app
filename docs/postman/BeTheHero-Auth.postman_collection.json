@@ -244,6 +244,15 @@
             "url": "{{baseUrl}}/api/workspaces",
             "description": "Cria workspace + location (primary) + city coverage + member OWNER. Requer PARTNER_MEMBER. Execute Login (Partner) antes."
           }
+        },
+        {
+          "name": "My Workspaces",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/workspaces/my",
+            "description": "Lista workspaces em que o usuário logado é membro (role, status, localização primária, cidade). Execute Login primeiro."
+          }
         }
       ]
     }
