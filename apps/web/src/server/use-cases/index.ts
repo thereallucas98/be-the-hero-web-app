@@ -37,6 +37,15 @@ export type {
 export { getMe } from './me/get-me.use-case'
 export type { GetMeResult } from './me/get-me.use-case'
 
+export { updateMe } from './me/update-me.use-case'
+export type { UpdateMeInput, UpdateMeResult } from './me/update-me.use-case'
+
+export { changePassword } from './me/change-password.use-case'
+export type {
+  ChangePasswordInput,
+  ChangePasswordResult,
+} from './me/change-password.use-case'
+
 export { createWorkspace } from './workspaces/create-workspace.use-case'
 export type {
   CreateWorkspaceInput,
