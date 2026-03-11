@@ -55,6 +55,22 @@ export const CreateWorkspaceSchema = z.object({
   zipCode: z.string().optional(),
 })
 
+export const AddCityCoverageSchema = z
+  .object({
+    cityPlaceId: z.uuid(),
+  })
+  .strict()
+
+export type AddCityCoverageInput = z.infer<typeof AddCityCoverageSchema>
+
+export const UpdateMemberRoleSchema = z
+  .object({
+    role: z.enum(['OWNER', 'EDITOR', 'FINANCIAL']),
+  })
+  .strict()
+
+export type UpdateMemberRoleInput = z.infer<typeof UpdateMemberRoleSchema>
+
 export const ListWorkspaceInterestsQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   perPage: z.coerce.number().int().positive().max(20).optional().default(20),

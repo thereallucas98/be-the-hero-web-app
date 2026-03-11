@@ -166,6 +166,30 @@ export interface WorkspaceRepository {
   ): Promise<{ id: string; userId: string; role: string } | null>
   countActiveOwners(workspaceId: string): Promise<number>
   deactivateMember(workspaceId: string, memberId: string): Promise<boolean>
+  updateMemberRole(
+    workspaceId: string,
+    memberId: string,
+    role: 'OWNER' | 'EDITOR' | 'FINANCIAL',
+  ): Promise<{
+    id: string
+    role: string
+    user: { id: string; fullName: string }
+  } | null>
+  listCityCoverage(workspaceId: string): Promise<
+    Array<{
+      id: string
+      cityPlace: { id: string; name: string; slug: string; type: string }
+    }>
+  >
+  addCityCoverage(
+    workspaceId: string,
+    cityPlaceId: string,
+  ): Promise<{
+    id: string
+    cityPlace: { id: string; name: string; slug: string; type: string }
+  }>
+  removeCityCoverage(workspaceId: string, coverageId: string): Promise<boolean>
+  deactivateWorkspace(id: string): Promise<boolean>
 }
 
 export function createWorkspaceRepository(
@@ -600,6 +624,64 @@ export function createWorkspaceRepository(
           workspaceId,
           isActive: true,
         },
+        data: { isActive: false },
+      })
+      return result.count > 0
+    },
+
+    async listCityCoverage(workspaceId) {
+      return prisma.partnerCityCoverage.findMany({
+        where: { workspaceId },
+        select: {
+          id: true,
+          cityPlace: {
+            select: { id: true, name: true, slug: true, type: true },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      })
+    },
+
+    async addCityCoverage(workspaceId, cityPlaceId) {
+      return prisma.partnerCityCoverage.create({
+        data: { workspaceId, cityPlaceId },
+        select: {
+          id: true,
+          cityPlace: {
+            select: { id: true, name: true, slug: true, type: true },
+          },
+        },
+      })
+    },
+
+    async removeCityCoverage(workspaceId, coverageId) {
+      const result = await prisma.partnerCityCoverage.deleteMany({
+        where: { id: coverageId, workspaceId },
+      })
+      return result.count > 0
+    },
+
+    async updateMemberRole(workspaceId, memberId, role) {
+      const existing = await prisma.partnerMember.findFirst({
+        where: { id: memberId, workspaceId, isActive: true },
+      })
+      if (!existing) return null
+
+      const updated = await prisma.partnerMember.update({
+        where: { id: memberId },
+        data: { role },
+        select: {
+          id: true,
+          role: true,
+          user: { select: { id: true, fullName: true } },
+        },
+      })
+      return updated
+    },
+
+    async deactivateWorkspace(id) {
+      const result = await prisma.partnerWorkspace.updateMany({
+        where: { id, isActive: true },
         data: { isActive: false },
       })
       return result.count > 0

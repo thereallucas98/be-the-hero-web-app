@@ -1,8 +1,8 @@
 ## Description
 
-### feat: user profile update (PATCH /me and PATCH /me/password)
+### feat: workspace member role update, city coverage CRUD, workspace deactivation
 
-Implements sub-step 0.3 of Phase 0 — authenticated user can update their profile and change their password.
+Implements sub-steps 0.4–0.6 of Phase 0 — workspace owners can update member roles, manage city coverage, and deactivate a workspace.
 
 ---
 
@@ -10,9 +10,15 @@ Implements sub-step 0.3 of Phase 0 — authenticated user can update their profi
 
 | File | Change |
 |------|--------|
-| `server/schemas/me.schema.ts` | New — `UpdateMeSchema` (fullName, phone), `ChangePasswordSchema` |
-| `server/use-cases/me/update-me.use-case.ts` | New — updates fullName and/or phone |
-| `server/use-cases/me/change-password.use-case.ts` | New — verifies current password, sets new hash |
-| `server/use-cases/index.ts` | Exported `updateMe`, `changePassword` with types |
-| `app/api/me/route.ts` | Added PATCH handler |
-| `app/api/me/password/route.ts` | New — PATCH handler |
+| `server/repositories/workspace.repository.ts` | Added `updateMemberRole`, `listCityCoverage`, `addCityCoverage`, `removeCityCoverage`, `deactivateWorkspace` |
+| `server/schemas/workspace.schema.ts` | New — `UpdateMemberRoleSchema`, `AddCityCoverageSchema` |
+| `server/use-cases/workspaces/update-workspace-member-role.use-case.ts` | New — OWNER-only role update, blocks demoting last OWNER |
+| `server/use-cases/workspaces/list-city-coverage.use-case.ts` | New — any member can list coverage |
+| `server/use-cases/workspaces/add-city-coverage.use-case.ts` | New — OWNER-only, validates CITY type, handles duplicate |
+| `server/use-cases/workspaces/remove-city-coverage.use-case.ts` | New — OWNER-only removal |
+| `server/use-cases/workspaces/deactivate-workspace.use-case.ts` | New — OWNER or ADMIN can deactivate, sets isActive=false |
+| `server/use-cases/index.ts` | Exported all new use cases with types |
+| `app/api/workspaces/[id]/members/[memberId]/route.ts` | Added PATCH handler |
+| `app/api/workspaces/[id]/city-coverage/route.ts` | New — GET + POST handlers |
+| `app/api/workspaces/[id]/city-coverage/[coverageId]/route.ts` | New — DELETE handler |
+| `app/api/workspaces/[id]/route.ts` | Added DELETE handler |

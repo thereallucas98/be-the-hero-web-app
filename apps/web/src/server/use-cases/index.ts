@@ -97,6 +97,41 @@ export type {
   RemoveWorkspaceMemberResult,
 } from './workspaces/remove-workspace-member.use-case'
 
+export { updateWorkspaceMemberRole } from './workspaces/update-workspace-member-role.use-case'
+export type {
+  UpdateWorkspaceMemberRoleInput,
+  Principal as UpdateWorkspaceMemberRolePrincipal,
+  UpdateWorkspaceMemberRoleResult,
+} from './workspaces/update-workspace-member-role.use-case'
+
+export { listCityCoverage } from './workspaces/list-city-coverage.use-case'
+export type {
+  ListCityCoverageInput,
+  Principal as ListCityCoveragePrincipal,
+  ListCityCoverageResult,
+} from './workspaces/list-city-coverage.use-case'
+
+export { addCityCoverage } from './workspaces/add-city-coverage.use-case'
+export type {
+  AddCityCoverageInput,
+  Principal as AddCityCoveragePrincipal,
+  AddCityCoverageResult,
+} from './workspaces/add-city-coverage.use-case'
+
+export { removeCityCoverage } from './workspaces/remove-city-coverage.use-case'
+export type {
+  RemoveCityCoverageInput,
+  Principal as RemoveCityCoveragePrincipal,
+  RemoveCityCoverageResult,
+} from './workspaces/remove-city-coverage.use-case'
+
+export { deactivateWorkspace } from './workspaces/deactivate-workspace.use-case'
+export type {
+  DeactivateWorkspaceInput,
+  Principal as DeactivateWorkspacePrincipal,
+  DeactivateWorkspaceResult,
+} from './workspaces/deactivate-workspace.use-case'
+
 export { createPet } from './pets/create-pet.use-case'
 export type {
   CreatePetInput,
