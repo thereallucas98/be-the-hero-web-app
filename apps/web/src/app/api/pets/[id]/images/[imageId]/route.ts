@@ -7,13 +7,13 @@ import { removePetImage, updatePetImage } from '~/server/use-cases'
 
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ petId: string; imageId: string }> },
+  { params }: { params: Promise<{ id: string; imageId: string }> },
 ) {
   const principal = await getPrincipal(req)
 
-  const { petId, imageId } = await params
+  const { id, imageId } = await params
 
-  const petIdParsed = z.uuid().safeParse(petId)
+  const petIdParsed = z.uuid().safeParse(id)
   if (!petIdParsed.success) {
     return NextResponse.json(
       { message: 'Invalid pet id', details: petIdParsed.error.issues },
@@ -59,13 +59,13 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ petId: string; imageId: string }> },
+  { params }: { params: Promise<{ id: string; imageId: string }> },
 ) {
   const principal = await getPrincipal(req)
 
-  const { petId, imageId } = await params
+  const { id, imageId } = await params
 
-  const petIdParsed = z.uuid().safeParse(petId)
+  const petIdParsed = z.uuid().safeParse(id)
   if (!petIdParsed.success) {
     return NextResponse.json(
       { message: 'Invalid pet id', details: petIdParsed.error.issues },

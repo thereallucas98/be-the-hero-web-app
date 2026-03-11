@@ -1,15 +1,15 @@
-# Integração Supabase Storage (pet images)
+# Supabase Storage Integration (pet images)
 
-O padrão de storage segue a implementação em `~/tmp/puzzles/pronai-web-app`.
+The storage pattern follows the implementation at `~/tmp/puzzles/pronai-web-app`.
 
-## Configuração
+## Setup
 
-1. Instalar: `pnpm --filter web add @supabase/supabase-js`
-2. Variáveis de ambiente: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+1. Install: `pnpm --filter web add @supabase/supabase-js`
+2. Environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 3. Bucket: `bethehero-pet-images`
-4. Path das imagens: `pets/{petId}/{filename}`
+4. Image path: `pets/{petId}/{filename}`
 
-## Criar `lib/storage/supabase.ts`
+## Create `lib/storage/supabase.ts`
 
 ```ts
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
@@ -38,8 +38,8 @@ export async function uploadPetImage(petId: string, file: Buffer | Blob, filenam
 }
 ```
 
-## Fluxo add image
+## Add image flow
 
-1. Cliente faz upload para Supabase Storage (SDK ou signed upload URL)
-2. Cliente chama `POST /api/pets/:id/images` com `{ url, storagePath, position, isCover }`
-3. storagePath deve seguir `pets/{petId}/...`
+1. Client uploads to Supabase Storage (SDK or signed upload URL)
+2. Client calls `POST /api/pets/:id/images` with `{ url, storagePath, position, isCover }`
+3. `storagePath` must follow `pets/{petId}/...`

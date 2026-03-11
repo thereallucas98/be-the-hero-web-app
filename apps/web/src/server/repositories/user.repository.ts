@@ -1,6 +1,27 @@
 import type { PrismaClient } from '~/generated/prisma/client'
 
 export interface UserRepository {
+  findEmailVerifiedById(id: string): Promise<{
+    id: string
+    email: string
+    emailVerified: boolean
+  } | null>
+  findByResetToken(hashedToken: string): Promise<{
+    id: string
+    resetTokenExpires: Date | null
+  } | null>
+  setResetToken(
+    userId: string,
+    hashedToken: string,
+    expiresAt: Date,
+  ): Promise<void>
+  clearResetToken(userId: string): Promise<void>
+  setEmailVerified(userId: string): Promise<void>
+  updateProfile(
+    userId: string,
+    data: { fullName?: string; phone?: string },
+  ): Promise<{ fullName: string; phone: string | null }>
+  updatePassword(userId: string, passwordHash: string): Promise<void>
   findByEmailForLogin(email: string): Promise<{
     id: string
     email: string
@@ -51,6 +72,56 @@ export interface UserRepository {
 
 export function createUserRepository(prisma: PrismaClient): UserRepository {
   return {
+    async findEmailVerifiedById(id) {
+      return prisma.user.findUnique({
+        where: { id },
+        select: { id: true, email: true, emailVerified: true },
+      })
+    },
+
+    async findByResetToken(hashedToken) {
+      return prisma.user.findFirst({
+        where: { resetToken: hashedToken },
+        select: { id: true, resetTokenExpires: true },
+      })
+    },
+
+    async setResetToken(userId, hashedToken, expiresAt) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { resetToken: hashedToken, resetTokenExpires: expiresAt },
+      })
+    },
+
+    async clearResetToken(userId) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { resetToken: null, resetTokenExpires: null },
+      })
+    },
+
+    async setEmailVerified(userId) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { emailVerified: true },
+      })
+    },
+
+    async updateProfile(userId, data) {
+      return prisma.user.update({
+        where: { id: userId },
+        data,
+        select: { fullName: true, phone: true },
+      })
+    },
+
+    async updatePassword(userId, passwordHash) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      })
+    },
+
     async findByEmail(email) {
       const u = await prisma.user.findUnique({
         where: { email },

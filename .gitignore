@@ -22,6 +22,9 @@ coverage
 # Vercel
 .vercel
 
+# Cursor
+.cursor
+
 # Prisma generated client
 apps/web/src/generated/
 
