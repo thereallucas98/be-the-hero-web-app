@@ -285,3 +285,31 @@ export type {
   ListGuardianAdoptionsUseCaseResult,
   Principal as ListGuardianAdoptionsPrincipal,
 } from './follow-ups/list-guardian-adoptions.use-case'
+
+export { listMyInterests } from './adoption-interests/list-my-interests.use-case'
+export type {
+  ListMyInterestsInput,
+  ListMyInterestsResult,
+  Principal as ListMyInterestsPrincipal,
+} from './adoption-interests/list-my-interests.use-case'
+
+export { withdrawAdoptionInterest } from './adoption-interests/withdraw-adoption-interest.use-case'
+export type {
+  WithdrawAdoptionInterestInput,
+  WithdrawAdoptionInterestResult,
+  Principal as WithdrawAdoptionInterestPrincipal,
+} from './adoption-interests/withdraw-adoption-interest.use-case'
+
+export { convertInterestToAdoption } from './adoption-interests/convert-interest-to-adoption.use-case'
+export type {
+  ConvertInterestToAdoptionInput,
+  ConvertInterestToAdoptionResult,
+  Principal as ConvertInterestToAdoptionPrincipal,
+} from './adoption-interests/convert-interest-to-adoption.use-case'
+
+export { dismissAdoptionInterest } from './adoption-interests/dismiss-adoption-interest.use-case'
+export type {
+  DismissAdoptionInterestInput,
+  DismissAdoptionInterestResult,
+  Principal as DismissAdoptionInterestPrincipal,
+} from './adoption-interests/dismiss-adoption-interest.use-case'
