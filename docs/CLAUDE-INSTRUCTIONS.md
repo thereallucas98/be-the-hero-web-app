@@ -355,6 +355,17 @@ Common lint issues to watch for:
 - Missing return types when required by ESLint rules
 - Imports that exist but are never used
 
+### Update the roadmap
+
+After lint + build pass, update `docs/API-ROADMAP.md`:
+
+1. Mark every completed route as `✅` (change `🔲` → `✅`)
+2. Mark the phase heading as `✅` if all items in the phase are done (e.g., `## Phase 2 — Geo/Location Support ✅`)
+3. Update the **Dependency Order** block at the bottom — mark done phases with `← ✅ DONE` and mark the next unblocked phase with `← NEXT`
+4. Update the **Current State** section at the top if new endpoint categories were added
+
+This keeps the roadmap accurate for future sessions.
+
 Tell user: `"✅ Implementation complete. Lint and build passing. Ready for your review."`
 
 Then immediately output a suggested commit message:
