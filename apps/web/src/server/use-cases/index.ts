@@ -243,3 +243,45 @@ export type {
   RegisterAdoptionResult,
   RegisterAdoptionPrincipal,
 } from './adoptions'
+
+export { listAdoptionFollowUps } from './follow-ups/list-adoption-follow-ups.use-case'
+export type {
+  ListAdoptionFollowUpsInput,
+  ListAdoptionFollowUpsResult,
+  Principal as ListAdoptionFollowUpsPrincipal,
+} from './follow-ups/list-adoption-follow-ups.use-case'
+
+export { submitFollowUp } from './follow-ups/submit-follow-up.use-case'
+export type {
+  SubmitFollowUpInput,
+  SubmitFollowUpResult,
+  Principal as SubmitFollowUpPrincipal,
+} from './follow-ups/submit-follow-up.use-case'
+
+export { listFollowUpSubmissionsAdmin } from './follow-ups/list-follow-up-submissions-admin.use-case'
+export type {
+  ListFollowUpSubmissionsAdminInput,
+  ListFollowUpSubmissionsAdminResult,
+  Principal as ListFollowUpSubmissionsAdminPrincipal,
+} from './follow-ups/list-follow-up-submissions-admin.use-case'
+
+export { approveFollowUpSubmission } from './follow-ups/approve-follow-up-submission.use-case'
+export type {
+  ApproveFollowUpSubmissionInput,
+  ApproveFollowUpSubmissionResult,
+  Principal as ApproveFollowUpSubmissionPrincipal,
+} from './follow-ups/approve-follow-up-submission.use-case'
+
+export { rejectFollowUpSubmission } from './follow-ups/reject-follow-up-submission.use-case'
+export type {
+  RejectFollowUpSubmissionInput,
+  RejectFollowUpSubmissionResult,
+  Principal as RejectFollowUpSubmissionPrincipal,
+} from './follow-ups/reject-follow-up-submission.use-case'
+
+export { listGuardianAdoptions } from './follow-ups/list-guardian-adoptions.use-case'
+export type {
+  ListGuardianAdoptionsInput,
+  ListGuardianAdoptionsUseCaseResult,
+  Principal as ListGuardianAdoptionsPrincipal,
+} from './follow-ups/list-guardian-adoptions.use-case'

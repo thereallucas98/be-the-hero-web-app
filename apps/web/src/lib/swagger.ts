@@ -24,9 +24,15 @@ const options: swaggerJsdoc.Options = {
       { name: 'Pets', description: 'Pet registration and listing' },
       {
         name: 'Admin',
-        description: 'Pet approval/rejection (ADMIN / SUPER_ADMIN)',
+        description:
+          'Pet approval/rejection and follow-up review (ADMIN / SUPER_ADMIN)',
       },
       { name: 'Adoptions', description: 'Adoption registration and details' },
+      {
+        name: 'Follow-ups',
+        description:
+          'Adoption follow-ups — list, submit, and review submissions',
+      },
     ],
     components: {
       securitySchemes: {

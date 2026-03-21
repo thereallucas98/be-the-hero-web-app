@@ -2,6 +2,7 @@ import { prisma } from '~/lib/db'
 import { createAdoptionInterestRepository } from './adoption-interest.repository'
 import { createAdoptionRepository } from './adoption.repository'
 import { createAuditRepository } from './audit.repository'
+import { createFollowUpRepository } from './follow-up.repository'
 import { createGeoPlaceRepository } from './geo-place.repository'
 import { createPetRepository } from './pet.repository'
 import { createUserRepository } from './user.repository'
@@ -11,6 +12,7 @@ export const adoptionInterestRepository =
   createAdoptionInterestRepository(prisma)
 export const adoptionRepository = createAdoptionRepository(prisma)
 export const auditRepository = createAuditRepository(prisma)
+export const followUpRepository = createFollowUpRepository(prisma)
 export const userRepository = createUserRepository(prisma)
 export const workspaceRepository = createWorkspaceRepository(prisma)
 export const petRepository = createPetRepository(prisma)
