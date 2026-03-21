@@ -18,6 +18,9 @@ export async function GET(req: Request) {
   const result = await listPets(petRepository, {
     cityPlaceId: parsed.data.cityPlaceId,
     species: parsed.data.species,
+    sex: parsed.data.sex,
+    size: parsed.data.size,
+    ageCategory: parsed.data.ageCategory,
     page: parsed.data.page,
     perPage: parsed.data.perPage,
   })

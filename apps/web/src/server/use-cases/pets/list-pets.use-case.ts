@@ -4,11 +4,12 @@ import type {
   PetRepository,
 } from '../../repositories/pet.repository'
 
+export type ListPetsInput = ListPublicPetsInput
 export type ListPetsResult = ListPublicPetsResult
 
 export async function listPets(
   petRepo: PetRepository,
-  input: ListPublicPetsInput,
+  input: ListPetsInput,
 ): Promise<ListPetsResult> {
   return petRepo.listPublicPets(input)
 }

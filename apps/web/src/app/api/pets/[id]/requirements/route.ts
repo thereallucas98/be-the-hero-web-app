@@ -1,34 +1,11 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getPrincipal } from '~/lib/get-principal'
-import { auditRepository, petRepository } from '~/server/repositories'
-import { UpdatePetSchema } from '~/server/schemas/pet.schema'
-import { getPetDetail, updatePet } from '~/server/use-cases'
+import { petRepository } from '~/server/repositories'
+import { AddPetRequirementSchema } from '~/server/schemas/pet.schema'
+import { addPetRequirement } from '~/server/use-cases'
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const { id } = await params
-
-  const idParsed = z.uuid().safeParse(id)
-  if (!idParsed.success) {
-    return NextResponse.json(
-      { message: 'Invalid pet id', details: idParsed.error.issues },
-      { status: 400 },
-    )
-  }
-
-  const result = await getPetDetail(petRepository, idParsed.data)
-
-  if (!result.success) {
-    return NextResponse.json({ message: 'Pet not found' }, { status: 404 })
-  }
-
-  return NextResponse.json(result.pet, { status: 200 })
-}
-
-export async function PATCH(
+export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -45,7 +22,7 @@ export async function PATCH(
   }
 
   const body = await req.json().catch(() => null)
-  const parsed = UpdatePetSchema.safeParse(body)
+  const parsed = AddPetRequirementSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json(
       { message: 'Invalid payload', details: parsed.error.issues },
@@ -53,9 +30,9 @@ export async function PATCH(
     )
   }
 
-  const result = await updatePet(petRepository, auditRepository, principal, {
+  const result = await addPetRequirement(petRepository, principal, {
     petId: idParsed.data,
-    data: parsed.data,
+    ...parsed.data,
   })
 
   if (!result.success) {
@@ -63,11 +40,13 @@ export async function PATCH(
       UNAUTHENTICATED: 401,
       NOT_FOUND: 404,
       FORBIDDEN: 403,
+      ORDER_CONFLICT: 409,
     } as const
     const messageMap = {
       UNAUTHENTICATED: 'Unauthenticated',
       NOT_FOUND: 'Pet not found',
       FORBIDDEN: 'Forbidden',
+      ORDER_CONFLICT: 'Order already taken for this pet',
     } as const
     return NextResponse.json(
       { message: messageMap[result.code] },
@@ -75,5 +54,5 @@ export async function PATCH(
     )
   }
 
-  return NextResponse.json(result.pet, { status: 200 })
+  return NextResponse.json(result.requirement, { status: 201 })
 }

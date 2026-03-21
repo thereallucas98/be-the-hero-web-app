@@ -149,13 +149,13 @@ docs/                # Documentation and task tracking
 ## Commands
 
 ```bash
-pnpm dev              # Start dev server
+pnpm dev              # Start dev server (may use :3001 if :3000 is taken)
 pnpm build            # Prisma generate + Next.js build
 pnpm lint             # tsc --noEmit + ESLint (max-warnings: 0)
 pnpm lint-fix         # Auto-fix lint
 pnpm prettier-format  # Format code
 pnpm db:generate      # Generate Prisma client
-pnpm db:migrate       # Run migrations (dev)
+cd apps/web && pnpm db:migrate   # Run migrations (must cd into apps/web first)
 pnpm db:push          # Push schema without migration (dev)
 pnpm db:studio        # Prisma Studio UI
 ```
@@ -165,6 +165,47 @@ Validation before marking execution complete:
 pnpm lint    # Must pass (0 warnings)
 pnpm build   # Must succeed
 ```
+
+---
+
+## Dev Environment
+
+- **Database**: PostgreSQL via Docker — `docker compose up -d` (from repo root)
+- **Container name**: `bethehero-postgres` | **DB name**: `pronai` | **User**: `postgres` | **Password**: `docker`
+- **Swagger UI**: `http://localhost:3001/api-docs` (all API docs live here)
+- **DB direct access**: `docker exec bethehero-postgres psql -U postgres -d pronai -c "..."`
+- **Cookie jar for tests**: `/tmp/bth_cookies.txt`
+
+### API Testing (QA gates — Claude runs these, not the user)
+
+At each QA gate, Claude must:
+1. Ensure Docker + dev server are running
+2. Execute curl tests covering: happy path, 401, 403, 404, 400, business rule violation
+3. Verify DB side effects where applicable (e.g., `SELECT` after insert)
+4. Show a result table (✅/❌ per test case)
+5. Fix any failures before reporting the gate as passed
+
+```bash
+BASE="http://localhost:3001"
+COOKIE_JAR="/tmp/bth_cookies.txt"
+
+# Login (save cookie for subsequent requests)
+curl -s -c $COOKIE_JAR -X POST $BASE/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@bth.dev","password":"Pass1234!"}'
+
+# Authenticated request
+curl -s -b $COOKIE_JAR -X POST $BASE/api/... \
+  -H "Content-Type: application/json" \
+  -d '{"field":"value"}' | python3 -m json.tool
+
+# Status code only
+curl -s -o /dev/null -w "HTTP %{http_code}\n" -b $COOKIE_JAR -X DELETE $BASE/api/...
+```
+
+### Swagger docs (required for every new endpoint)
+
+Add JSDoc comments to `apps/web/src/lib/swagger/definitions/<domain>.ts`. Verify at `/api-docs`.
 
 ---
 
@@ -190,8 +231,9 @@ Phase transitions:
 EXPLORATION done → "Exploration complete. Move to Research? (y/n)"
 RESEARCH done    → "Research complete. Move to Planning? (y/n)"
 PLANNING done    → "Plan ready. Approve? (y/n)"  ← wait for y
-Each sub-step    → QA checklist output            ← wait for ok
+Each sub-step    → Claude runs curl tests + shows results table ← wait for ok
 All steps done   → "✅ Implementation complete. Ready for your review."
+                   + suggested commit message (one line, imperative, 72 chars max)
 ```
 
 ---

@@ -109,8 +109,96 @@ export interface PublicPetListItem {
 export interface ListPublicPetsInput {
   cityPlaceId?: string
   species?: string
+  sex?: string
+  size?: string
+  ageCategory?: string
   page?: number
   perPage?: number
+}
+
+export interface PublicPetRequirementItem {
+  id: string
+  category: string
+  title: string
+  description: string | null
+  isMandatory: boolean
+  order: number
+}
+
+export interface PublicPetDetailItem {
+  id: string
+  name: string
+  description: string
+  species: string
+  sex: string
+  size: string
+  ageCategory: string
+  energyLevel: string | null
+  independenceLevel: string | null
+  environment: string | null
+  adoptionRequirements: string | null
+  images: Array<{ id: string; url: string; position: number; isCover: boolean }>
+  requirements: PublicPetRequirementItem[]
+  workspace: { id: string; name: string }
+  approvedAt: Date
+}
+
+export interface AddPetRequirementData {
+  category: string
+  title: string
+  description?: string
+  isMandatory?: boolean
+  order: number
+}
+
+export interface UpdatePetRequirementData {
+  category?: string
+  title?: string
+  description?: string
+  isMandatory?: boolean
+  order?: number
+}
+
+export interface PetRequirementItem {
+  id: string
+  petId: string
+  category: string
+  title: string
+  description: string | null
+  isMandatory: boolean
+  order: number
+}
+
+export interface WorkspacePetListItem {
+  id: string
+  name: string
+  species: string
+  sex: string
+  size: string
+  ageCategory: string
+  status: string
+  coverImage: { url: string } | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ListWorkspacePetsInput {
+  status?: string
+  page?: number
+  perPage?: number
+}
+
+export interface ListWorkspacePetsResult {
+  items: WorkspacePetListItem[]
+  total: number
+  page: number
+  perPage: number
+}
+
+export interface PetForTrackingItem {
+  id: string
+  workspaceId: string
+  status: string
 }
 
 export interface ListPublicPetsResult {
@@ -219,6 +307,27 @@ export interface PetRepository {
   listPublicPets(input: ListPublicPetsInput): Promise<ListPublicPetsResult>
   findByIdForInterest(id: string): Promise<PetForInterestItem | null>
   findByIdForAdoption(id: string): Promise<PetForAdoptionItem | null>
+  findByIdPublic(id: string): Promise<PublicPetDetailItem | null>
+  listByWorkspace(
+    workspaceId: string,
+    input: ListWorkspacePetsInput,
+  ): Promise<ListWorkspacePetsResult>
+  addRequirement(
+    petId: string,
+    data: AddPetRequirementData,
+  ): Promise<PetRequirementItem>
+  findRequirementById(
+    reqId: string,
+    petId: string,
+  ): Promise<PetRequirementItem | null>
+  updateRequirement(
+    reqId: string,
+    petId: string,
+    data: UpdatePetRequirementData,
+  ): Promise<PetRequirementItem | null>
+  removeRequirement(reqId: string, petId: string): Promise<boolean>
+  findByIdForTracking(id: string): Promise<PetForTrackingItem | null>
+  trackEvent(petId: string, workspaceId: string, type: string): Promise<void>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -926,6 +1035,15 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
             | 'TURTLE'
             | 'OTHER',
         }),
+        ...(input.sex && { sex: input.sex as 'MALE' | 'FEMALE' }),
+        ...(input.size && { size: input.size as 'SMALL' | 'MEDIUM' | 'LARGE' }),
+        ...(input.ageCategory && {
+          ageCategory: input.ageCategory as
+            | 'PUPPY'
+            | 'YOUNG'
+            | 'ADULT'
+            | 'SENIOR',
+        }),
       }
 
       const [rows, total] = await Promise.all([
@@ -1004,6 +1122,222 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         workspace: pet.workspace,
         hasAdoption: pet.adoption !== null,
       }
+    },
+
+    async findByIdPublic(id) {
+      const pet = await prisma.pet.findUnique({
+        where: { id, status: 'APPROVED', isActive: true },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          species: true,
+          sex: true,
+          size: true,
+          ageCategory: true,
+          energyLevel: true,
+          independenceLevel: true,
+          environment: true,
+          adoptionRequirements: true,
+          approvedAt: true,
+          images: {
+            select: { id: true, url: true, position: true, isCover: true },
+            orderBy: { position: 'asc' },
+          },
+          requirements: {
+            select: {
+              id: true,
+              category: true,
+              title: true,
+              description: true,
+              isMandatory: true,
+              order: true,
+            },
+            orderBy: { order: 'asc' },
+          },
+          workspace: { select: { id: true, name: true } },
+        },
+      })
+      if (!pet || !pet.approvedAt) return null
+      return {
+        ...pet,
+        approvedAt: pet.approvedAt,
+      }
+    },
+
+    async listByWorkspace(workspaceId, input) {
+      const page = Math.max(1, input.page ?? 1)
+      const perPage = Math.min(50, Math.max(1, input.perPage ?? 20))
+
+      const where = {
+        workspaceId,
+        ...(input.status && {
+          status: input.status as
+            | 'DRAFT'
+            | 'PENDING_REVIEW'
+            | 'APPROVED'
+            | 'REJECTED'
+            | 'ADOPTED',
+        }),
+      }
+
+      const [rows, total] = await Promise.all([
+        prisma.pet.findMany({
+          where,
+          select: {
+            id: true,
+            name: true,
+            species: true,
+            sex: true,
+            size: true,
+            ageCategory: true,
+            status: true,
+            images: {
+              where: { isCover: true },
+              take: 1,
+              select: { url: true },
+            },
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          skip: (page - 1) * perPage,
+          take: perPage,
+        }),
+        prisma.pet.count({ where }),
+      ])
+
+      return {
+        items: rows.map((p) => ({
+          id: p.id,
+          name: p.name,
+          species: p.species,
+          sex: p.sex,
+          size: p.size,
+          ageCategory: p.ageCategory,
+          status: p.status,
+          coverImage: p.images[0] ? { url: p.images[0].url } : null,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        })),
+        total,
+        page,
+        perPage,
+      }
+    },
+
+    async addRequirement(petId, data) {
+      return prisma.petRequirement.create({
+        data: {
+          petId,
+          category: data.category as
+            | 'HOME'
+            | 'EXPERIENCE'
+            | 'TIME_AVAILABILITY'
+            | 'FINANCIAL'
+            | 'SAFETY'
+            | 'HEALTH_CARE'
+            | 'OTHER',
+          title: data.title,
+          description: data.description ?? null,
+          isMandatory: data.isMandatory ?? true,
+          order: data.order,
+        },
+        select: {
+          id: true,
+          petId: true,
+          category: true,
+          title: true,
+          description: true,
+          isMandatory: true,
+          order: true,
+        },
+      })
+    },
+
+    async findRequirementById(reqId, petId) {
+      return prisma.petRequirement.findFirst({
+        where: { id: reqId, petId },
+        select: {
+          id: true,
+          petId: true,
+          category: true,
+          title: true,
+          description: true,
+          isMandatory: true,
+          order: true,
+        },
+      })
+    },
+
+    async updateRequirement(reqId, petId, data) {
+      const existing = await prisma.petRequirement.findFirst({
+        where: { id: reqId, petId },
+      })
+      if (!existing) return null
+
+      const updateData: {
+        category?:
+          | 'HOME'
+          | 'EXPERIENCE'
+          | 'TIME_AVAILABILITY'
+          | 'FINANCIAL'
+          | 'SAFETY'
+          | 'HEALTH_CARE'
+          | 'OTHER'
+        title?: string
+        description?: string | null
+        isMandatory?: boolean
+        order?: number
+      } = {}
+      if (data.category !== undefined)
+        updateData.category = data.category as typeof updateData.category
+      if (data.title !== undefined) updateData.title = data.title
+      if (data.description !== undefined)
+        updateData.description = data.description ?? null
+      if (data.isMandatory !== undefined)
+        updateData.isMandatory = data.isMandatory
+      if (data.order !== undefined) updateData.order = data.order
+
+      return prisma.petRequirement.update({
+        where: { id: reqId },
+        data: updateData,
+        select: {
+          id: true,
+          petId: true,
+          category: true,
+          title: true,
+          description: true,
+          isMandatory: true,
+          order: true,
+        },
+      })
+    },
+
+    async removeRequirement(reqId, petId) {
+      const existing = await prisma.petRequirement.findFirst({
+        where: { id: reqId, petId },
+      })
+      if (!existing) return false
+      await prisma.petRequirement.delete({ where: { id: reqId } })
+      return true
+    },
+
+    async findByIdForTracking(id) {
+      return prisma.pet.findUnique({
+        where: { id },
+        select: { id: true, workspaceId: true, status: true },
+      })
+    },
+
+    async trackEvent(petId, workspaceId, type) {
+      await prisma.petMetricEvent.create({
+        data: {
+          petId,
+          workspaceId,
+          type: type as 'VIEW_PET' | 'CLICK_WHATSAPP' | 'REGISTER_INTEREST',
+        },
+      })
     },
   }
 }

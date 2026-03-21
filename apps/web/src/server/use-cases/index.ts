@@ -170,6 +170,43 @@ export type {
 export { listPets } from './pets/list-pets.use-case'
 export type { ListPetsResult } from './pets/list-pets.use-case'
 
+export { getPetDetail } from './pets/get-pet-detail.use-case'
+export type { GetPetDetailResult } from './pets/get-pet-detail.use-case'
+
+export { addPetRequirement } from './pets/add-pet-requirement.use-case'
+export type {
+  AddPetRequirementInput,
+  AddPetRequirementResult,
+  Principal as AddPetRequirementPrincipal,
+} from './pets/add-pet-requirement.use-case'
+
+export { updatePetRequirement } from './pets/update-pet-requirement.use-case'
+export type {
+  UpdatePetRequirementInput,
+  UpdatePetRequirementResult,
+  Principal as UpdatePetRequirementPrincipal,
+} from './pets/update-pet-requirement.use-case'
+
+export { removePetRequirement } from './pets/remove-pet-requirement.use-case'
+export type {
+  RemovePetRequirementInput,
+  RemovePetRequirementResult,
+  Principal as RemovePetRequirementPrincipal,
+} from './pets/remove-pet-requirement.use-case'
+
+export { listWorkspacePets } from './pets/list-workspace-pets.use-case'
+export type {
+  ListWorkspacePetsInput,
+  ListWorkspacePetsUseCaseResult,
+  Principal as ListWorkspacePetsPrincipal,
+} from './pets/list-workspace-pets.use-case'
+
+export { trackPetEvent } from './pets/track-pet-event.use-case'
+export type {
+  TrackPetEventInput,
+  TrackPetEventResult,
+} from './pets/track-pet-event.use-case'
+
 export { removePetImage } from './pets/remove-pet-image.use-case'
 export type {
   RemovePetImageInput,

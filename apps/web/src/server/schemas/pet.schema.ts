@@ -64,11 +64,70 @@ export type RejectPetInput = z.infer<typeof RejectPetSchema>
 export const ListPetsQuerySchema = z.object({
   cityPlaceId: z.string().uuid().optional(),
   species: speciesEnum.optional(),
+  sex: sexEnum.optional(),
+  size: sizeEnum.optional(),
+  ageCategory: ageCategoryEnum.optional(),
   page: z.coerce.number().int().positive().optional().default(1),
   perPage: z.coerce.number().int().positive().max(20).optional().default(20),
 })
 
 export type ListPetsQueryInput = z.infer<typeof ListPetsQuerySchema>
+
+const requirementCategoryEnum = z.enum([
+  'HOME',
+  'EXPERIENCE',
+  'TIME_AVAILABILITY',
+  'FINANCIAL',
+  'SAFETY',
+  'HEALTH_CARE',
+  'OTHER',
+])
+
+export const AddPetRequirementSchema = z
+  .object({
+    category: requirementCategoryEnum,
+    title: z.string().min(3).max(100),
+    description: z.string().max(500).optional(),
+    isMandatory: z.boolean().default(true),
+    order: z.number().int().min(1),
+  })
+  .strict()
+
+export type AddPetRequirementInput = z.infer<typeof AddPetRequirementSchema>
+
+export const UpdatePetRequirementSchema = z
+  .object({
+    category: requirementCategoryEnum.optional(),
+    title: z.string().min(3).max(100).optional(),
+    description: z.string().max(500).optional(),
+    isMandatory: z.boolean().optional(),
+    order: z.number().int().min(1).optional(),
+  })
+  .strict()
+
+export type UpdatePetRequirementInput = z.infer<
+  typeof UpdatePetRequirementSchema
+>
+
+export const TrackPetEventSchema = z
+  .object({
+    type: z.enum(['VIEW_PET', 'CLICK_WHATSAPP', 'REGISTER_INTEREST']),
+  })
+  .strict()
+
+export type TrackPetEventInput = z.infer<typeof TrackPetEventSchema>
+
+export const ListWorkspacePetsQuerySchema = z.object({
+  status: z
+    .enum(['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'ADOPTED'])
+    .optional(),
+  page: z.coerce.number().int().positive().optional().default(1),
+  perPage: z.coerce.number().int().positive().max(50).optional().default(20),
+})
+
+export type ListWorkspacePetsQueryInput = z.infer<
+  typeof ListWorkspacePetsQuerySchema
+>
 
 export const RegisterAdoptionInterestSchema = z
   .object({
