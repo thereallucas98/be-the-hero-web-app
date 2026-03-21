@@ -143,31 +143,31 @@ Fundraising feature for partner organizations to support animal care.
 
 ---
 
-## Phase 5 — Admin Tools
+## Phase 5 — Admin Tools ✅
 
 Operational tools for platform management.
 
-### 5.1 Admin coverage
-- 🔲 `GET /api/admin/coverage` — list cities covered by the logged-in admin
+### 5.1 Admin coverage ✅
+- ✅ `GET /api/admin/coverage` — list cities covered by the logged-in admin
   - RBAC: ADMIN
-- 🔲 `POST /api/admin/coverage` — assign city coverage to an admin
+- ✅ `POST /api/admin/coverage` — assign city coverage to an admin
   - Body: `{ adminUserId, cityId }`
   - RBAC: SUPER_ADMIN
-- 🔲 `DELETE /api/admin/coverage/:id` — remove coverage assignment
+- ✅ `DELETE /api/admin/coverage/:id` — remove coverage assignment
   - RBAC: SUPER_ADMIN
 
-### 5.2 Workspace verification
-- 🔲 `GET /api/admin/workspaces` — list workspaces pending verification
-  - Filters: `verificationStatus`, `cityId`, pagination
+### 5.2 Workspace verification ✅
+- ✅ `GET /api/admin/workspaces` — list workspaces pending verification
+  - Filters: `verificationStatus`, pagination
   - RBAC: ADMIN, SUPER_ADMIN
-- 🔲 `POST /api/admin/workspaces/:id/approve` — verify workspace
+- ✅ `POST /api/admin/workspaces/:id/approve` — verify workspace
   - RBAC: ADMIN, SUPER_ADMIN
-- 🔲 `POST /api/admin/workspaces/:id/reject` — reject workspace verification
+- ✅ `POST /api/admin/workspaces/:id/reject` — reject workspace verification
   - Body: `{ reviewNote }`
   - RBAC: ADMIN, SUPER_ADMIN
 
-### 5.3 Audit logs
-- 🔲 `GET /api/admin/audit-logs` — query audit trail
+### 5.3 Audit logs ✅
+- ✅ `GET /api/admin/audit-logs` — query audit trail
   - Filters: `actorId`, `entityType`, `action`, `dateFrom`, `dateTo`, pagination
   - RBAC: SUPER_ADMIN
 
@@ -222,7 +222,7 @@ Phase 1 (Pet flow)        ← ✅ DONE
 Phase 2 (Geo)             ← ✅ DONE
 Phase 3 (Follow-ups)      ← ✅ DONE
 Phase 4 (Campaigns)       ← ✅ DONE
-Phase 5 (Admin tools)     ← depends on Phase 0 ✅ + Phase 2 ✅ + Phase 4 ✅ ← NEXT
+Phase 5 (Admin tools)     ← depends on Phase 0 ✅ + Phase 2 ✅ + Phase 4 ✅ ← ✅ DONE
 Phase 6 (Metrics)         ← depends on Phase 1 ✅ + Phase 3 ✅ + Phase 4
 Phase 7 (Discovery)       ← depends on Phase 4 + Phase 6
 ```

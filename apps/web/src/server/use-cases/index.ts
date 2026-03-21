@@ -214,6 +214,45 @@ export type {
   RemovePetImageResult,
 } from './pets/remove-pet-image.use-case'
 
+export { listAdminCoverage } from './admin/list-admin-coverage.use-case'
+export type {
+  ListAdminCoverageResult,
+  Principal as ListAdminCoveragePrincipal,
+} from './admin/list-admin-coverage.use-case'
+
+export { addAdminCoverage } from './admin/add-admin-coverage.use-case'
+export type {
+  AddAdminCoverageInput,
+  AddAdminCoverageResult,
+  Principal as AddAdminCoveragePrincipal,
+} from './admin/add-admin-coverage.use-case'
+
+export { removeAdminCoverage } from './admin/remove-admin-coverage.use-case'
+export type {
+  RemoveAdminCoverageResult,
+  Principal as RemoveAdminCoveragePrincipal,
+} from './admin/remove-admin-coverage.use-case'
+
+export { listAdminWorkspaces } from './admin/list-admin-workspaces.use-case'
+export type {
+  ListAdminWorkspacesInput,
+  ListAdminWorkspacesResult2 as ListAdminWorkspacesResult,
+  Principal as ListAdminWorkspacesPrincipal,
+} from './admin/list-admin-workspaces.use-case'
+
+export { approveWorkspace } from './admin/approve-workspace.use-case'
+export type {
+  ApproveWorkspaceResult,
+  Principal as ApproveWorkspacePrincipal,
+} from './admin/approve-workspace.use-case'
+
+export { rejectWorkspace } from './admin/reject-workspace.use-case'
+export type {
+  RejectWorkspaceInput,
+  RejectWorkspaceResult,
+  Principal as RejectWorkspacePrincipal,
+} from './admin/reject-workspace.use-case'
+
 export { approvePetAdmin } from './admin/approve-pet-admin.use-case'
 export type {
   ApprovePetAdminInput,
@@ -413,6 +452,13 @@ export type {
   RejectDonationResult,
   Principal as RejectDonationPrincipal,
 } from './donations/reject-donation.use-case'
+
+export { listAuditLogs } from './admin/list-audit-logs.use-case'
+export type {
+  ListAuditLogsInput,
+  ListAuditLogsResult2 as ListAuditLogsResult,
+  Principal as ListAuditLogsPrincipal,
+} from './admin/list-audit-logs.use-case'
 
 export { listStates } from './geo/list-states.use-case'
 export type {

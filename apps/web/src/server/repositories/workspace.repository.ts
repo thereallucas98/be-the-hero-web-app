@@ -134,6 +134,31 @@ export interface WorkspaceForInterestsAccessItem {
   workspaceCityIds: string[]
 }
 
+export interface WorkspaceAdminItem {
+  id: string
+  name: string
+  type: string
+  verificationStatus: string
+  reviewNote: string | null
+  verifiedAt: Date | null
+  verifiedByUserId: string | null
+  isActive: boolean
+  createdAt: Date
+}
+
+export interface ListAdminWorkspacesInput {
+  verificationStatus?: string
+  page: number
+  perPage: number
+}
+
+export interface ListAdminWorkspacesResult {
+  items: WorkspaceAdminItem[]
+  total: number
+  page: number
+  perPage: number
+}
+
 export interface WorkspaceRepository {
   createWithLocationAndMember(
     data: CreateWorkspaceData,
@@ -195,6 +220,14 @@ export interface WorkspaceRepository {
   }>
   removeCityCoverage(workspaceId: string, coverageId: string): Promise<boolean>
   deactivateWorkspace(id: string): Promise<boolean>
+  listForAdmin(
+    input: ListAdminWorkspacesInput,
+  ): Promise<ListAdminWorkspacesResult>
+  approveWorkspace(
+    id: string,
+    approvedByUserId: string,
+  ): Promise<WorkspaceAdminItem>
+  rejectWorkspace(id: string, reviewNote: string): Promise<WorkspaceAdminItem>
 }
 
 export function createWorkspaceRepository(
@@ -697,6 +730,79 @@ export function createWorkspaceRepository(
         data: { isActive: false },
       })
       return result.count > 0
+    },
+
+    async listForAdmin({ verificationStatus, page, perPage }) {
+      const where = verificationStatus
+        ? { verificationStatus: verificationStatus as never }
+        : {}
+      const adminSelect = {
+        id: true,
+        name: true,
+        type: true,
+        verificationStatus: true,
+        reviewNote: true,
+        verifiedAt: true,
+        verifiedByUserId: true,
+        isActive: true,
+        createdAt: true,
+      } as const
+      const [items, total] = await Promise.all([
+        prisma.partnerWorkspace.findMany({
+          where,
+          select: adminSelect,
+          orderBy: { createdAt: 'desc' },
+          skip: (page - 1) * perPage,
+          take: perPage,
+        }),
+        prisma.partnerWorkspace.count({ where }),
+      ])
+      return { items, total, page, perPage }
+    },
+
+    async approveWorkspace(id, approvedByUserId) {
+      return prisma.partnerWorkspace.update({
+        where: { id },
+        data: {
+          verificationStatus: 'APPROVED',
+          verifiedAt: new Date(),
+          verifiedByUserId: approvedByUserId,
+          reviewNote: null,
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          verificationStatus: true,
+          reviewNote: true,
+          verifiedAt: true,
+          verifiedByUserId: true,
+          isActive: true,
+          createdAt: true,
+        },
+      })
+    },
+
+    async rejectWorkspace(id, reviewNote) {
+      return prisma.partnerWorkspace.update({
+        where: { id },
+        data: {
+          verificationStatus: 'REJECTED',
+          verifiedAt: new Date(),
+          reviewNote,
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          verificationStatus: true,
+          reviewNote: true,
+          verifiedAt: true,
+          verifiedByUserId: true,
+          isActive: true,
+          createdAt: true,
+        },
+      })
     },
   }
 }

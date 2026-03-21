@@ -102,6 +102,7 @@ model PartnerWorkspace {
   verifiedAt         DateTime?
   verifiedByUserId   String?
   verifiedBy         User?                      @relation("WorkspaceVerifier", fields: [verifiedByUserId], references: [id])
+  reviewNote         String?
   isActive           Boolean                    @default(true)
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
