@@ -21,6 +21,10 @@
 - ✅ Auth: password reset (forgot + reset), email verification (verify + resend)
 - ✅ `PATCH /api/me` — update profile; `PATCH /api/me/password` — change password
 - ✅ Geo: `GET /api/geo/states`, `GET /api/geo/cities`
+- ✅ Campaigns: create, list (workspace), get, update, submit-for-review, documents (add/remove)
+- ✅ Admin campaigns: list, approve, reject (with reviewNote)
+- ✅ Donations: register, list campaign donations
+- ✅ Admin donations: list, approve (increments currentAmount), reject (with reviewNote)
 
 ---
 
@@ -108,57 +112,34 @@ These are gaps in features that are already started. The schema fields exist; on
 
 ---
 
-## Phase 4 — Campaign & Donation System
+## Phase 4 — Campaign & Donation System ✅
 
 Fundraising feature for partner organizations to support animal care.
 
-### 4.1 Campaign management (partner)
-- 🔲 `POST /api/workspaces/:id/campaigns` — create campaign
-  - Body: `{ title, description, goalAmount, currency, petId? }`
-  - RBAC: workspace OWNER or EDITOR
-- 🔲 `GET /api/workspaces/:id/campaigns` — list campaigns for a workspace
-  - Filters: `status` (PENDING_REVIEW, APPROVED, ACTIVE, CLOSED), pagination
-  - RBAC: workspace OWNER, EDITOR, or ADMIN
-- 🔲 `GET /api/campaigns/:id` — get campaign details (public if approved)
-  - Include: documents, total raised, donation count
-- 🔲 `PATCH /api/campaigns/:id` — update campaign (while in DRAFT)
-  - RBAC: workspace OWNER or EDITOR
-- 🔲 `POST /api/campaigns/:id/submit-for-review` — submit campaign for admin review
-  - RBAC: workspace OWNER or EDITOR
+### 4.1 Campaign management (partner) ✅
+- ✅ `POST /api/workspaces/:id/campaigns` — create campaign
+- ✅ `GET /api/workspaces/:id/campaigns` — list campaigns for a workspace
+- ✅ `GET /api/campaigns/:id` — get campaign details (public if approved)
+- ✅ `PATCH /api/campaigns/:id` — update campaign (while in DRAFT)
+- ✅ `POST /api/campaigns/:id/submit-for-review` — submit campaign for admin review
 
-### 4.2 Campaign documents (partner)
-- 🔲 `POST /api/campaigns/:id/documents` — attach document to campaign
-  - Body: `{ title, type, url, storagePath }`
-  - RBAC: workspace OWNER or EDITOR
-- 🔲 `DELETE /api/campaigns/:id/documents/:docId` — remove document
-  - RBAC: workspace OWNER or EDITOR
+### 4.2 Campaign documents (partner) ✅
+- ✅ `POST /api/campaigns/:id/documents` — attach document to campaign
+- ✅ `DELETE /api/campaigns/:id/documents/:docId` — remove document
 
-### 4.3 Admin campaign approval
-- 🔲 `GET /api/admin/campaigns` — list campaigns pending review
-  - Filters: `status`, `workspaceId`, pagination
-  - RBAC: ADMIN, SUPER_ADMIN
-- 🔲 `POST /api/admin/campaigns/:id/approve` — approve campaign
-  - RBAC: ADMIN, SUPER_ADMIN
-- 🔲 `POST /api/admin/campaigns/:id/reject` — reject campaign
-  - Body: `{ reviewNote }` (required)
-  - RBAC: ADMIN, SUPER_ADMIN
+### 4.3 Admin campaign approval ✅
+- ✅ `GET /api/admin/campaigns` — list all campaigns with filters
+- ✅ `POST /api/admin/campaigns/:id/approve` — approve campaign
+- ✅ `POST /api/admin/campaigns/:id/reject` — reject campaign (stores reviewNote)
 
-### 4.4 Donations (public/guardian)
-- 🔲 `POST /api/campaigns/:id/donations` — register a donation
-  - Body: `{ amount, currency, proofUrl, proofStoragePath, message? }`
-  - RBAC: GUARDIAN or authenticated user
-- 🔲 `GET /api/campaigns/:id/donations` — list donations for a campaign (public)
-  - Returns: anonymous donor, amount, date (no personal data)
+### 4.4 Donations ✅
+- ✅ `POST /api/campaigns/:id/donations` — register a donation (any authenticated user)
+- ✅ `GET /api/campaigns/:id/donations` — list donations (workspace members or admin)
 
-### 4.5 Admin donation approval
-- 🔲 `GET /api/admin/donations` — list donations pending proof review
-  - Filters: `status`, `campaignId`, pagination
-  - RBAC: ADMIN, SUPER_ADMIN
-- 🔲 `POST /api/admin/donations/:id/approve` — approve donation
-  - RBAC: ADMIN, SUPER_ADMIN
-- 🔲 `POST /api/admin/donations/:id/reject` — reject donation
-  - Body: `{ reviewNote }`
-  - RBAC: ADMIN, SUPER_ADMIN
+### 4.5 Admin donation approval ✅
+- ✅ `GET /api/admin/donations` — list donations with filters
+- ✅ `POST /api/admin/donations/:id/approve` — approve donation (increments campaign currentAmount)
+- ✅ `POST /api/admin/donations/:id/reject` — reject donation (stores reviewNote)
 
 ---
 
@@ -240,8 +221,8 @@ Phase 0 (Auth & User/Org) ← ✅ DONE
 Phase 1 (Pet flow)        ← ✅ DONE
 Phase 2 (Geo)             ← ✅ DONE
 Phase 3 (Follow-ups)      ← ✅ DONE
-Phase 4 (Campaigns)       ← depends on Phase 0.5 ✅ + Phase 2 ✅ ← NEXT
-Phase 5 (Admin tools)     ← depends on Phase 0 ✅ + Phase 2 + Phase 4
+Phase 4 (Campaigns)       ← ✅ DONE
+Phase 5 (Admin tools)     ← depends on Phase 0 ✅ + Phase 2 ✅ + Phase 4 ✅ ← NEXT
 Phase 6 (Metrics)         ← depends on Phase 1 ✅ + Phase 3 ✅ + Phase 4
 Phase 7 (Discovery)       ← depends on Phase 4 + Phase 6
 ```

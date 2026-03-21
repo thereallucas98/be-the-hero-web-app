@@ -33,6 +33,17 @@ const options: swaggerJsdoc.Options = {
         description:
           'Adoption follow-ups — list, submit, and review submissions',
       },
+      {
+        name: 'Campaigns',
+        description:
+          'Fundraising campaigns — CRUD, documents, and submission for review',
+      },
+      {
+        name: 'Donations',
+        description:
+          'Campaign donations — registration, listing, and admin review',
+      },
+      { name: 'Geo', description: 'Geographic data — states and cities' },
     ],
     components: {
       securitySchemes: {

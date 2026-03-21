@@ -370,6 +370,7 @@ model Campaign {
   approvedAt       DateTime?
   approvedByUserId String?
   approvedBy       User?              @relation("CampaignApprover", fields: [approvedByUserId], references: [id])
+  reviewNote       String?
   startsAt         DateTime?
   endsAt           DateTime?
   createdAt        DateTime           @default(now())

@@ -147,6 +147,11 @@ export interface WorkspaceRepository {
   findByIdForInterestsAccess(
     id: string,
   ): Promise<WorkspaceForInterestsAccessItem | null>
+  findByIdSimple(id: string): Promise<{
+    id: string
+    isActive: boolean
+    verificationStatus: string
+  } | null>
   updateBasicData(
     id: string,
     data: UpdateWorkspaceBasicData,
@@ -439,6 +444,13 @@ export function createWorkspaceRepository(
         id: workspace.id,
         workspaceCityIds: Array.from(cityIds),
       }
+    },
+
+    async findByIdSimple(id) {
+      return prisma.partnerWorkspace.findUnique({
+        where: { id },
+        select: { id: true, isActive: true, verificationStatus: true },
+      })
     },
 
     async updateBasicData(id, data) {

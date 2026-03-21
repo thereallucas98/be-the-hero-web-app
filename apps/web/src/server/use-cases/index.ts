@@ -314,6 +314,106 @@ export type {
   Principal as DismissAdoptionInterestPrincipal,
 } from './adoption-interests/dismiss-adoption-interest.use-case'
 
+export { createCampaign } from './campaigns/create-campaign.use-case'
+export type {
+  CreateCampaignInput,
+  CreateCampaignResult,
+  Principal as CreateCampaignPrincipal,
+} from './campaigns/create-campaign.use-case'
+
+export { listWorkspaceCampaigns } from './campaigns/list-workspace-campaigns.use-case'
+export type {
+  ListWorkspaceCampaignsInput,
+  ListWorkspaceCampaignsResult,
+  Principal as ListWorkspaceCampaignsPrincipal,
+} from './campaigns/list-workspace-campaigns.use-case'
+
+export { updateCampaign } from './campaigns/update-campaign.use-case'
+export type {
+  UpdateCampaignInput,
+  UpdateCampaignResult,
+  Principal as UpdateCampaignPrincipal,
+} from './campaigns/update-campaign.use-case'
+
+export { addCampaignDocument } from './campaigns/add-campaign-document.use-case'
+export type {
+  AddCampaignDocumentInput,
+  AddCampaignDocumentResult,
+  Principal as AddCampaignDocumentPrincipal,
+} from './campaigns/add-campaign-document.use-case'
+
+export { removeCampaignDocument } from './campaigns/remove-campaign-document.use-case'
+export type {
+  RemoveCampaignDocumentResult,
+  Principal as RemoveCampaignDocumentPrincipal,
+} from './campaigns/remove-campaign-document.use-case'
+
+export { submitCampaignForReview } from './campaigns/submit-campaign-for-review.use-case'
+export type {
+  SubmitCampaignForReviewResult,
+  Principal as SubmitCampaignForReviewPrincipal,
+} from './campaigns/submit-campaign-for-review.use-case'
+
+export { getCampaignById } from './campaigns/get-campaign-by-id.use-case'
+export type {
+  GetCampaignByIdResult,
+  Principal as GetCampaignByIdPrincipal,
+} from './campaigns/get-campaign-by-id.use-case'
+
+export { listAdminCampaigns } from './campaigns/list-admin-campaigns.use-case'
+export type {
+  ListAdminCampaignsInput,
+  ListAdminCampaignsResult,
+  Principal as ListAdminCampaignsPrincipal,
+} from './campaigns/list-admin-campaigns.use-case'
+
+export { approveCampaign } from './campaigns/approve-campaign.use-case'
+export type {
+  ApproveCampaignResult,
+  Principal as ApproveCampaignPrincipal,
+} from './campaigns/approve-campaign.use-case'
+
+export { rejectCampaign } from './campaigns/reject-campaign.use-case'
+export type {
+  RejectCampaignInput,
+  RejectCampaignResult,
+  Principal as RejectCampaignPrincipal,
+} from './campaigns/reject-campaign.use-case'
+
+export { registerDonation } from './donations/register-donation.use-case'
+export type {
+  RegisterDonationInput,
+  RegisterDonationResult,
+  Principal as RegisterDonationPrincipal,
+} from './donations/register-donation.use-case'
+
+export { listCampaignDonations } from './donations/list-campaign-donations.use-case'
+export type {
+  ListCampaignDonationsInput,
+  ListCampaignDonationsResult,
+  Principal as ListCampaignDonationsPrincipal,
+} from './donations/list-campaign-donations.use-case'
+
+export { listAdminDonations } from './donations/list-admin-donations.use-case'
+export type {
+  ListAdminDonationsInput,
+  ListAdminDonationsResult,
+  Principal as ListAdminDonationsPrincipal,
+} from './donations/list-admin-donations.use-case'
+
+export { approveDonation } from './donations/approve-donation.use-case'
+export type {
+  ApproveDonationResult,
+  Principal as ApproveDonationPrincipal,
+} from './donations/approve-donation.use-case'
+
+export { rejectDonation } from './donations/reject-donation.use-case'
+export type {
+  RejectDonationInput,
+  RejectDonationResult,
+  Principal as RejectDonationPrincipal,
+} from './donations/reject-donation.use-case'
+
 export { listStates } from './geo/list-states.use-case'
 export type {
   ListStatesInput,
