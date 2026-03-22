@@ -173,21 +173,21 @@ Operational tools for platform management.
 
 ---
 
-## Phase 6 — Analytics & Metrics
+## Phase 6 — Analytics & Metrics ✅
 
 Insights for partners and platform admins.
 
-### 6.1 Pet metrics (partner)
-- 🔲 `GET /api/workspaces/:id/metrics` — workspace-level summary
-  - Returns: total pets, total views, total interests, total adoptions, total donations raised
-  - RBAC: workspace OWNER, EDITOR, or ADMIN
-- 🔲 `GET /api/pets/:id/metrics` — per-pet metrics
-  - Returns: view count, WhatsApp click count, interest count, adoption status
-  - RBAC: workspace OWNER, EDITOR, or ADMIN
+### 6.1 Pet metrics (partner) ✅
+- ✅ `GET /api/workspaces/:id/metrics` — workspace-level summary
+  - Returns: totalPets, petsByStatus, totalViews, totalWhatsappClicks, totalInterests, totalAdoptions, totalDonationsRaised
+  - RBAC: workspace members (OWNER/EDITOR/FINANCIAL) or ADMIN/SUPER_ADMIN
+- ✅ `GET /api/pets/:id/metrics` — per-pet metrics
+  - Returns: views, whatsappClicks, interestCount, petStatus, adoptionId, adoptedAt
+  - RBAC: workspace members or ADMIN/SUPER_ADMIN
 
-### 6.2 Platform metrics (admin)
-- 🔲 `GET /api/admin/metrics` — platform-wide dashboard data
-  - Returns: total pets, adoptions, campaigns, donations, active workspaces by city
+### 6.2 Platform metrics (admin) ✅
+- ✅ `GET /api/admin/metrics` — platform-wide dashboard data
+  - Returns: totalPets, petsByStatus, totalAdoptions, totalCampaigns, campaignsByStatus, totalDonationsRaised, totalActiveWorkspaces
   - Filters: `cityId`, `dateFrom`, `dateTo`
   - RBAC: ADMIN, SUPER_ADMIN
 
@@ -223,6 +223,6 @@ Phase 2 (Geo)             ← ✅ DONE
 Phase 3 (Follow-ups)      ← ✅ DONE
 Phase 4 (Campaigns)       ← ✅ DONE
 Phase 5 (Admin tools)     ← depends on Phase 0 ✅ + Phase 2 ✅ + Phase 4 ✅ ← ✅ DONE
-Phase 6 (Metrics)         ← depends on Phase 1 ✅ + Phase 3 ✅ + Phase 4
+Phase 6 (Metrics)         ← depends on Phase 1 ✅ + Phase 3 ✅ + Phase 4 ✅ ← ✅ DONE
 Phase 7 (Discovery)       ← depends on Phase 4 + Phase 6
 ```

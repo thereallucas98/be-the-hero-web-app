@@ -44,6 +44,11 @@ const options: swaggerJsdoc.Options = {
           'Campaign donations — registration, listing, and admin review',
       },
       { name: 'Geo', description: 'Geographic data — states and cities' },
+      {
+        name: 'Metrics',
+        description:
+          'Analytics — workspace metrics, per-pet metrics, and platform-wide dashboard (ADMIN/SUPER_ADMIN)',
+      },
     ],
     components: {
       securitySchemes: {

@@ -453,6 +453,24 @@ export type {
   Principal as RejectDonationPrincipal,
 } from './donations/reject-donation.use-case'
 
+export { getPlatformMetrics } from './metrics/get-platform-metrics.use-case'
+export type {
+  GetPlatformMetricsResult,
+  Principal as GetPlatformMetricsPrincipal,
+} from './metrics/get-platform-metrics.use-case'
+
+export { getWorkspaceMetrics } from './metrics/get-workspace-metrics.use-case'
+export type {
+  GetWorkspaceMetricsResult,
+  Principal as GetWorkspaceMetricsPrincipal,
+} from './metrics/get-workspace-metrics.use-case'
+
+export { getPetMetrics } from './metrics/get-pet-metrics.use-case'
+export type {
+  GetPetMetricsResult,
+  Principal as GetPetMetricsPrincipal,
+} from './metrics/get-pet-metrics.use-case'
+
 export { listAuditLogs } from './admin/list-audit-logs.use-case'
 export type {
   ListAuditLogsInput,

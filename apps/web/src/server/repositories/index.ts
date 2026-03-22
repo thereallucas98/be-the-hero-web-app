@@ -1,5 +1,6 @@
 import { prisma } from '~/lib/db'
 import { createAdminCoverageRepository } from './admin-coverage.repository'
+import { createMetricsRepository } from './metrics.repository'
 import { createAdoptionInterestRepository } from './adoption-interest.repository'
 import { createAdoptionRepository } from './adoption.repository'
 import { createAuditRepository } from './audit.repository'
@@ -13,6 +14,7 @@ import { createUserRepository } from './user.repository'
 import { createWorkspaceRepository } from './workspace.repository'
 
 export const adminCoverageRepository = createAdminCoverageRepository(prisma)
+export const metricsRepository = createMetricsRepository(prisma)
 export const adoptionInterestRepository =
   createAdoptionInterestRepository(prisma)
 export const adoptionRepository = createAdoptionRepository(prisma)
