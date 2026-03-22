@@ -53,6 +53,18 @@ export const ListCampaignsQuerySchema = z.object({
 
 export type ListCampaignsQueryInput = z.infer<typeof ListCampaignsQuerySchema>
 
+export const ListPublicCampaignsQuerySchema = z.object({
+  cityId: z.uuid().optional(),
+  workspaceId: z.uuid().optional(),
+  petId: z.uuid().optional(),
+  page: z.coerce.number().int().positive().optional().default(1),
+  perPage: z.coerce.number().int().positive().max(20).optional().default(20),
+})
+
+export type ListPublicCampaignsQueryInput = z.infer<
+  typeof ListPublicCampaignsQuerySchema
+>
+
 export const AddCampaignDocumentSchema = z
   .object({
     type: z.enum([

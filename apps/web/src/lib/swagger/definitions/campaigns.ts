@@ -1,5 +1,37 @@
 /**
  * @swagger
+ * /api/campaigns:
+ *   get:
+ *     summary: List public campaigns
+ *     description: Lists all APPROVED campaigns from active/verified workspaces. Public — no auth required.
+ *     tags: [Campaigns]
+ *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: cityId
+ *         schema: { type: string, format: uuid }
+ *         description: Filter by city (via workspace primary location)
+ *       - in: query
+ *         name: workspaceId
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: petId
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: perPage
+ *         schema: { type: integer, default: 20, maximum: 20 }
+ *     responses:
+ *       '200':
+ *         description: Paginated list of approved campaigns with workspace and pet summary
+ *       '400':
+ *         $ref: '#/components/responses/ValidationError'
+ */
+
+/**
+ * @swagger
  * /api/workspaces/{id}/campaigns:
  *   post:
  *     summary: Create a campaign

@@ -28,6 +28,14 @@
  *         schema: { type: string, enum: [PUPPY, YOUNG, ADULT, SENIOR] }
  *         example: "ADULT"
  *       - in: query
+ *         name: workspaceId
+ *         schema: { type: string, format: uuid }
+ *         description: Filter pets by specific workspace
+ *       - in: query
+ *         name: hasRequirements
+ *         schema: { type: boolean }
+ *         description: "false = only pets with no adoption requirements"
+ *       - in: query
  *         name: page
  *         schema: { type: integer, default: 1 }
  *         example: 1

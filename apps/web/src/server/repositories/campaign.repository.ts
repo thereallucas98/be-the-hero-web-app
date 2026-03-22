@@ -70,6 +70,35 @@ export interface ListCampaignsResult {
   perPage: number
 }
 
+export interface PublicCampaignItem {
+  id: string
+  title: string
+  description: string
+  goalAmount: string
+  currentAmount: string
+  currency: string
+  coverImageUrl: string | null
+  endsAt: Date | null
+  approvedAt: Date | null
+  workspace: { id: string; name: string; type: string }
+  pet: { id: string; name: string; species: string } | null
+}
+
+export interface ListPublicCampaignsInput {
+  cityId?: string
+  workspaceId?: string
+  petId?: string
+  page: number
+  perPage: number
+}
+
+export interface ListPublicCampaignsResult {
+  items: PublicCampaignItem[]
+  total: number
+  page: number
+  perPage: number
+}
+
 export interface CampaignRepository {
   create(data: CreateCampaignData): Promise<CampaignItem>
   findById(id: string): Promise<CampaignDetailItem | null>
@@ -83,6 +112,9 @@ export interface CampaignRepository {
   approve(id: string, approvedByUserId: string): Promise<CampaignItem>
   reject(id: string, reviewNote: string): Promise<CampaignItem>
   countDocuments(id: string): Promise<number>
+  listPublic(
+    input: ListPublicCampaignsInput,
+  ): Promise<ListPublicCampaignsResult>
 }
 
 // ─── Factory ─────────────────────────────────────────────────────────────────
@@ -250,6 +282,79 @@ export function createCampaignRepository(
 
     async countDocuments(id) {
       return prisma.campaignDocument.count({ where: { campaignId: id } })
+    },
+
+    async listPublic(input) {
+      const page = Math.max(1, input.page)
+      const perPage = Math.min(20, Math.max(1, input.perPage))
+      const skip = (page - 1) * perPage
+
+      let workspaceIdFilter: { in: string[] } | undefined
+      if (input.cityId) {
+        const locations = await prisma.partnerWorkspaceLocation.findMany({
+          where: { cityPlaceId: input.cityId },
+          select: { workspaceId: true },
+        })
+        const ids = [...new Set(locations.map((l) => l.workspaceId))]
+        workspaceIdFilter = { in: ids }
+      }
+
+      const where = {
+        status: 'APPROVED' as const,
+        workspace: { isActive: true, verificationStatus: 'APPROVED' as const },
+        ...(workspaceIdFilter ? { workspaceId: workspaceIdFilter } : {}),
+        ...(input.workspaceId ? { workspaceId: input.workspaceId } : {}),
+        ...(input.petId ? { petId: input.petId } : {}),
+      }
+
+      const [rows, total] = await Promise.all([
+        prisma.campaign.findMany({
+          where,
+          skip,
+          take: perPage,
+          orderBy: { approvedAt: 'desc' },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            goalAmount: true,
+            currentAmount: true,
+            currency: true,
+            coverImageUrl: true,
+            endsAt: true,
+            approvedAt: true,
+            workspace: { select: { id: true, name: true, type: true } },
+            pet: { select: { id: true, name: true, species: true } },
+          },
+        }),
+        prisma.campaign.count({ where }),
+      ])
+
+      return {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: rows.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          goalAmount: String(c.goalAmount),
+          currentAmount: String(c.currentAmount),
+          currency: c.currency,
+          coverImageUrl: c.coverImageUrl,
+          endsAt: c.endsAt,
+          approvedAt: c.approvedAt,
+          workspace: {
+            id: c.workspace.id,
+            name: c.workspace.name,
+            type: String(c.workspace.type),
+          },
+          pet: c.pet
+            ? { id: c.pet.id, name: c.pet.name, species: String(c.pet.species) }
+            : null,
+        })),
+        total,
+        page,
+        perPage,
+      }
     },
   }
 }

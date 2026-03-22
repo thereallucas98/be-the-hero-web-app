@@ -56,6 +56,9 @@ export type {
 export { listMyWorkspaces } from './workspaces/list-my-workspaces.use-case'
 export type { ListMyWorkspacesResult } from './workspaces/list-my-workspaces.use-case'
 
+export { getPublicWorkspace } from './workspaces/get-public-workspace.use-case'
+export type { GetPublicWorkspaceResult } from './workspaces/get-public-workspace.use-case'
+
 export { getWorkspaceById } from './workspaces/get-workspace-by-id.use-case'
 export type {
   GetWorkspaceByIdInput,
@@ -398,6 +401,9 @@ export type {
   GetCampaignByIdResult,
   Principal as GetCampaignByIdPrincipal,
 } from './campaigns/get-campaign-by-id.use-case'
+
+export { listPublicCampaigns } from './campaigns/list-public-campaigns.use-case'
+export type { ListPublicCampaignsUseCaseResult } from './campaigns/list-public-campaigns.use-case'
 
 export { listAdminCampaigns } from './campaigns/list-admin-campaigns.use-case'
 export type {

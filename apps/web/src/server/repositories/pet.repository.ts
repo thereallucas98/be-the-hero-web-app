@@ -108,10 +108,12 @@ export interface PublicPetListItem {
 
 export interface ListPublicPetsInput {
   cityPlaceId?: string
+  workspaceId?: string
   species?: string
   sex?: string
   size?: string
   ageCategory?: string
+  hasRequirements?: boolean
   page?: number
   perPage?: number
 }
@@ -1022,6 +1024,7 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
         status: 'APPROVED' as const,
         isActive: true,
         workspace: workspaceFilter,
+        ...(input.workspaceId && { workspaceId: input.workspaceId }),
         ...(input.species && {
           species: input.species as
             | 'DOG'
@@ -1043,6 +1046,9 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
             | 'YOUNG'
             | 'ADULT'
             | 'SENIOR',
+        }),
+        ...(input.hasRequirements === false && {
+          requirements: { none: {} },
         }),
       }
 

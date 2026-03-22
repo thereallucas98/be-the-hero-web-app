@@ -17,10 +17,12 @@ export async function GET(req: Request) {
 
   const result = await listPets(petRepository, {
     cityPlaceId: parsed.data.cityPlaceId,
+    workspaceId: parsed.data.workspaceId,
     species: parsed.data.species,
     sex: parsed.data.sex,
     size: parsed.data.size,
     ageCategory: parsed.data.ageCategory,
+    hasRequirements: parsed.data.hasRequirements,
     page: parsed.data.page,
     perPage: parsed.data.perPage,
   })

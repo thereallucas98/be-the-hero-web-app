@@ -159,6 +159,39 @@ export interface ListAdminWorkspacesResult {
   perPage: number
 }
 
+export interface PublicWorkspaceItem {
+  id: string
+  name: string
+  type: string
+  description: string
+  phone: string | null
+  whatsapp: string | null
+  emailPublic: string | null
+  website: string | null
+  instagram: string | null
+  primaryLocation: {
+    cityPlace: { id: string; name: string; slug: string }
+  } | null
+  approvedPets: Array<{
+    id: string
+    name: string
+    species: string
+    sex: string
+    size: string
+    ageCategory: string
+    coverImage: string | null
+  }>
+  activeCampaigns: Array<{
+    id: string
+    title: string
+    goalAmount: string
+    currentAmount: string
+    currency: string
+    coverImageUrl: string | null
+    endsAt: Date | null
+  }>
+}
+
 export interface WorkspaceRepository {
   createWithLocationAndMember(
     data: CreateWorkspaceData,
@@ -228,6 +261,7 @@ export interface WorkspaceRepository {
     approvedByUserId: string,
   ): Promise<WorkspaceAdminItem>
   rejectWorkspace(id: string, reviewNote: string): Promise<WorkspaceAdminItem>
+  findByIdPublic(id: string): Promise<PublicWorkspaceItem | null>
 }
 
 export function createWorkspaceRepository(
@@ -803,6 +837,101 @@ export function createWorkspaceRepository(
           createdAt: true,
         },
       })
+    },
+
+    async findByIdPublic(id) {
+      const workspace = await prisma.partnerWorkspace.findFirst({
+        where: { id, isActive: true, verificationStatus: 'APPROVED' },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          description: true,
+          phone: true,
+          whatsapp: true,
+          emailPublic: true,
+          website: true,
+          instagram: true,
+          locations: {
+            where: { isPrimary: true },
+            take: 1,
+            select: {
+              cityPlace: { select: { id: true, name: true, slug: true } },
+            },
+          },
+          pets: {
+            where: { status: 'APPROVED', isActive: true },
+            take: 6,
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true,
+              name: true,
+              species: true,
+              sex: true,
+              size: true,
+              ageCategory: true,
+              images: {
+                where: { isCover: true },
+                take: 1,
+                select: { url: true },
+              },
+            },
+          },
+          campaigns: {
+            where: {
+              status: 'APPROVED',
+              OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }],
+            },
+            take: 3,
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true,
+              title: true,
+              goalAmount: true,
+              currentAmount: true,
+              currency: true,
+              coverImageUrl: true,
+              endsAt: true,
+            },
+          },
+        },
+      })
+
+      if (!workspace) return null
+
+      return {
+        id: workspace.id,
+        name: workspace.name,
+        type: String(workspace.type),
+        description: workspace.description,
+        phone: workspace.phone,
+        whatsapp: workspace.whatsapp,
+        emailPublic: workspace.emailPublic,
+        website: workspace.website,
+        instagram: workspace.instagram,
+        primaryLocation: workspace.locations[0]
+          ? { cityPlace: workspace.locations[0].cityPlace }
+          : null,
+        approvedPets: workspace.pets.map((p) => ({
+          id: p.id,
+          name: p.name,
+          species: String(p.species),
+          sex: String(p.sex),
+          size: String(p.size),
+          ageCategory: String(p.ageCategory),
+          coverImage: p.images[0]?.url ?? null,
+        })),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        activeCampaigns: workspace.campaigns.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          goalAmount: String(c.goalAmount),
+          currentAmount: String(c.currentAmount),
+          currency: c.currency,
+          coverImageUrl: c.coverImageUrl,
+          endsAt: c.endsAt,
+        })),
+      }
     },
   }
 }

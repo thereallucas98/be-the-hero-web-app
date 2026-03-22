@@ -54,6 +54,28 @@
 
 /**
  * @swagger
+ * /api/workspaces/{id}/public:
+ *   get:
+ *     summary: Get public workspace profile
+ *     description: Returns public-facing workspace info including up to 6 approved pets and 3 active campaigns. No auth required. Returns 404 if workspace is not APPROVED or not active.
+ *     tags: [Workspaces]
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       '200':
+ *         description: Public workspace profile with embedded pets and campaigns
+ *       '404':
+ *         $ref: '#/components/responses/NotFoundError'
+ *       '400':
+ *         $ref: '#/components/responses/ValidationError'
+ */
+
+/**
+ * @swagger
  * /api/workspaces/{id}:
  *   get:
  *     summary: Get workspace details

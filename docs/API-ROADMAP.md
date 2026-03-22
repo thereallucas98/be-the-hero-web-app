@@ -193,22 +193,23 @@ Insights for partners and platform admins.
 
 ---
 
-## Phase 7 — Public Discovery
+## Phase 7 — Public Discovery ✅
 
 Improve the public-facing experience for guardians browsing pets.
 
-### 7.1 Enhanced pet listing
-- 🔲 `GET /api/pets` — extend current endpoint with additional filters:
-  - Add: `species`, `size`, `ageCategory`, `workspaceId` (already partially done — confirm coverage)
-  - Add: `hasRequirements=false` for users who want low-barrier adoptions
+### 7.1 Enhanced pet listing ✅
+- ✅ `GET /api/pets` — extended with additional filters:
+  - Existing: `cityPlaceId`, `species`, `sex`, `size`, `ageCategory`
+  - Added: `workspaceId` — filter by specific workspace
+  - Added: `hasRequirements=false` — pets with no adoption requirements
 
-### 7.2 Public workspace profile
-- 🔲 `GET /api/workspaces/:id/public` — public-facing workspace page
-  - Returns: name, type, description, city, approved pets, active campaigns
-  - No auth required
+### 7.2 Public workspace profile ✅
+- ✅ `GET /api/workspaces/:id/public` — public-facing workspace page
+  - Returns: name, type, description, city, up to 6 approved pets, up to 3 active campaigns
+  - No auth required; 404 if not APPROVED or inactive
 
-### 7.3 Campaign discovery
-- 🔲 `GET /api/campaigns` — list all active/approved campaigns publicly
+### 7.3 Campaign discovery ✅
+- ✅ `GET /api/campaigns` — list all APPROVED campaigns publicly
   - Filters: `cityId`, `workspaceId`, `petId`, pagination
   - No auth required
 
@@ -224,5 +225,5 @@ Phase 3 (Follow-ups)      ← ✅ DONE
 Phase 4 (Campaigns)       ← ✅ DONE
 Phase 5 (Admin tools)     ← depends on Phase 0 ✅ + Phase 2 ✅ + Phase 4 ✅ ← ✅ DONE
 Phase 6 (Metrics)         ← depends on Phase 1 ✅ + Phase 3 ✅ + Phase 4 ✅ ← ✅ DONE
-Phase 7 (Discovery)       ← depends on Phase 4 + Phase 6
+Phase 7 (Discovery)       ← depends on Phase 4 ✅ + Phase 6 ✅ ← ✅ DONE
 ```
