@@ -29,8 +29,9 @@ This file is loaded automatically at the start of every conversation.
 | Forms | React Hook Form 7 + `@hookform/resolvers` (zodResolver) |
 | Data fetching | `@tanstack/react-query` 5 |
 | State | Zustand 5 (client/UI state only) |
-| UI | shadcn/ui (Radix primitives) + TailwindCSS 4 |
-| Styling utils | `class-variance-authority` (CVA) + `clsx` + `tailwind-merge` |
+| UI | **Base UI React** (`@base-ui/react`) headless + TailwindCSS 4 |
+| Styling utils | `tailwind-variants` (`tv`) + `tailwind-merge` (`twMerge`) |
+| Icons | `lucide-react` or `phosphor-icons` |
 | Toasts | `sonner` |
 | HTTP | Native `fetch` — **no Axios** |
 | Error boundaries | React 19 built-in (`error.tsx`) — **`react-error-boundary` is NOT installed** |
@@ -48,7 +49,9 @@ apps/web/src/
     use-cases/       # Business logic — return discriminated unions
     schemas/         # Zod validation schemas
   lib/               # Utilities (auth, db, swagger, cookies)
-  components/        # UI components
+  components/
+    ui/              # Primitive/shared components (Button, Card, Input…)
+    features/        # Feature-specific components (pets/, workspaces/, admin/…)
 packages/
   auth/              # CASL RBAC definitions (@bethehero/auth)
   env/               # Env validation (@bethehero/env)
@@ -88,12 +91,103 @@ docs/                # Documentation and task tracking
 ## Frontend Coding Standards
 
 ### Components & Styling
-- **CVA** for variants: `cva('base', { variants: { ... } })`
-- `cn()` utility (clsx + tailwind-merge) for className composition and Tailwind conflict resolution
-- Extend `React.HTMLAttributes` or `ComponentPropsWithoutRef` — allow `className` override from parent
-- **Compound components** with Context only when sub-components share data
-- Split entity-specific UIs into dedicated components; `BaseX` only when truly shared
-- No boolean props like `isOnProfile` — use composition or separate components
+
+**Variants with `tv()` from `tailwind-variants`:**
+```tsx
+import { tv, type VariantProps } from 'tailwind-variants'
+import { twMerge } from 'tailwind-merge'
+import type { ComponentProps } from 'react'
+
+export const buttonVariants = tv({
+  base: 'inline-flex cursor-pointer items-center justify-center font-medium rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+  variants: {
+    variant: {
+      primary: 'border-primary bg-primary text-primary-foreground hover:bg-primary-hover',
+      secondary: 'border-border bg-secondary text-secondary-foreground hover:bg-muted',
+      ghost: 'border-transparent bg-transparent text-muted-foreground hover:text-foreground',
+      destructive: 'border-destructive bg-destructive text-destructive-foreground',
+    },
+    size: {
+      sm: 'h-6 px-2 gap-1.5 text-xs [&_svg]:size-3',
+      md: 'h-7 px-3 gap-2 text-sm [&_svg]:size-3.5',
+      lg: 'h-9 px-4 gap-2.5 text-base [&_svg]:size-4',
+    },
+  },
+  defaultVariants: { variant: 'primary', size: 'md' },
+})
+
+export interface ButtonProps extends ComponentProps<'button'>, VariantProps<typeof buttonVariants> {}
+
+export function Button({ className, variant, size, disabled, children, ...props }: ButtonProps) {
+  return (
+    <button
+      type="button"
+      data-slot="button"
+      data-disabled={disabled ? '' : undefined}
+      className={twMerge(buttonVariants({ variant, size }), className)}
+      disabled={disabled}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
+```
+
+**Compound components (no Context unless sub-components share data):**
+```tsx
+export function Card({ className, ...props }: ComponentProps<'div'>) {
+  return <div data-slot="card" className={twMerge('bg-surface flex flex-col gap-6 rounded-xl border border-border p-6 shadow-sm', className)} {...props} />
+}
+export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
+  return <div data-slot="card-header" className={twMerge('flex flex-col gap-1.5', className)} {...props} />
+}
+```
+
+**Rules:**
+- **Always `twMerge()`** for className — never `cn()` / `clsx`
+- **Always `tv()`** for variants — never CVA
+- **Always `ComponentProps<'element'>`** — never `React.HTMLAttributes` or `ComponentPropsWithoutRef`
+- **Always `data-slot="name"`** on every component root element
+- **States via `data-[state]:`** — `data-disabled={disabled ? '' : undefined}`, `data-[selected]:bg-primary`
+- **`focus-visible`** on every interactive element: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`
+- **`aria-label`** on every icon-only button: `<button aria-label="Fechar"><X /></button>`
+- **`{...props}` always last** in JSX spread
+- **`[&_svg]:size-3.5`** in variants for icon sizing, `<Icon className="size-4" />` inline
+- **Colors via CSS variables only** — never hardcoded hex/rgb: use `bg-surface`, `text-foreground`, `border-border`, etc.
+
+**CSS variable palette:**
+```
+bg-surface, bg-surface-raised         → backgrounds
+bg-primary, bg-secondary, bg-muted    → actions/states
+bg-destructive                        → errors/danger
+text-foreground                       → primary text
+text-foreground-subtle                → secondary text
+text-muted-foreground                 → disabled text
+text-primary-foreground               → text on primary bg
+border-border, border-input           → default borders
+border-primary, border-destructive    → accent borders
+ring-ring                             → focus ring
+```
+
+**Base UI headless components (`@base-ui/react`):**
+```tsx
+// Dialog
+import * as Dialog from '@base-ui/react/dialog'
+<Dialog.Root><Dialog.Portal><Dialog.Backdrop /><Dialog.Popup /></Dialog.Portal></Dialog.Root>
+
+// Tabs
+import * as Tabs from '@base-ui/react/tabs'
+<Tabs.Root><Tabs.List><Tabs.Tab /></Tabs.List><Tabs.Panel /></Tabs.Root>
+
+// Select
+import * as Select from '@base-ui/react/select'
+<Select.Root><Select.Trigger /><Select.Portal><Select.Popup><Select.Item /></Select.Popup></Select.Portal></Select.Root>
+
+// Menu
+import * as Menu from '@base-ui/react/menu'
+<Menu.Root><Menu.Trigger /><Menu.Portal><Menu.Popup><Menu.Item /></Menu.Popup></Menu.Portal></Menu.Root>
+```
 
 ### Architecture
 - **Single responsibility** per component/function
@@ -140,9 +234,24 @@ docs/                # Documentation and task tracking
 - Do not store tokens in localStorage or JS-accessible cookies
 
 ### TypeScript
+- **`import type`** for all type-only imports: `import type { ComponentProps } from 'react'`
+- **Never `React.FC`**, never `any`
+- **No `forwardRef`** — React 19 supports ref as a prop directly
+- Extend `ComponentProps<'element'>` + `VariantProps<typeof variants>` for component props
 - Infer types from Zod: `z.infer<typeof Schema>` — no manual duplication
 - Composable types: `PostForList = Post & PostWithCommentsCount` — depend on shape, not origin
-- Utility return pattern: `[data, null] | [null, error]` for flexible error handling in callers
+
+### Component checklist (required for every new component)
+- [ ] File: lowercase with hyphens (`user-card.tsx`)
+- [ ] **Named export** — never default export
+- [ ] `ComponentProps<'element'>` + `VariantProps` for props interface
+- [ ] Variants with `tv()`, class merge with `twMerge()`
+- [ ] `data-slot="name"` on root element
+- [ ] States via `data-[state]:` attributes
+- [ ] CSS variable colors only — no hardcoded values
+- [ ] `focus-visible` on all interactive elements
+- [ ] `aria-label` on icon-only buttons
+- [ ] `{...props}` spread last
 
 ---
 
@@ -240,12 +349,14 @@ All steps done   → "✅ Implementation complete. Ready for your review."
 
 ## Naming Conventions
 
-- Files: `kebab-case` (e.g., `register-user.use-case.ts`)
+- Files: `kebab-case` (e.g., `register-user.use-case.ts`, `user-card.tsx`)
 - Functions/variables: `camelCase`
 - Types/Interfaces/Classes/Enums: `PascalCase`
 - Enum values: `UPPER_SNAKE_CASE`
 - Hooks: prefix `use`
 - Be explicit: `createProjectFormSchema`, not `formSchema`
+- **Always named exports** — never `export default`
+- **No barrel files** (`index.ts`) for internal component/feature folders
 
 ---
 

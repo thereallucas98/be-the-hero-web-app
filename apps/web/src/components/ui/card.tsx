@@ -1,6 +1,5 @@
 import * as React from 'react'
-
-import { cn } from '~/lib/utils'
+import { twMerge } from 'tailwind-merge'
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -8,8 +7,8 @@ const Card = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      'bg-card text-card-foreground rounded-card border shadow',
+    className={twMerge(
+      'rounded-card border-border bg-card text-card-foreground border shadow-sm',
       className,
     )}
     {...props}
@@ -23,7 +22,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col space-y-1.5 p-6', className)}
+    className={twMerge('flex flex-col gap-1.5 p-6', className)}
     {...props}
   />
 ))
@@ -35,7 +34,10 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('leading-none font-semibold tracking-tight', className)}
+    className={twMerge(
+      'text-foreground leading-tight font-bold tracking-tight',
+      className,
+    )}
     {...props}
   />
 ))
@@ -47,7 +49,10 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('text-muted-foreground text-sm', className)}
+    className={twMerge(
+      'text-muted-foreground text-sm leading-normal',
+      className,
+    )}
     {...props}
   />
 ))
@@ -57,7 +62,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
+  <div ref={ref} className={twMerge('p-6 pt-0', className)} {...props} />
 ))
 CardContent.displayName = 'CardContent'
 
@@ -67,10 +72,10 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex items-center p-6 pt-0', className)}
+    className={twMerge('flex items-center p-6 pt-0', className)}
     {...props}
   />
 ))
 CardFooter.displayName = 'CardFooter'
 
-export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
+export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }

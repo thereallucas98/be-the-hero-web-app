@@ -3,15 +3,11 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import * as React from 'react'
-
-import { cn } from '~/lib/utils'
+import { twMerge } from 'tailwind-merge'
 
 const Dialog = DialogPrimitive.Root
-
 const DialogTrigger = DialogPrimitive.Trigger
-
 const DialogPortal = DialogPrimitive.Portal
-
 const DialogClose = DialogPrimitive.Close
 
 const DialogOverlay = React.forwardRef<
@@ -20,7 +16,7 @@ const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn(
+    className={twMerge(
       'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80',
       className,
     )}
@@ -43,7 +39,6 @@ const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
-  // Verificar se className contém max-w- para manter tamanhos customizados
   const hasCustomMaxWidth = className?.includes('max-w-')
 
   return (
@@ -51,16 +46,22 @@ const DialogContent = React.forwardRef<
       <DialogOverlay />
       <DialogPrimitive.Content
         ref={ref}
-        className={cn(
-          // Base: modal centralizado
-          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed top-[50%] left-[50%] z-50 grid gap-4 border p-6 pb-6 shadow-lg duration-200',
-          // Desktop (lg+): modal centralizado proporcional
-          'lg:data-[state=closed]:zoom-out-95 lg:data-[state=open]:zoom-in-95 lg:data-[state=closed]:slide-out-to-left-1/2 lg:data-[state=closed]:slide-out-to-top-[48%] lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] lg:translate-x-[-50%] lg:translate-y-[-50%] lg:rounded-lg',
-          // Tamanho padrão proporcional no desktop (se não tiver max-w customizado)
+        className={twMerge(
+          // Base
+          'border-border bg-background fixed z-50 grid gap-4 border p-6 pb-6 shadow-lg duration-200',
+          // Desktop: centred modal
+          'lg:data-[state=closed]:zoom-out-95 lg:data-[state=open]:zoom-in-95',
+          'lg:data-[state=closed]:slide-out-to-left-1/2 lg:data-[state=closed]:slide-out-to-top-[48%]',
+          'lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%]',
+          'lg:rounded-card lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2',
           !hasCustomMaxWidth && 'lg:w-[90vw] lg:max-w-md',
-          // Tablet e Mobile (até lg): bottom sheet ocupando toda largura
-          'max-lg:data-[state=closed]:zoom-out-0 max-lg:data-[state=open]:zoom-in-0 max-lg:data-[state=closed]:slide-out-to-bottom max-lg:data-[state=open]:slide-in-from-bottom max-lg:top-auto max-lg:bottom-0 max-lg:left-0 max-lg:max-h-[90vh] max-lg:w-full max-lg:max-w-none max-lg:translate-x-0 max-lg:translate-y-0 max-lg:overflow-y-auto max-lg:rounded-t-lg max-lg:border-t max-lg:border-r-0 max-lg:border-b-0 max-lg:border-l-0 max-lg:pb-6',
-          // Mobile: padding lateral
+          // Mobile / tablet: bottom sheet
+          'max-lg:data-[state=open]:animate-in max-lg:data-[state=closed]:animate-out',
+          'max-lg:data-[state=closed]:slide-out-to-bottom max-lg:data-[state=open]:slide-in-from-bottom',
+          'max-lg:top-auto max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:max-w-none',
+          'max-lg:max-h-[90vh] max-lg:translate-x-0 max-lg:translate-y-0',
+          'max-lg:rounded-t-card max-lg:overflow-y-auto',
+          'max-lg:border-t max-lg:border-r-0 max-lg:border-b-0 max-lg:border-l-0',
           'max-md:px-4',
           className,
         )}
@@ -78,9 +79,12 @@ const DialogContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
+        <DialogPrimitive.Close
+          className="focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
+          aria-label="Fechar"
+        >
           <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">Fechar</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPortal>
@@ -93,8 +97,8 @@ const DialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      'flex flex-col space-y-1.5 text-center sm:text-left',
+    className={twMerge(
+      'flex flex-col gap-1.5 text-center sm:text-left',
       className,
     )}
     {...props}
@@ -107,8 +111,8 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
+    className={twMerge(
+      'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
       className,
     )}
     {...props}
@@ -122,8 +126,8 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn(
-      'text-lg leading-none font-semibold tracking-tight',
+    className={twMerge(
+      'text-foreground text-lg leading-none font-bold tracking-tight',
       className,
     )}
     {...props}
@@ -137,7 +141,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-muted-foreground text-sm', className)}
+    className={twMerge('text-muted-foreground text-sm', className)}
     {...props}
   />
 ))

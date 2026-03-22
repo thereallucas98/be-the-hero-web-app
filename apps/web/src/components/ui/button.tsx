@@ -1,37 +1,36 @@
 import { Slot } from '@radix-ui/react-slot'
-import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
+import { tv, type VariantProps } from 'tailwind-variants'
+import { twMerge } from 'tailwind-merge'
 
-import { cn } from '~/lib/utils'
-
-const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-button text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-  {
-    variants: {
-      variant: {
-        default:
-          'bg-primary text-primary-foreground shadow hover:bg-hero-orange-hover',
-        secondary:
-          'border border-deep-navy bg-white text-deep-navy hover:bg-deep-navy-light',
-        ghost: 'text-deep-navy hover:underline',
-        destructive:
-          'bg-destructive text-destructive-foreground shadow-sm hover:opacity-90',
-        outline: 'border border-input bg-background shadow-sm hover:bg-muted',
-        link: 'text-deep-navy underline-offset-4 hover:underline',
-      },
-      size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-8 rounded-button px-3 text-small',
-        lg: 'h-12 rounded-button px-6 text-body',
-        icon: 'h-10 w-10',
-      },
+export const buttonVariants = tv({
+  base: 'inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0',
+  variants: {
+    variant: {
+      default:
+        'rounded-button bg-primary text-primary-foreground hover:bg-primary-hover shadow',
+      secondary:
+        'rounded-button border border-accent-navy bg-white text-accent-navy hover:bg-brand-primary-pale',
+      ghost:
+        'rounded-button text-accent-navy hover:bg-brand-primary-pale hover:text-accent-navy',
+      destructive:
+        'rounded-button bg-destructive text-destructive-foreground shadow-sm hover:opacity-90',
+      outline:
+        'rounded-button border border-input bg-background shadow-sm hover:bg-muted',
+      link: 'text-accent-navy underline-offset-4 hover:underline',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    size: {
+      default: 'h-10 px-4 py-2 text-sm [&_svg]:size-4',
+      sm: 'h-8 px-3 text-xs [&_svg]:size-3.5',
+      lg: 'h-12 px-6 text-base [&_svg]:size-5',
+      icon: 'h-10 w-10 [&_svg]:size-4',
     },
   },
-)
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+})
 
 export interface ButtonProps
   extends
@@ -45,8 +44,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button'
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        className={twMerge(buttonVariants({ variant, size }), className)}
         {...props}
       />
     )
@@ -54,4 +53,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = 'Button'
 
-export { Button, buttonVariants }
+export { Button }
