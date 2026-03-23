@@ -29,8 +29,8 @@ This file is loaded automatically at the start of every conversation.
 | Forms | React Hook Form 7 + `@hookform/resolvers` (zodResolver) |
 | Data fetching | `@tanstack/react-query` 5 |
 | State | Zustand 5 (client/UI state only) |
-| UI | **Base UI React** (`@base-ui/react`) headless + TailwindCSS 4 |
-| Styling utils | `tailwind-variants` (`tv`) + `tailwind-merge` (`twMerge`) |
+| UI | **shadcn/ui** (Radix UI primitives, New York style) + TailwindCSS 4 |
+| Styling utils | `class-variance-authority` (`cva`) + `cn()` from `~/lib/utils` |
 | Icons | `lucide-react` or `phosphor-icons` |
 | Toasts | `sonner` |
 | HTTP | Native `fetch` — **no Axios** |
@@ -92,69 +92,78 @@ docs/                # Documentation and task tracking
 
 ### Components & Styling
 
-**Variants with `tv()` from `tailwind-variants`:**
+**Variants with `cva()` from `class-variance-authority`:**
 ```tsx
-import { tv, type VariantProps } from 'tailwind-variants'
-import { twMerge } from 'tailwind-merge'
-import type { ComponentProps } from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '~/lib/utils'
+import * as React from 'react'
 
-export const buttonVariants = tv({
-  base: 'inline-flex cursor-pointer items-center justify-center font-medium rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-  variants: {
-    variant: {
-      primary: 'border-primary bg-primary text-primary-foreground hover:bg-primary-hover',
-      secondary: 'border-border bg-secondary text-secondary-foreground hover:bg-muted',
-      ghost: 'border-transparent bg-transparent text-muted-foreground hover:text-foreground',
-      destructive: 'border-destructive bg-destructive text-destructive-foreground',
+export const buttonVariants = cva(
+  'inline-flex cursor-pointer items-center justify-center font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        default: 'rounded-button bg-primary text-primary-foreground shadow hover:bg-primary-hover',
+        secondary: 'rounded-button border border-accent-navy bg-white text-accent-navy hover:bg-brand-primary-pale',
+        ghost: 'rounded-button text-accent-navy hover:bg-brand-primary-pale hover:text-accent-navy',
+        destructive: 'rounded-button bg-destructive text-destructive-foreground shadow-sm hover:opacity-90',
+        outline: 'rounded-button border border-input bg-background shadow-sm hover:bg-muted',
+        link: 'text-accent-navy underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-10 px-4 py-2 text-sm [&_svg]:size-4',
+        sm: 'h-8 px-3 text-xs [&_svg]:size-3.5',
+        lg: 'h-12 px-6 text-base [&_svg]:size-5',
+        icon: 'h-10 w-10 [&_svg]:size-4',
+      },
     },
-    size: {
-      sm: 'h-6 px-2 gap-1.5 text-xs [&_svg]:size-3',
-      md: 'h-7 px-3 gap-2 text-sm [&_svg]:size-3.5',
-      lg: 'h-9 px-4 gap-2.5 text-base [&_svg]:size-4',
-    },
+    defaultVariants: { variant: 'default', size: 'default' },
   },
-  defaultVariants: { variant: 'primary', size: 'md' },
-})
+)
 
-export interface ButtonProps extends ComponentProps<'button'>, VariantProps<typeof buttonVariants> {}
-
-export function Button({ className, variant, size, disabled, children, ...props }: ButtonProps) {
-  return (
-    <button
-      type="button"
-      data-slot="button"
-      data-disabled={disabled ? '' : undefined}
-      className={twMerge(buttonVariants({ variant, size }), className)}
-      disabled={disabled}
-      {...props}
-    >
-      {children}
-    </button>
-  )
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
 }
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, ...props }, ref) => (
+    <button ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+  ),
+)
+Button.displayName = 'Button'
 ```
 
 **Compound components (no Context unless sub-components share data):**
 ```tsx
-export function Card({ className, ...props }: ComponentProps<'div'>) {
-  return <div data-slot="card" className={twMerge('bg-surface flex flex-col gap-6 rounded-xl border border-border p-6 shadow-sm', className)} {...props} />
-}
-export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
-  return <div data-slot="card-header" className={twMerge('flex flex-col gap-1.5', className)} {...props} />
-}
+import * as React from 'react'
+import { cn } from '~/lib/utils'
+
+const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn('rounded-xl border bg-card text-card-foreground shadow', className)} {...props} />
+  ),
+)
+Card.displayName = 'Card'
+
+const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />
+  ),
+)
+CardHeader.displayName = 'CardHeader'
 ```
 
 **Rules:**
-- **Always `twMerge()`** for className — never `cn()` / `clsx`
-- **Always `tv()`** for variants — never CVA
-- **Always `ComponentProps<'element'>`** — never `React.HTMLAttributes` or `ComponentPropsWithoutRef`
-- **Always `data-slot="name"`** on every component root element
-- **States via `data-[state]:`** — `data-disabled={disabled ? '' : undefined}`, `data-[selected]:bg-primary`
-- **`focus-visible`** on every interactive element: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`
+- **Always `cn()`** from `~/lib/utils` for className merging — never raw `twMerge()` or `clsx()`
+- **Always `cva()`** for variants — never `tv()` from tailwind-variants
+- **`React.forwardRef` + `displayName`** for all UI primitives
+- **`focus-visible`** on every interactive element: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`
 - **`aria-label`** on every icon-only button: `<button aria-label="Fechar"><X /></button>`
 - **`{...props}` always last** in JSX spread
 - **`[&_svg]:size-3.5`** in variants for icon sizing, `<Icon className="size-4" />` inline
-- **Colors via CSS variables only** — never hardcoded hex/rgb: use `bg-surface`, `text-foreground`, `border-border`, etc.
+- **Colors via CSS variables only** — never hardcoded hex/rgb: use `bg-background`, `text-foreground`, `border-border`, etc.
 
 **CSS variable palette:**
 ```
@@ -170,23 +179,23 @@ border-primary, border-destructive    → accent borders
 ring-ring                             → focus ring
 ```
 
-**Base UI headless components (`@base-ui/react`):**
+**shadcn/ui component usage (Radix UI primitives):**
 ```tsx
-// Dialog
-import * as Dialog from '@base-ui/react/dialog'
-<Dialog.Root><Dialog.Portal><Dialog.Backdrop /><Dialog.Popup /></Dialog.Portal></Dialog.Root>
+// Dialog — from ~/components/ui/dialog
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
+<Dialog><DialogTrigger /><DialogContent><DialogHeader><DialogTitle /></DialogHeader></DialogContent></Dialog>
 
-// Tabs
-import * as Tabs from '@base-ui/react/tabs'
-<Tabs.Root><Tabs.List><Tabs.Tab /></Tabs.List><Tabs.Panel /></Tabs.Root>
+// Tabs — from ~/components/ui/tabs
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
+<Tabs><TabsList><TabsTrigger value="x" /></TabsList><TabsContent value="x" /></Tabs>
 
-// Select
-import * as Select from '@base-ui/react/select'
-<Select.Root><Select.Trigger /><Select.Portal><Select.Popup><Select.Item /></Select.Popup></Select.Portal></Select.Root>
+// Select — from ~/components/ui/select
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+<Select><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="x" /></SelectContent></Select>
 
-// Menu
-import * as Menu from '@base-ui/react/menu'
-<Menu.Root><Menu.Trigger /><Menu.Portal><Menu.Popup><Menu.Item /></Menu.Popup></Menu.Portal></Menu.Root>
+// DropdownMenu — from ~/components/ui/dropdown-menu
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '~/components/ui/dropdown-menu'
+<DropdownMenu><DropdownMenuTrigger /><DropdownMenuContent><DropdownMenuItem /></DropdownMenuContent></DropdownMenu>
 ```
 
 ### Architecture
@@ -245,7 +254,7 @@ import * as Menu from '@base-ui/react/menu'
 - [ ] File: lowercase with hyphens (`user-card.tsx`)
 - [ ] **Named export** — never default export
 - [ ] `ComponentProps<'element'>` + `VariantProps` for props interface
-- [ ] Variants with `tv()`, class merge with `twMerge()`
+- [ ] Variants with `cva()`, class merge with `cn()`
 - [ ] `data-slot="name"` on root element
 - [ ] States via `data-[state]:` attributes
 - [ ] CSS variable colors only — no hardcoded values

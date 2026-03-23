@@ -218,9 +218,15 @@
   }
 
   .text-subheading {
-    font-size: var(--text-subheading);
+    font-size: 18px;
     font-weight: 600;
     line-height: 1.42;
+  }
+
+  @media (min-width: 768px) {
+    .text-subheading {
+      font-size: var(--text-subheading);
+    }
   }
 
   .text-body {

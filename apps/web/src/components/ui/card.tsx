@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { cn } from '~/lib/utils'
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -7,7 +7,7 @@ const Card = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={twMerge(
+    className={cn(
       'rounded-card border-border bg-card text-card-foreground border shadow-sm',
       className,
     )}
@@ -22,7 +22,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={twMerge('flex flex-col gap-1.5 p-6', className)}
+    className={cn('flex flex-col gap-1.5 p-6', className)}
     {...props}
   />
 ))
@@ -34,7 +34,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={twMerge(
+    className={cn(
       'text-foreground leading-tight font-bold tracking-tight',
       className,
     )}
@@ -49,10 +49,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={twMerge(
-      'text-muted-foreground text-sm leading-normal',
-      className,
-    )}
+    className={cn('text-muted-foreground text-sm leading-normal', className)}
     {...props}
   />
 ))
@@ -62,7 +59,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={twMerge('p-6 pt-0', className)} {...props} />
+  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
 ))
 CardContent.displayName = 'CardContent'
 
@@ -72,7 +69,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={twMerge('flex items-center p-6 pt-0', className)}
+    className={cn('flex items-center p-6 pt-0', className)}
     {...props}
   />
 ))

@@ -1,18 +1,16 @@
 import type { ComponentProps } from 'react'
-import { twMerge } from 'tailwind-merge'
+import { cn } from '~/lib/utils'
 
 /* ─── Paw Icon ─────────────────────────────────────────────────────────────── */
 
 function LogoIcon({ className, ...props }: ComponentProps<'svg'>) {
   return (
     <svg
-      width="45"
-      height="47"
       viewBox="0 0 45 47"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      className={twMerge('shrink-0', className)}
+      className={cn('h-8.5 w-auto shrink-0 md:h-11.75', className)}
       {...props}
     >
       <path
@@ -32,13 +30,11 @@ function LogoIcon({ className, ...props }: ComponentProps<'svg'>) {
 function LogoWordmark({ className, ...props }: ComponentProps<'svg'>) {
   return (
     <svg
-      width="144"
-      height="63"
       viewBox="0 0 144 63"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      className={twMerge('shrink-0', className)}
+      className={cn('h-8.5 w-auto shrink-0 md:h-15.75', className)}
       {...props}
     >
       <path
@@ -90,7 +86,7 @@ interface LogoProps extends ComponentProps<'div'> {
 
 function Logo({ className, iconOnly = false, ...props }: LogoProps) {
   return (
-    <div className={twMerge('flex items-center gap-2', className)} {...props}>
+    <div className={cn('flex items-center gap-2', className)} {...props}>
       <LogoIcon />
       {!iconOnly && <LogoWordmark />}
     </div>

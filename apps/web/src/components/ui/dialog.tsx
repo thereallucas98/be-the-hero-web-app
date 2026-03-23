@@ -3,7 +3,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import * as React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { cn } from '~/lib/utils'
 
 const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
@@ -16,7 +16,7 @@ const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={twMerge(
+    className={cn(
       'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80',
       className,
     )}
@@ -46,7 +46,7 @@ const DialogContent = React.forwardRef<
       <DialogOverlay />
       <DialogPrimitive.Content
         ref={ref}
-        className={twMerge(
+        className={cn(
           // Base
           'border-border bg-background fixed z-50 grid gap-4 border p-6 pb-6 shadow-lg duration-200',
           // Desktop: centred modal
@@ -97,10 +97,7 @@ const DialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={twMerge(
-      'flex flex-col gap-1.5 text-center sm:text-left',
-      className,
-    )}
+    className={cn('flex flex-col gap-1.5 text-center sm:text-left', className)}
     {...props}
   />
 )
@@ -111,7 +108,7 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={twMerge(
+    className={cn(
       'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
       className,
     )}
@@ -126,7 +123,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={twMerge(
+    className={cn(
       'text-foreground text-lg leading-none font-bold tracking-tight',
       className,
     )}
@@ -141,7 +138,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={twMerge('text-muted-foreground text-sm', className)}
+    className={cn('text-muted-foreground text-sm', className)}
     {...props}
   />
 ))

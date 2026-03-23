@@ -3,7 +3,7 @@
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 import * as React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { cn } from '~/lib/utils'
 
 const Select = SelectPrimitive.Root
 const SelectGroup = SelectPrimitive.Group
@@ -15,7 +15,7 @@ const SelectTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={twMerge(
+    className={cn(
       'rounded-input border-input bg-background placeholder:text-muted-foreground focus:ring-ring flex h-10 w-full items-center justify-between border px-3 py-2 text-sm whitespace-nowrap shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       className,
     )}
@@ -35,7 +35,7 @@ const SelectScrollUpButton = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
-    className={twMerge(
+    className={cn(
       'flex cursor-default items-center justify-center py-1',
       className,
     )}
@@ -52,7 +52,7 @@ const SelectScrollDownButton = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
-    className={twMerge(
+    className={cn(
       'flex cursor-default items-center justify-center py-1',
       className,
     )}
@@ -72,7 +72,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       position={position}
-      className={twMerge(
+      className={cn(
         'rounded-card border-border bg-popover text-popover-foreground relative z-50 max-h-[--radix-select-content-available-height] min-w-32 overflow-x-hidden overflow-y-auto border shadow-md',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
         'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
@@ -85,7 +85,7 @@ const SelectContent = React.forwardRef<
     >
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
-        className={twMerge(
+        className={cn(
           'p-1',
           position === 'popper' &&
             'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)',
@@ -105,7 +105,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={twMerge(
+    className={cn(
       'text-muted-foreground px-2 py-1.5 text-xs font-semibold',
       className,
     )}
@@ -120,7 +120,7 @@ const SelectItem = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
-    className={twMerge(
+    className={cn(
       'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50',
       className,
     )}
@@ -142,7 +142,7 @@ const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={twMerge('bg-border -mx-1 my-1 h-px', className)}
+    className={cn('bg-border -mx-1 my-1 h-px', className)}
     {...props}
   />
 ))
