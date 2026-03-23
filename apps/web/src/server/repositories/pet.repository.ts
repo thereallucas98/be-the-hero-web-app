@@ -143,7 +143,13 @@ export interface PublicPetDetailItem {
   adoptionRequirements: string | null
   images: Array<{ id: string; url: string; position: number; isCover: boolean }>
   requirements: PublicPetRequirementItem[]
-  workspace: { id: string; name: string }
+  workspace: {
+    id: string
+    name: string
+    phone: string | null
+    whatsapp: string | null
+    address: string | null
+  }
   approvedAt: Date
 }
 
@@ -1172,13 +1178,48 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
             },
             orderBy: { order: 'asc' },
           },
-          workspace: { select: { id: true, name: true } },
+          workspace: {
+            select: {
+              id: true,
+              name: true,
+              phone: true,
+              whatsapp: true,
+              locations: {
+                where: { isPrimary: true },
+                take: 1,
+                select: {
+                  addressLine: true,
+                  neighborhood: true,
+                  cityPlace: {
+                    select: {
+                      name: true,
+                      parent: { select: { code: true } },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       })
       if (!pet || !pet.approvedAt) return null
+      const loc = pet.workspace.locations[0]
+      const addressParts = [
+        loc?.addressLine,
+        loc?.neighborhood,
+        loc?.cityPlace?.name,
+        loc?.cityPlace?.parent?.code,
+      ].filter(Boolean)
       return {
         ...pet,
         approvedAt: pet.approvedAt,
+        workspace: {
+          id: pet.workspace.id,
+          name: pet.workspace.name,
+          phone: pet.workspace.phone,
+          whatsapp: pet.workspace.whatsapp,
+          address: addressParts.length ? addressParts.join(', ') : null,
+        },
       }
     },
 
