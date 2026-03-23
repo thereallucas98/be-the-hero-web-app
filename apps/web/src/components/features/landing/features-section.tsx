@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { Reveal } from '~/components/ui/reveal'
 import { cn } from '~/lib/utils'
 
 const FEATURES = [
@@ -55,7 +56,7 @@ export function FeaturesSection() {
         {/* ── Desktop layout (md+) ── */}
         <div className="hidden items-center gap-12 md:flex lg:gap-20">
           {/* Left — app mockup */}
-          <div className="relative w-[420px] shrink-0 xl:w-[480px]">
+          <div className="relative w-105 shrink-0 xl:w-120">
             <Image
               src="/images/app-mockup.png"
               alt="App BeTheHero exibindo lista de animais para adoção"
@@ -67,11 +68,13 @@ export function FeaturesSection() {
 
           {/* Right — title + feature cards */}
           <div className="flex flex-1 flex-col gap-10">
-            <h2 className="text-section-title text-accent-navy">
-              Um app não,
-              <br />
-              uma caixinha de amigos...
-            </h2>
+            <Reveal wipeColor="bg-background" delay={0.1} className="w-full">
+              <h2 className="text-section-title text-accent-navy">
+                Um app não,
+                <br />
+                uma caixinha de amigos...
+              </h2>
+            </Reveal>
 
             <div className="grid grid-cols-2 gap-4">
               {FEATURES.filter((f) => !f.wide).map(({ emoji, text }) => (
@@ -91,9 +94,11 @@ export function FeaturesSection() {
 
         {/* ── Mobile layout (< md) ── */}
         <div className="flex flex-col gap-8 md:hidden">
-          <h2 className="text-section-title text-accent-navy">
-            Um app não, uma caixinha de amigos...
-          </h2>
+          <Reveal wipeColor="bg-background" delay={0.1} className="w-full">
+            <h2 className="text-section-title text-accent-navy">
+              Um app não, uma caixinha de amigos...
+            </h2>
+          </Reveal>
 
           <div className="flex flex-col gap-4">
             {FEATURES.map(({ emoji, text }) => (

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
+import { Reveal } from '~/components/ui/reveal'
 import { PhoneCard } from './phone-card'
 
 const SOCIAL_PROOF_AVATARS = [
@@ -49,20 +50,26 @@ export function HeroSection() {
       <div className="mx-auto hidden max-w-7xl items-end gap-12 px-10 md:flex lg:px-20">
         {/* Left column */}
         <div className="flex flex-1 flex-col gap-8 pt-12 pb-20">
-          <SocialProof />
+          <Reveal wipeColor="bg-brand-primary" delay={0}>
+            <SocialProof />
+          </Reveal>
 
-          <h1 className="text-hero text-white">
-            Leve
-            <br />a felicidade
-            <br />
-            para o seu lar
-          </h1>
+          <Reveal wipeColor="bg-brand-primary" delay={0.15} className="w-full">
+            <h1 className="text-hero text-white">
+              Leve
+              <br />a felicidade
+              <br />
+              para o seu lar
+            </h1>
+          </Reveal>
 
-          <p className="text-subheading text-white">
-            Encontre o animal de estimação ideal
-            <br />
-            para seu estilo de vida!
-          </p>
+          <Reveal wipeColor="bg-brand-primary" delay={0.3} className="w-full">
+            <p className="text-subheading text-white">
+              Encontre o animal de estimação ideal
+              <br />
+              para seu estilo de vida!
+            </p>
+          </Reveal>
         </div>
 
         {/* Right column — interactive phone card */}
@@ -73,14 +80,18 @@ export function HeroSection() {
       <div className="md:hidden">
         {/* Content area */}
         <div className="flex flex-col gap-5 px-5 pt-8 pb-6">
-          <SocialProof size="sm" />
+          <Reveal wipeColor="bg-brand-primary" delay={0}>
+            <SocialProof size="sm" />
+          </Reveal>
 
-          <h1 className="text-hero text-white">
-            Leve
-            <br />a felicidade
-            <br />
-            para o seu lar
-          </h1>
+          <Reveal wipeColor="bg-brand-primary" delay={0.15} className="w-full">
+            <h1 className="text-hero text-white">
+              Leve
+              <br />a felicidade
+              <br />
+              para o seu lar
+            </h1>
+          </Reveal>
         </div>
 
         {/* Card carousel */}
