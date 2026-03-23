@@ -34,30 +34,32 @@ app/
 - ✅ `dialog.tsx` — Radix Dialog, bottom-sheet on mobile preserved
 - ✅ `logo.tsx` — `Logo`, `LogoIcon`, `LogoWordmark` (SVG from Figma)
 
-**Figma screens still to fetch** (rate-limited during exploration):
+**Figma screens still to fetch:**
 - 🎨 Location picker (`308:3`)
 - 🎨 Pet profile (`1:834`)
 - 🎨 Login (`1213:199`)
 - 🎨 Register (`1213:4`)
 - 🎨 Add Pet (`1256:5`)
-- 🎨 Sections (`26:3`, `26:29`, `57:3`, `57:321`)
+- ✅ Sections (`26:3`, `26:29`, `57:3`, `57:321`) — built in landing page
 
 ---
 
-## Sprint F1 — Public Marketing Pages
+## Sprint F1 — Public Marketing Pages ⬛ (in progress)
 
 > Figma: Home, LP, Mobile, Sections, About screens
 > API used: `GET /api/pets`, `GET /api/campaigns`, `GET /api/workspaces/:id/public`
 
 ### F1.1 — Navigation (desktop + mobile)
-- `components/features/nav/site-header.tsx` — logo, links, CTA button, mobile hamburger
-- `components/features/nav/mobile-menu.tsx` — `#E44449` bg, column links, close button
+- ✅ `components/features/nav/site-header.tsx` — logo, links, CTA button, mobile hamburger
+- ✅ `components/features/nav/mobile-menu.tsx` — full-screen mobile nav
 
-### F1.2 — Landing page (`app/(public)/page.tsx`)
-- Hero section — 72px heading, subtext, CTA "Acesse agora", social-proof avatars
-- How it works section — 3 feature cards (🐕 🐈 🦮)
-- Map/location preview section
-- Footer
+### F1.2 — Landing page (`app/(public)/page.tsx`) ✅
+- ✅ Hero section — heading, subtext, CTA "Acesse agora", social-proof avatars
+- ✅ Features section — 3 feature cards + app mockup
+- ✅ CTA section
+- ✅ About section — `components/features/landing/about-section.tsx`
+- ✅ Contact section — `components/features/landing/contact-section.tsx` (isometric phone card)
+- ✅ Footer — `components/features/landing/site-footer.tsx`
 
 ### F1.3 — Public pet listing (`app/(public)/pets/page.tsx`)
 - Filter sidebar — Idade, Tipo, Nível de Energia, Porte, Nível de Independência
@@ -254,7 +256,7 @@ F5 (Admin panel)       ← depends on F2
 | Sprint | Scope | Pages/Components |
 |---|---|---|
 | F0 | Design system | ✅ 11 components done |
-| F1 | Public marketing | 6 pages + nav |
+| F1 | Public marketing | ⬛ LP done; pet listing/detail/campaigns pending |
 | F2 | Auth | 5 pages |
 | F3 | Guardian portal | 5 pages |
 | F4 | Workspace portal | 7 pages |

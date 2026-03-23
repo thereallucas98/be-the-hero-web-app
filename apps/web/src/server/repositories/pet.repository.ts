@@ -113,6 +113,8 @@ export interface ListPublicPetsInput {
   sex?: string
   size?: string
   ageCategory?: string
+  energyLevel?: string
+  independenceLevel?: string
   hasRequirements?: boolean
   page?: number
   perPage?: number
@@ -1046,6 +1048,15 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
             | 'YOUNG'
             | 'ADULT'
             | 'SENIOR',
+        }),
+        ...(input.energyLevel && {
+          energyLevel: input.energyLevel as 'LOW' | 'MEDIUM' | 'HIGH',
+        }),
+        ...(input.independenceLevel && {
+          independenceLevel: input.independenceLevel as
+            | 'LOW'
+            | 'MEDIUM'
+            | 'HIGH',
         }),
         ...(input.hasRequirements === false && {
           requirements: { none: {} },

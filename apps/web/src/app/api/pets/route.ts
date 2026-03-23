@@ -22,6 +22,8 @@ export async function GET(req: Request) {
     sex: parsed.data.sex,
     size: parsed.data.size,
     ageCategory: parsed.data.ageCategory,
+    energyLevel: parsed.data.energyLevel,
+    independenceLevel: parsed.data.independenceLevel,
     hasRequirements: parsed.data.hasRequirements,
     page: parsed.data.page,
     perPage: parsed.data.perPage,

@@ -68,6 +68,8 @@ export const ListPetsQuerySchema = z.object({
   sex: sexEnum.optional(),
   size: sizeEnum.optional(),
   ageCategory: ageCategoryEnum.optional(),
+  energyLevel: energyLevelEnum.optional(),
+  independenceLevel: independenceLevelEnum.optional(),
   hasRequirements: z.coerce.boolean().optional(),
   page: z.coerce.number().int().positive().optional().default(1),
   perPage: z.coerce.number().int().positive().max(20).optional().default(20),

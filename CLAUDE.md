@@ -369,10 +369,50 @@ All steps done   → "✅ Implementation complete. Ready for your review."
 
 ---
 
+## Figma MCP UI Workflow
+
+> Applies to all platform screen builds (F2–F5). UI is built first from Figma, API wiring comes after.
+
+### MCP setup
+- **Use `figma-desktop` MCP** (`mcp__figma-desktop__*`) — it uses the local Figma desktop app session
+- FrameLink MCP (`mcp__FrameLink_Figma_MCP__*`) requires a token that matches the file owner — avoid it unless confirmed working
+- If MCP is disconnected, run `/mcp` in Claude Code to reconnect
+
+### Build order (per screen)
+1. **Fetch design** — `mcp__figma-desktop__get_design_context` with the node URL
+2. **Screenshot** — `mcp__figma-desktop__get_screenshot` to visually verify the node
+3. **Identify reusable pieces** — before writing any component, ask: does this card/badge/row appear in other screens?
+   - Yes → extract to `components/features/<domain>/` or `components/ui/` if truly generic
+   - No → inline it in the page file
+4. **Build shared components first**, then compose the page
+5. **UI only** — no API calls, no `useQuery`, no server actions until the page renders correctly from static/mock data
+6. **Wire API last** — replace mock data with real `useQuery` / server component fetches
+
+### Component placement rules
+```
+components/ui/                    ← domain-agnostic primitives (Badge, Card, Avatar…)
+components/features/pets/         ← PetCard, PetStatusBadge, PetFilters…
+components/features/workspaces/   ← WorkspaceCard, WorkspaceBadge…
+components/features/campaigns/    ← CampaignCard, DonationProgress…
+components/features/nav/          ← SiteHeader, SidebarNav, MobileMenu…
+components/features/landing/      ← HeroSection, FeaturesSection… (F1 only)
+```
+
+### Figma sprint → screen mapping
+| Sprint | Figma nodes |
+|---|---|
+| F1 Landing | `57:3`, `57:321`, `26:3`, `26:29` |
+| F2 Auth | Login `1213:199`, Register `1213:4` |
+| F4 Workspace | Add Pet `1256:5`, Pet list `308:3` |
+
+---
+
 ## Reference
 
 - [docs/CLAUDE-INSTRUCTIONS.md](docs/CLAUDE-INSTRUCTIONS.md) — Full AI workflow
 - [docs/README.md](docs/README.md) — Human guide
+- [docs/FRONTEND-ROADMAP.md](docs/FRONTEND-ROADMAP.md) — Sprint tracker (F0–F5)
+- [docs/FRONTEND-WORKFLOW.md](docs/FRONTEND-WORKFLOW.md) — Figma-to-code detailed process
 - [docs/_templates/](docs/_templates/) — Templates
 - [apps/web/src/app/api/](apps/web/src/app/api/) — API routes
 - [apps/web/src/server/](apps/web/src/server/) — Repositories, use-cases, schemas
