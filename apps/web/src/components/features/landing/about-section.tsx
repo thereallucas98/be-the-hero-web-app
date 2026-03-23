@@ -1,63 +1,63 @@
-import Image from 'next/image'
+// import Image from 'next/image'
 import { Reveal } from '~/components/ui/reveal'
 
-const TEAM = [
-  {
-    name: 'Hamilton Freire',
-    role: 'Fundador',
-    photo: '/images/team/hamilton.png',
-  },
-  {
-    name: 'Lara Valencia',
-    role: 'Fundadora',
-    photo: '/images/team/lara.png',
-  },
-  {
-    name: 'Aline Alana',
-    role: 'UI/UX Designer',
-    photo: '/images/team/aline.png',
-  },
-  {
-    name: 'Tadeu Bastos',
-    role: 'Full stack developer',
-    photo: '/images/team/tadeu.png',
-  },
-]
+// const TEAM = [
+//   {
+//     name: 'Hamilton Freire',
+//     role: 'Fundador',
+//     photo: '/images/team/hamilton.png',
+//   },
+//   {
+//     name: 'Lara Valencia',
+//     role: 'Fundadora',
+//     photo: '/images/team/lara.png',
+//   },
+//   {
+//     name: 'Aline Alana',
+//     role: 'UI/UX Designer',
+//     photo: '/images/team/aline.png',
+//   },
+//   {
+//     name: 'Tadeu Bastos',
+//     role: 'Full stack developer',
+//     photo: '/images/team/tadeu.png',
+//   },
+// ]
 
-interface TeamCardProps {
-  name: string
-  role: string
-  photo: string
-}
+// interface TeamCardProps {
+//   name: string
+//   role: string
+//   photo: string
+// }
 
-function TeamCard({ name, role, photo }: TeamCardProps) {
-  return (
-    <div
-      data-slot="team-card"
-      className="border-brand-primary/30 bg-brand-primary-pale/50 relative h-71 w-69.5 shrink-0 rounded-[20px] border"
-    >
-      {/* Photo */}
-      <div className="absolute top-2.5 right-2.5 left-2.5 h-46.5 overflow-hidden rounded-2xl">
-        <Image
-          src={photo}
-          alt={name}
-          fill
-          className="object-cover object-top"
-        />
-      </div>
+// function TeamCard({ name, role, photo }: TeamCardProps) {
+//   return (
+//     <div
+//       data-slot="team-card"
+//       className="border-brand-primary/30 bg-brand-primary-pale/50 relative h-71 w-69.5 shrink-0 rounded-[20px] border"
+//     >
+//       {/* Photo */}
+//       <div className="absolute top-2.5 right-2.5 left-2.5 h-46.5 overflow-hidden rounded-2xl">
+//         <Image
+//           src={photo}
+//           alt={name}
+//           fill
+//           className="object-cover object-top"
+//         />
+//       </div>
 
-      {/* Name + role */}
-      <div className="absolute right-0 bottom-0 left-0 flex flex-col items-center gap-0.5 pt-2 pb-5">
-        <p className="font-nunito text-accent-navy text-[18px] leading-[1.2] font-bold">
-          {name}
-        </p>
-        <p className="font-nunito text-accent-navy text-[18px] leading-[1.2] font-normal">
-          {role}
-        </p>
-      </div>
-    </div>
-  )
-}
+//       {/* Name + role */}
+//       <div className="absolute right-0 bottom-0 left-0 flex flex-col items-center gap-0.5 pt-2 pb-5">
+//         <p className="font-nunito text-accent-navy text-[18px] leading-[1.2] font-bold">
+//           {name}
+//         </p>
+//         <p className="font-nunito text-accent-navy text-[18px] leading-[1.2] font-normal">
+//           {role}
+//         </p>
+//       </div>
+//     </div>
+//   )
+// }
 
 export function AboutSection() {
   return (
@@ -90,20 +90,20 @@ export function AboutSection() {
         </div>
 
         {/* ── Team cards — Desktop (md+): 4 in a row ── */}
-        <div className="hidden justify-between md:flex">
+        {/* <div className="hidden justify-between md:flex">
           {TEAM.map((member) => (
             <TeamCard key={member.name} {...member} />
           ))}
-        </div>
+        </div> */}
 
         {/* ── Team cards — Mobile: horizontal scroll ── */}
-        <div className="overflow-x-auto pb-2 md:hidden">
+        {/* <div className="overflow-x-auto pb-2 md:hidden">
           <div className="flex gap-4">
             {TEAM.map((member) => (
               <TeamCard key={member.name} {...member} />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   )
