@@ -1,7 +1,8 @@
+import { Suspense } from 'react'
 import { AuthIllustrationPanel } from '~/components/features/auth/auth-illustration-panel'
-import { RegisterForm } from '~/components/features/auth/register-form'
+import { VerifyEmailView } from '~/components/features/auth/verify-email-view'
 
-export default function RegisterPage() {
+export default function VerifyEmailPage() {
   return (
     <div className="flex min-h-dvh bg-white">
       {/* ── Left illustration panel (desktop only) ─────────────────────── */}
@@ -9,7 +10,7 @@ export default function RegisterPage() {
         <AuthIllustrationPanel />
       </div>
 
-      {/* ── Right: form ───────────────────────────────────────────────── */}
+      {/* ── Right: content ────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-10 lg:px-16 xl:px-20">
         {/* Mobile brand strip */}
         <div className="mb-8 lg:hidden">
@@ -21,12 +22,9 @@ export default function RegisterPage() {
         </div>
 
         <div className="w-full max-w-[488px]">
-          <h1 className="font-nunito text-accent-navy mb-6 text-center text-[36px] leading-tight font-bold tracking-tight sm:text-[48px]">
-            Cadastre sua
-            <br />
-            organização
-          </h1>
-          <RegisterForm />
+          <Suspense>
+            <VerifyEmailView />
+          </Suspense>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { AuthIllustrationPanel } from '~/components/features/auth/auth-illustration-panel'
-import { RegisterForm } from '~/components/features/auth/register-form'
+import { RegisterGuardianForm } from '~/components/features/auth/register-guardian-form'
 
-export default function RegisterPage() {
+export default function RegisterGuardianPage() {
   return (
     <div className="flex min-h-dvh bg-white">
       {/* ── Left illustration panel (desktop only) ─────────────────────── */}
@@ -22,11 +22,11 @@ export default function RegisterPage() {
 
         <div className="w-full max-w-[488px]">
           <h1 className="font-nunito text-accent-navy mb-6 text-center text-[36px] leading-tight font-bold tracking-tight sm:text-[48px]">
-            Cadastre sua
+            Quero adotar
             <br />
-            organização
+            um pet
           </h1>
-          <RegisterForm />
+          <RegisterGuardianForm />
         </div>
       </div>
     </div>

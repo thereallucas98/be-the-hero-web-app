@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { AuthIllustrationPanel } from '~/components/features/auth/auth-illustration-panel'
 import { LoginForm } from '~/components/features/auth/login-form'
 
@@ -24,7 +25,9 @@ export default function LoginPage() {
           <h1 className="font-nunito text-accent-navy mb-10 text-[42px] leading-none font-bold tracking-tight sm:text-[54px]">
             Boas-vindas!
           </h1>
-          <LoginForm />
+          <Suspense>
+            <LoginForm />
+          </Suspense>
         </div>
       </div>
     </div>

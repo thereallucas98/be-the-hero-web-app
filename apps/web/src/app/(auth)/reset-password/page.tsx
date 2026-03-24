@@ -1,7 +1,8 @@
+import { Suspense } from 'react'
 import { AuthIllustrationPanel } from '~/components/features/auth/auth-illustration-panel'
-import { RegisterForm } from '~/components/features/auth/register-form'
+import { ResetPasswordPageClient } from '~/components/features/auth/reset-password-form'
 
-export default function RegisterPage() {
+export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-dvh bg-white">
       {/* ── Left illustration panel (desktop only) ─────────────────────── */}
@@ -21,12 +22,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="w-full max-w-[488px]">
-          <h1 className="font-nunito text-accent-navy mb-6 text-center text-[36px] leading-tight font-bold tracking-tight sm:text-[48px]">
-            Cadastre sua
-            <br />
-            organização
+          <h1 className="font-nunito text-accent-navy mb-8 text-[42px] leading-none font-bold tracking-tight sm:text-[54px]">
+            Nova senha
           </h1>
-          <RegisterForm />
+          <Suspense>
+            <ResetPasswordPageClient />
+          </Suspense>
         </div>
       </div>
     </div>

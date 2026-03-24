@@ -3,10 +3,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { AuthField, authInputCls } from '~/components/features/auth/auth-field'
 import { cn } from '~/lib/utils'
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -18,44 +19,12 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-// ─── Field wrapper ────────────────────────────────────────────────────────────
-
-function AuthField({
-  label,
-  error,
-  children,
-}: {
-  label: string
-  error?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-nunito text-accent-navy text-[15px] font-semibold">
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p className="font-nunito text-brand-primary text-[13px] font-semibold">
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
-
-// ─── Input styling ────────────────────────────────────────────────────────────
-
-const authInputCls = cn(
-  'font-nunito text-accent-navy w-full rounded-[10px] border border-[#d3e2e5] bg-[#f5f8fa] px-4 py-4 text-[16px] font-semibold placeholder:text-accent-navy/30',
-  'focus-visible:border-accent-navy focus-visible:ring-accent-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0',
-  'disabled:opacity-50',
-)
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') ?? '/'
   const [showPassword, setShowPassword] = useState(false)
 
   const {
@@ -80,7 +49,7 @@ export function LoginForm() {
       return
     }
 
-    router.push('/')
+    router.push(redirectTo)
     router.refresh()
   }
 
@@ -126,6 +95,14 @@ export function LoginForm() {
             )}
           </button>
         </div>
+        <div className="flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="font-nunito text-accent-navy/60 hover:text-accent-navy text-[13px] font-semibold underline underline-offset-2 transition-colors focus-visible:outline-none"
+          >
+            Esqueceu a senha?
+          </Link>
+        </div>
       </AuthField>
 
       {errors.root && (
@@ -148,6 +125,13 @@ export function LoginForm() {
           className="font-nunito bg-accent-navy/5 text-accent-navy focus-visible:ring-accent-navy flex h-[64px] w-full items-center justify-center rounded-[20px] text-[18px] font-extrabold transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:outline-none"
         >
           Cadastrar minha organização
+        </Link>
+
+        <Link
+          href="/register/guardian"
+          className="font-nunito text-accent-navy/60 hover:text-accent-navy text-center text-[14px] font-semibold underline underline-offset-2 transition-colors focus-visible:outline-none"
+        >
+          É adotante? Cadastre-se aqui
         </Link>
       </div>
     </form>
