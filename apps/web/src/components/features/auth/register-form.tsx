@@ -9,6 +9,13 @@ import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { AuthField, authInputCls } from '~/components/features/auth/auth-field'
 import { PhoneInput } from '~/components/ui/masked-input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import { cn } from '~/lib/utils'
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
@@ -189,9 +196,6 @@ export function RegisterForm() {
     router.refresh()
   }
 
-  // ── Shared select class ──
-  const selectCls = cn(authInputCls, 'cursor-pointer appearance-none')
-
   // ── Step 1 ──────────────────────────────────────────────────────────────────
   if (step === 1) {
     const {
@@ -303,16 +307,29 @@ export function RegisterForm() {
       </AuthField>
 
       <AuthField label="Tipo" error={err2.type?.message}>
-        <select
-          {...reg2('type')}
-          className={cn(selectCls, err2.type && 'border-brand-primary')}
-        >
-          <option value="">Selecione o tipo</option>
-          <option value="ONG">ONG</option>
-          <option value="CLINIC">Clínica veterinária</option>
-          <option value="PETSHOP">Petshop</option>
-          <option value="INDEPENDENT">Independente</option>
-        </select>
+        <Controller
+          name="type"
+          control={ctrl2}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger
+                className={cn(
+                  authInputCls,
+                  'h-auto cursor-pointer',
+                  err2.type && 'border-brand-primary',
+                )}
+              >
+                <SelectValue placeholder="Selecione o tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ONG">ONG</SelectItem>
+                <SelectItem value="CLINIC">Clínica veterinária</SelectItem>
+                <SelectItem value="PETSHOP">Petshop</SelectItem>
+                <SelectItem value="INDEPENDENT">Independente</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </AuthField>
 
       <AuthField label="Descrição" error={err2.description?.message}>
@@ -329,17 +346,33 @@ export function RegisterForm() {
       </AuthField>
 
       <AuthField label="Cidade" error={err2.cityPlaceId?.message}>
-        <select
-          {...reg2('cityPlaceId')}
-          className={cn(selectCls, err2.cityPlaceId && 'border-brand-primary')}
-        >
-          <option value="">Selecione a cidade</option>
-          {cities.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+        <Controller
+          name="cityPlaceId"
+          control={ctrl2}
+          render={({ field }) => (
+            <Select
+              value={field.value || undefined}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger
+                className={cn(
+                  authInputCls,
+                  'h-auto cursor-pointer',
+                  err2.cityPlaceId && 'border-brand-primary',
+                )}
+              >
+                <SelectValue placeholder="Selecione a cidade" />
+              </SelectTrigger>
+              <SelectContent>
+                {cities.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
       </AuthField>
 
       <AuthField label="Telefone (opcional)" error={err2.phone?.message}>

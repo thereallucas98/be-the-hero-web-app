@@ -1,4 +1,4 @@
-import { cva } from 'class-variance-authority'
+import { Badge } from '~/components/ui/badge'
 import { cn } from '~/lib/utils'
 
 // ─── Status → display label ────────────────────────────────────────────────────
@@ -11,23 +11,13 @@ const STATUS_LABEL: Record<string, string> = {
   ADOPTED: 'Adotado',
 }
 
-// ─── Variants ──────────────────────────────────────────────────────────────────
-
-const petStatusBadgeVariants = cva(
-  'inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide',
-  {
-    variants: {
-      status: {
-        DRAFT: 'bg-muted text-muted-foreground',
-        PENDING_REVIEW: 'bg-warning-light text-accent-navy',
-        APPROVED: 'bg-success-light text-success',
-        REJECTED: 'bg-destructive/10 text-destructive',
-        ADOPTED: 'bg-accent-navy/10 text-accent-navy',
-      },
-    },
-    defaultVariants: { status: 'DRAFT' },
-  },
-)
+const STATUS_CLASS: Record<string, string> = {
+  DRAFT: 'bg-muted text-muted-foreground',
+  PENDING_REVIEW: 'bg-warning-light text-accent-navy',
+  APPROVED: 'bg-success-light text-success',
+  REJECTED: 'bg-destructive/10 text-destructive',
+  ADOPTED: 'bg-accent-navy/10 text-accent-navy',
+}
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
@@ -37,20 +27,17 @@ interface PetStatusBadgeProps {
 }
 
 export function PetStatusBadge({ status, className }: PetStatusBadgeProps) {
-  const variant = (
-    ['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'ADOPTED'].includes(
-      status,
-    )
-      ? status
-      : 'DRAFT'
-  ) as 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'ADOPTED'
-
   return (
-    <span
+    <Badge
+      variant="outline"
       data-slot="pet-status-badge"
-      className={cn(petStatusBadgeVariants({ status: variant }), className)}
+      className={cn(
+        'rounded-full border-transparent text-[11px] font-bold tracking-wide uppercase',
+        STATUS_CLASS[status] ?? STATUS_CLASS.DRAFT,
+        className,
+      )}
     >
       {STATUS_LABEL[status] ?? status}
-    </span>
+    </Badge>
   )
 }

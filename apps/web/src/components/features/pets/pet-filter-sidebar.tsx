@@ -1,9 +1,16 @@
 'use client'
 
-import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react'
+import { Search, SlidersHorizontal, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import {
   Sheet,
   SheetClose,
@@ -52,6 +59,8 @@ const INDEPENDENCE_OPTIONS = [
 
 // ─── Reusable filter select ───────────────────────────────────────────────────
 
+const FILTER_ALL = '__all__'
+
 function FilterSelect({
   label,
   options,
@@ -68,23 +77,25 @@ function FilterSelect({
       <span className="font-nunito text-[12px] font-medium text-white/80">
         {label}
       </span>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="font-nunito bg-brand-primary-dark w-full cursor-pointer appearance-none rounded-[15px] py-[18px] pr-10 pl-5 text-[16px] font-extrabold text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-        >
+      <Select
+        value={value === '' ? FILTER_ALL : value}
+        onValueChange={(v) => onChange(v === FILTER_ALL ? '' : v)}
+      >
+        <SelectTrigger className="font-nunito bg-brand-primary-dark h-auto w-full cursor-pointer rounded-[15px] border-none py-[18px] pl-5 text-[16px] font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none [&>svg]:text-white [&>svg]:opacity-100">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="bg-brand-primary-dark border-none text-white">
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <SelectItem
+              key={opt.value || FILTER_ALL}
+              value={opt.value === '' ? FILTER_ALL : opt.value}
+              className="focus:bg-brand-primary text-white focus:text-white"
+            >
               {opt.label}
-            </option>
+            </SelectItem>
           ))}
-        </select>
-        <ChevronDown
-          className="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-white"
-          aria-hidden
-        />
-      </div>
+        </SelectContent>
+      </Select>
     </div>
   )
 }
@@ -122,59 +133,57 @@ function LocationRow({
       )}
     >
       {/* State picker */}
-      <div className="relative shrink-0">
-        <select
-          value={selectedStateId}
-          onChange={(e) => onStateChange(e.target.value)}
+      <Select
+        value={selectedStateId || undefined}
+        onValueChange={onStateChange}
+      >
+        <SelectTrigger
           aria-label="Selecionar estado"
           className={cn(
-            'font-nunito cursor-pointer appearance-none rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
+            'shrink-0 cursor-pointer rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none [&>svg]:text-white [&>svg]:opacity-100',
             compact
-              ? 'h-12 w-[72px] pr-7 pl-3 text-[14px]'
-              : 'h-[60px] w-[90px] pr-8 pl-4 text-[16px]',
+              ? 'h-12 w-[72px] pl-3 text-[14px]'
+              : 'h-[60px] w-[90px] pl-4 text-[16px]',
           )}
         >
-          <option value="">UF</option>
+          <SelectValue placeholder="UF" />
+        </SelectTrigger>
+        <SelectContent>
           {states.map((s) => (
-            <option key={s.id} value={s.id}>
+            <SelectItem key={s.id} value={s.id}>
               {s.code ?? s.name}
-            </option>
+            </SelectItem>
           ))}
-        </select>
-        <ChevronDown
-          className="pointer-events-none absolute top-1/2 right-1.5 size-4 -translate-y-1/2 text-white"
-          aria-hidden
-        />
-      </div>
+        </SelectContent>
+      </Select>
 
       {/* City picker */}
-      <div className="relative flex-1">
-        <select
-          value={selectedCityId}
-          onChange={(e) => onCityChange(e.target.value)}
-          disabled={!selectedStateId || loadingCities}
+      <Select
+        value={selectedCityId || undefined}
+        onValueChange={onCityChange}
+        disabled={!selectedStateId || loadingCities}
+      >
+        <SelectTrigger
           aria-label="Selecionar cidade"
           className={cn(
-            'font-nunito w-full cursor-pointer appearance-none rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-50',
-            compact
-              ? 'h-12 pr-8 pl-3 text-[14px]'
-              : 'h-[60px] pr-8 pl-4 text-[16px]',
+            'flex-1 cursor-pointer rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none disabled:opacity-50 [&>svg]:text-white [&>svg]:opacity-100',
+            compact ? 'h-12 pl-3 text-[14px]' : 'h-[60px] pl-4 text-[16px]',
           )}
         >
-          <option value="">
-            {loadingCities ? 'Carregando...' : (initialCityName ?? 'Cidade')}
-          </option>
+          <SelectValue
+            placeholder={
+              loadingCities ? 'Carregando...' : (initialCityName ?? 'Cidade')
+            }
+          />
+        </SelectTrigger>
+        <SelectContent>
           {cities.map((c) => (
-            <option key={c.id} value={c.id}>
+            <SelectItem key={c.id} value={c.id}>
               {c.name}
-            </option>
+            </SelectItem>
           ))}
-        </select>
-        <ChevronDown
-          className="pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2 text-white"
-          aria-hidden
-        />
-      </div>
+        </SelectContent>
+      </Select>
 
       {/* Search button */}
       <button

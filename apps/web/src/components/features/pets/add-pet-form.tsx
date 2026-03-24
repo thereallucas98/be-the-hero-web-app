@@ -1,11 +1,10 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FileText, Plus, UploadCloud, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { Plus, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { cn } from '~/lib/utils'
 import {
   Select,
   SelectContent,
@@ -13,33 +12,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import { cn } from '~/lib/utils'
 
-// ─── Schema ────────────────────────────────────────────────────────────────────
+// ─── Schema (values match the API enums directly) ──────────────────────────────
 
 const addPetSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
-  sobre: z.string().max(300, 'Máximo de 300 caracteres'),
-  idade: z.enum(['filhote', 'jovem', 'adulto', 'idoso'], {
+  name: z.string().min(2, 'Nome é obrigatório'),
+  description: z.string().min(10, 'Descrição obrigatória (mín. 10 caracteres)'),
+  species: z.enum(
+    [
+      'DOG',
+      'CAT',
+      'RABBIT',
+      'BIRD',
+      'HORSE',
+      'COW',
+      'GOAT',
+      'PIG',
+      'TURTLE',
+      'OTHER',
+    ],
+    { message: 'Selecione a espécie' },
+  ),
+  sex: z.enum(['MALE', 'FEMALE'], { message: 'Selecione o sexo' }),
+  ageCategory: z.enum(['PUPPY', 'YOUNG', 'ADULT', 'SENIOR'], {
     message: 'Selecione a idade',
   }),
-  porte: z.enum(['pequenino', 'medio', 'grande'], {
-    message: 'Selecione o porte',
-  }),
-  nivelEnergia: z.enum(['baixa', 'media', 'alta', 'muito_alta'], {
-    message: 'Selecione o nível de energia',
-  }),
-  nivelIndependencia: z.enum(['baixo', 'medio', 'alto'], {
-    message: 'Selecione o nível de independência',
-  }),
-  ambiente: z.enum(['amplo', 'apartamento', 'qualquer'], {
-    message: 'Selecione o ambiente',
-  }),
+  size: z.enum(['SMALL', 'MEDIUM', 'LARGE'], { message: 'Selecione o porte' }),
+  energyLevel: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+  independenceLevel: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+  environment: z.enum(['HOUSE', 'APARTMENT', 'BOTH']).optional(),
   requisitos: z.array(
-    z.object({ texto: z.string().min(1, 'Requisito não pode estar vazio') }),
+    z.object({ title: z.string().min(3, 'Mínimo 3 caracteres') }),
   ),
 })
 
 type AddPetFormValues = z.infer<typeof addPetSchema>
+
+// ─── Props ─────────────────────────────────────────────────────────────────────
+
+interface AddPetFormProps {
+  workspaceId: string
+}
 
 // ─── Shared input class ────────────────────────────────────────────────────────
 
@@ -144,131 +158,86 @@ function AddItemButton({
   )
 }
 
-// ─── Photo upload zone ─────────────────────────────────────────────────────────
-
-function PhotoUploadZone({
-  files,
-  onFilesChange,
-}: {
-  files: File[]
-  onFilesChange: (files: File[]) => void
-}) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [dragging, setDragging] = useState(false)
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setDragging(false)
-    const dropped = Array.from(e.dataTransfer.files).filter((f) =>
-      f.type.startsWith('image/'),
-    )
-    onFilesChange([...files, ...dropped])
-  }
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files) return
-    onFilesChange([...files, ...Array.from(e.target.files)])
-    e.target.value = ''
-  }
-
-  function removeFile(index: number) {
-    onFilesChange(files.filter((_, i) => i !== index))
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      {/* Drop zone */}
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label="Área para envio de fotos — clique ou arraste arquivos"
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => e.key === 'Enter' && inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDragging(true)
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
-        className={cn(
-          'flex h-[152px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[10px] border border-[#d3e2e5] bg-[#f5f8fa] transition-colors',
-          dragging && 'bg-accent-navy/5 border-accent-navy',
-          'focus-visible:ring-accent-navy focus-visible:ring-2 focus-visible:outline-none',
-        )}
-      >
-        <UploadCloud className="text-accent-navy size-6" aria-hidden />
-        <p className="font-nunito text-accent-navy text-[18px] font-semibold">
-          Arraste e solte o arquivo
-        </p>
-      </div>
-
-      <input
-        ref={inputRef}
-        type="file"
-        multiple
-        accept="image/*"
-        className="sr-only"
-        onChange={handleChange}
-        aria-hidden
-        tabIndex={-1}
-      />
-
-      {/* File list */}
-      {files.map((file, index) => (
-        <div
-          key={`${file.name}-${index}`}
-          className="flex h-[50px] items-center gap-3 rounded-[10px] border border-[#d3e2e5] px-4"
-        >
-          <FileText className="text-accent-navy size-5 shrink-0" aria-hidden />
-          <span className="font-nunito text-accent-navy flex-1 truncate text-[14px]">
-            {file.name}
-          </span>
-          <button
-            type="button"
-            onClick={() => removeFile(index)}
-            aria-label={`Remover ${file.name}`}
-            className="text-brand-primary focus-visible:ring-brand-primary shrink-0 focus-visible:ring-2 focus-visible:outline-none"
-          >
-            <X className="size-5" aria-hidden />
-          </button>
-        </div>
-      ))}
-
-      <AddItemButton
-        onClick={() => inputRef.current?.click()}
-        label="Adicionar foto"
-      />
-    </div>
-  )
-}
-
 // ─── Component ─────────────────────────────────────────────────────────────────
 
-export function AddPetForm() {
-  const [photos, setPhotos] = useState<File[]>([])
+export function AddPetForm({ workspaceId }: AddPetFormProps) {
+  const router = useRouter()
 
   const {
     register,
     handleSubmit,
     control,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<AddPetFormValues>({
     resolver: zodResolver(addPetSchema),
     defaultValues: {
-      nome: '',
-      sobre: '',
-      requisitos: [{ texto: '' }],
+      name: '',
+      description: '',
+      requisitos: [{ title: '' }],
     },
   })
 
-  const { fields: reqFields, append: appendReq } = useFieldArray({
+  const {
+    fields: reqFields,
+    append: appendReq,
+    remove: removeReq,
+  } = useFieldArray({
     control,
     name: 'requisitos',
   })
 
   async function onSubmit(values: AddPetFormValues) {
-    // TODO: wire to API — POST /api/workspaces/:id/pets
-    console.log(values, photos)
+    // ── Step 1: create pet ──
+    const petRes = await fetch(`/api/workspaces/${workspaceId}/pets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: values.name,
+        description: values.description,
+        species: values.species,
+        sex: values.sex,
+        ageCategory: values.ageCategory,
+        size: values.size,
+        energyLevel: values.energyLevel,
+        independenceLevel: values.independenceLevel,
+        environment: values.environment,
+      }),
+    })
+
+    if (!petRes.ok) {
+      const body = (await petRes.json().catch(() => null)) as {
+        message?: string
+      } | null
+      setError('root', {
+        message: body?.message ?? 'Erro ao criar pet. Tente novamente.',
+      })
+      return
+    }
+
+    const pet = (await petRes.json()) as { id: string }
+
+    // ── Step 2: add non-empty requirements ──
+    const requirements = values.requisitos.filter(
+      (r) => r.title.trim().length >= 3,
+    )
+    await Promise.all(
+      requirements.map((req, index) =>
+        fetch(`/api/pets/${pet.id}/requirements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            category: 'OTHER',
+            title: req.title.trim(),
+            isMandatory: true,
+            order: index + 1,
+          }),
+        }),
+      ),
+    )
+
+    router.push(`/workspaces/${workspaceId}/pets/${pet.id}`)
+    router.refresh()
   }
 
   return (
@@ -278,93 +247,142 @@ export function AddPetForm() {
         className="flex flex-col gap-6"
         noValidate
       >
-        {/* ── Dados do pet ───────────────────────────────────────────── */}
+        {/* ── Dados do pet ─────────────────────────────────────────────── */}
         <SectionHeader title="Adicione um pet" />
 
-        <PetFormField label="Nome" error={errors.nome?.message}>
+        <PetFormField label="Nome" error={errors.name?.message}>
           <input
-            {...register('nome')}
+            {...register('name')}
             type="text"
+            placeholder="Ex: Rex"
             className={cn(
               petInputCls,
               'h-[64px]',
-              errors.nome && 'border-brand-primary',
+              errors.name && 'border-brand-primary',
             )}
           />
         </PetFormField>
 
         <PetFormField
           label="Sobre"
-          hint="Máximo de 300 caracteres"
-          error={errors.sobre?.message}
+          hint="Mínimo 10 caracteres"
+          error={errors.description?.message}
         >
           <textarea
-            {...register('sobre')}
+            {...register('description')}
             rows={4}
+            placeholder="Conte um pouco sobre o pet…"
             className={cn(
               petInputCls,
               'resize-none py-4',
-              errors.sobre && 'border-brand-primary',
+              errors.description && 'border-brand-primary',
             )}
           />
         </PetFormField>
 
-        <PetFormField label="Idade" error={errors.idade?.message}>
-          <Controller
-            control={control}
-            name="idade"
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className={petSelectTriggerCls}>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="filhote">Filhote</SelectItem>
-                  <SelectItem value="jovem">Jovem</SelectItem>
-                  <SelectItem value="adulto">Adulto</SelectItem>
-                  <SelectItem value="idoso">Idoso</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </PetFormField>
+        <div className="grid grid-cols-2 gap-4">
+          <PetFormField label="Espécie" error={errors.species?.message}>
+            <Controller
+              control={control}
+              name="species"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className={petSelectTriggerCls}>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DOG">Cachorro</SelectItem>
+                    <SelectItem value="CAT">Gato</SelectItem>
+                    <SelectItem value="RABBIT">Coelho</SelectItem>
+                    <SelectItem value="BIRD">Pássaro</SelectItem>
+                    <SelectItem value="HORSE">Cavalo</SelectItem>
+                    <SelectItem value="COW">Vaca</SelectItem>
+                    <SelectItem value="GOAT">Cabra</SelectItem>
+                    <SelectItem value="PIG">Porco</SelectItem>
+                    <SelectItem value="TURTLE">Tartaruga</SelectItem>
+                    <SelectItem value="OTHER">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </PetFormField>
 
-        <PetFormField label="Porte" error={errors.porte?.message}>
-          <Controller
-            control={control}
-            name="porte"
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className={petSelectTriggerCls}>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pequenino">Pequenino</SelectItem>
-                  <SelectItem value="medio">Médio</SelectItem>
-                  <SelectItem value="grande">Grande</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </PetFormField>
+          <PetFormField label="Sexo" error={errors.sex?.message}>
+            <Controller
+              control={control}
+              name="sex"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className={petSelectTriggerCls}>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MALE">Macho</SelectItem>
+                    <SelectItem value="FEMALE">Fêmea</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </PetFormField>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <PetFormField label="Idade" error={errors.ageCategory?.message}>
+            <Controller
+              control={control}
+              name="ageCategory"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className={petSelectTriggerCls}>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PUPPY">Filhote</SelectItem>
+                    <SelectItem value="YOUNG">Jovem</SelectItem>
+                    <SelectItem value="ADULT">Adulto</SelectItem>
+                    <SelectItem value="SENIOR">Idoso</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </PetFormField>
+
+          <PetFormField label="Porte" error={errors.size?.message}>
+            <Controller
+              control={control}
+              name="size"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className={petSelectTriggerCls}>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SMALL">Pequeno</SelectItem>
+                    <SelectItem value="MEDIUM">Médio</SelectItem>
+                    <SelectItem value="LARGE">Grande</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </PetFormField>
+        </div>
 
         <PetFormField
           label="Nível de energia"
-          error={errors.nivelEnergia?.message}
+          error={errors.energyLevel?.message}
         >
           <Controller
             control={control}
-            name="nivelEnergia"
+            name="energyLevel"
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className={petSelectTriggerCls}>
-                  <SelectValue placeholder="Selecione" />
+                  <SelectValue placeholder="Selecione (opcional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="baixa">Baixa</SelectItem>
-                  <SelectItem value="media">Média</SelectItem>
-                  <SelectItem value="alta">Alta</SelectItem>
-                  <SelectItem value="muito_alta">Muito alta</SelectItem>
+                  <SelectItem value="LOW">Baixa</SelectItem>
+                  <SelectItem value="MEDIUM">Média</SelectItem>
+                  <SelectItem value="HIGH">Alta</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -373,54 +391,50 @@ export function AddPetForm() {
 
         <PetFormField
           label="Nível de independência"
-          error={errors.nivelIndependencia?.message}
+          error={errors.independenceLevel?.message}
         >
           <Controller
             control={control}
-            name="nivelIndependencia"
+            name="independenceLevel"
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className={petSelectTriggerCls}>
-                  <SelectValue placeholder="Selecione" />
+                  <SelectValue placeholder="Selecione (opcional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="baixo">
+                  <SelectItem value="LOW">
                     Baixo (precisa de companhia sempre)
                   </SelectItem>
-                  <SelectItem value="medio">Médio</SelectItem>
-                  <SelectItem value="alto">Alto (independente)</SelectItem>
+                  <SelectItem value="MEDIUM">Médio</SelectItem>
+                  <SelectItem value="HIGH">Alto (independente)</SelectItem>
                 </SelectContent>
               </Select>
             )}
           />
         </PetFormField>
 
-        <PetFormField label="Ambiente" error={errors.ambiente?.message}>
+        <PetFormField label="Ambiente" error={errors.environment?.message}>
           <Controller
             control={control}
-            name="ambiente"
+            name="environment"
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className={petSelectTriggerCls}>
-                  <SelectValue placeholder="Selecione" />
+                  <SelectValue placeholder="Selecione (opcional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="amplo">Ambiente amplo</SelectItem>
-                  <SelectItem value="apartamento">Apartamento</SelectItem>
-                  <SelectItem value="qualquer">Qualquer</SelectItem>
+                  <SelectItem value="HOUSE">Ambiente amplo</SelectItem>
+                  <SelectItem value="APARTMENT">Apartamento</SelectItem>
+                  <SelectItem value="BOTH">Qualquer</SelectItem>
                 </SelectContent>
               </Select>
             )}
           />
         </PetFormField>
 
-        <PetFormField label="Fotos">
-          <PhotoUploadZone files={photos} onFilesChange={setPhotos} />
-        </PetFormField>
-
-        {/* ── Requesitos para adoção ─────────────────────────────────── */}
+        {/* ── Requisitos para adoção ────────────────────────────────────── */}
         <div className="mt-4">
-          <SectionHeader title="Requesitos para adoção" size="md" />
+          <SectionHeader title="Requisitos para adoção" size="md" />
         </div>
 
         <div className="flex flex-col gap-3">
@@ -428,27 +442,45 @@ export function AddPetForm() {
             <PetFormField
               key={field.id}
               label={index === 0 ? 'Requisito' : ''}
-              error={errors.requisitos?.[index]?.texto?.message}
+              error={errors.requisitos?.[index]?.title?.message}
             >
-              <input
-                {...register(`requisitos.${index}.texto`)}
-                type="text"
-                placeholder="Defina um requisito"
-                className={cn(
-                  petInputCls,
-                  'h-[64px]',
-                  errors.requisitos?.[index]?.texto && 'border-brand-primary',
+              <div className="flex items-center gap-2">
+                <input
+                  {...register(`requisitos.${index}.title`)}
+                  type="text"
+                  placeholder="Ex: Ter espaço para o pet correr"
+                  className={cn(
+                    petInputCls,
+                    'h-[64px] flex-1',
+                    errors.requisitos?.[index]?.title && 'border-brand-primary',
+                  )}
+                />
+                {reqFields.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeReq(index)}
+                    aria-label="Remover requisito"
+                    className="text-brand-primary focus-visible:ring-brand-primary shrink-0 focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    <X className="size-5" aria-hidden />
+                  </button>
                 )}
-              />
+              </div>
             </PetFormField>
           ))}
           <AddItemButton
-            onClick={() => appendReq({ texto: '' })}
+            onClick={() => appendReq({ title: '' })}
             label="Adicionar requisito"
           />
         </div>
 
-        {/* ── Confirmar ─────────────────────────────────────────────── */}
+        {errors.root && (
+          <p className="font-nunito text-brand-primary text-center text-[14px] font-semibold">
+            {errors.root.message}
+          </p>
+        )}
+
+        {/* ── Confirmar ─────────────────────────────────────────────────── */}
         <button
           type="submit"
           disabled={isSubmitting}
