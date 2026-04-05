@@ -351,8 +351,20 @@ Phase 4: EXECUTION   → Implement one sub-step at a time, QA after each
 
 **Never skip phases. Never write code before PLANNING is approved. Never run git commands.**
 
-Task docs live in `docs/tasks/<feature-slug>/`:
-- `brief.md`, `exploration.md`, `research.md`, `plan.md`, `todo.md`, `validation.md`
+### Task documentation (MANDATORY)
+
+Every feature/fix MUST have a task folder at `docs/tasks/<feature-slug>/` with these files written at the corresponding phase:
+
+| File | Written at | Contents |
+|---|---|---|
+| `brief.md` | Phase 0 | User story, scope, acceptance criteria, complexity |
+| `exploration.md` | Phase 1 | Current code state, key files, integration points, risks |
+| `research.md` | Phase 2 | Approach options, decision, edge cases |
+| `plan.md` | Phase 3 | Ordered sub-steps, files to change, test strategy |
+| `todo.md` | Phase 3 | Granular checklist (checked off during Phase 4) |
+| `validation.md` | Phase 4 | QA results, curl test table, acceptance criteria pass/fail |
+
+Use templates in `docs/_templates/`. **No code before `brief.md` exists. No commit without `validation.md`.**
 
 Phase transitions:
 ```

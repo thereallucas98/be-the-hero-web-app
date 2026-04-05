@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin 'tailwindcss-animate';
 
 /* ============================================
    BeTheHero Design System — Style Guide v2.0

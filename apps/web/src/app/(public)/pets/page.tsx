@@ -3,6 +3,14 @@ import { Suspense } from 'react'
 import { PetCard } from '~/components/features/pets/pet-card'
 import { PetFilterSidebar } from '~/components/features/pets/pet-filter-sidebar'
 import { EmptyState } from '~/components/ui/empty-state'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '~/components/ui/pagination'
 import { geoPlaceRepository, petRepository } from '~/server/repositories'
 import { listCities, listPets, listStates } from '~/server/use-cases'
 
@@ -79,7 +87,22 @@ export default async function PetsPage({ searchParams }: PetsPageProps) {
       : Promise.resolve(null),
   ])
 
-  const { items: pets, total } = petsResult
+  const { items: pets, total, perPage } = petsResult
+  const currentPage = page ? Number(page) : 1
+  const totalPages = Math.ceil(total / perPage)
+
+  // Build a URL preserving all active filters with a new page number
+  function pageUrl(p: number) {
+    const params = new URLSearchParams()
+    if (cityPlaceId) params.set('cityPlaceId', cityPlaceId)
+    if (species) params.set('species', species)
+    if (ageCategory) params.set('ageCategory', ageCategory)
+    if (energyLevel) params.set('energyLevel', energyLevel)
+    if (size) params.set('size', size)
+    if (independenceLevel) params.set('independenceLevel', independenceLevel)
+    if (p > 1) params.set('page', String(p))
+    return `/pets?${params.toString()}`
+  }
 
   return (
     // flex-col on mobile (sidebar stacks above content), flex-row on desktop
@@ -94,7 +117,7 @@ export default async function PetsPage({ searchParams }: PetsPageProps) {
       </Suspense>
 
       {/* Content area */}
-      <main className="bg-brand-primary-pale flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8 lg:px-10 lg:py-10">
+      <main className="bg-background flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8 lg:px-10 lg:py-10">
         {/* Header */}
         <p className="font-nunito text-accent-navy mb-6 text-[16px] sm:text-[18px] md:text-[20px]">
           Encontre <span className="font-extrabold">{total} amigos</span> na sua
@@ -108,17 +131,60 @@ export default async function PetsPage({ searchParams }: PetsPageProps) {
             description="Tente ajustar os filtros ou selecione outra cidade para ver os amigos disponíveis."
           />
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
-            {pets.map((pet, i) => (
-              <PetCard
-                key={pet.id}
-                id={pet.id}
-                name={pet.name}
-                coverImage={pet.coverImage}
-                highlighted={i === 0}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+              {pets.map((pet, i) => (
+                <PetCard
+                  key={pet.id}
+                  id={pet.id}
+                  name={pet.name}
+                  coverImage={pet.coverImage}
+                  highlighted={i === 0}
+                />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <Pagination className="mt-8">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href={pageUrl(currentPage - 1)}
+                      aria-disabled={currentPage <= 1}
+                      className={
+                        currentPage <= 1 ? 'pointer-events-none opacity-50' : ''
+                      }
+                    />
+                  </PaginationItem>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (p) => (
+                      <PaginationItem key={p}>
+                        <PaginationLink
+                          href={pageUrl(p)}
+                          isActive={p === currentPage}
+                        >
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href={pageUrl(currentPage + 1)}
+                      aria-disabled={currentPage >= totalPages}
+                      className={
+                        currentPage >= totalPages
+                          ? 'pointer-events-none opacity-50'
+                          : ''
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </>
         )}
       </main>
     </div>

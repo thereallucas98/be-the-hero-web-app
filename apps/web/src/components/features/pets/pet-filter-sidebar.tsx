@@ -1,9 +1,9 @@
 'use client'
 
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Select,
   SelectContent,
@@ -13,7 +13,6 @@ import {
 } from '~/components/ui/select'
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -55,6 +54,20 @@ const INDEPENDENCE_OPTIONS = [
   { value: 'LOW', label: 'Baixo' },
   { value: 'MEDIUM', label: 'Médio' },
   { value: 'HIGH', label: 'Alto' },
+]
+
+const SPECIES_OPTIONS = [
+  { value: '', label: 'Todos' },
+  { value: 'DOG', label: 'Cachorro' },
+  { value: 'CAT', label: 'Gato' },
+  { value: 'RABBIT', label: 'Coelho' },
+  { value: 'BIRD', label: 'Pássaro' },
+  { value: 'HORSE', label: 'Cavalo' },
+  { value: 'COW', label: 'Vaca' },
+  { value: 'GOAT', label: 'Cabra' },
+  { value: 'PIG', label: 'Porco' },
+  { value: 'TURTLE', label: 'Tartaruga' },
+  { value: 'OTHER', label: 'Outro' },
 ]
 
 // ─── Reusable filter select ───────────────────────────────────────────────────
@@ -111,7 +124,6 @@ function LocationRow({
   initialCityName,
   onStateChange,
   onCityChange,
-  onSearch,
   compact,
 }: {
   states: GeoStateItem[]
@@ -122,7 +134,6 @@ function LocationRow({
   initialCityName?: string
   onStateChange: (id: string) => void
   onCityChange: (id: string) => void
-  onSearch: () => void
   compact?: boolean
 }) {
   return (
@@ -184,21 +195,6 @@ function LocationRow({
           ))}
         </SelectContent>
       </Select>
-
-      {/* Search button */}
-      <button
-        onClick={onSearch}
-        aria-label="Buscar animais"
-        className={cn(
-          'bg-accent-yellow flex shrink-0 cursor-pointer items-center justify-center rounded-[18px] transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
-          compact ? 'size-12' : 'size-[60px] rounded-[20px]',
-        )}
-      >
-        <Search
-          className={cn('text-white', compact ? 'size-4' : 'size-5')}
-          aria-hidden
-        />
-      </button>
     </div>
   )
 }
@@ -210,25 +206,36 @@ function FilterPanelContent({
   energyLevel,
   size,
   independenceLevel,
+  species,
+  isDirty,
   onAgeChange,
   onEnergyChange,
   onSizeChange,
   onIndependenceChange,
+  onSpeciesChange,
+  onApply,
 }: {
   ageCategory: string
   energyLevel: string
   size: string
   independenceLevel: string
+  species: string
+  isDirty: boolean
   onAgeChange: (v: string) => void
   onEnergyChange: (v: string) => void
   onSizeChange: (v: string) => void
   onIndependenceChange: (v: string) => void
+  onSpeciesChange: (v: string) => void
+  onApply: () => void
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <p className="font-nunito text-[20px] font-extrabold text-white">
-        Filtros
-      </p>
+      <FilterSelect
+        label="Tipo"
+        options={SPECIES_OPTIONS}
+        value={species}
+        onChange={onSpeciesChange}
+      />
       <FilterSelect
         label="Idade"
         options={AGE_OPTIONS}
@@ -253,6 +260,13 @@ function FilterPanelContent({
         value={independenceLevel}
         onChange={onIndependenceChange}
       />
+      <button
+        onClick={onApply}
+        disabled={!isDirty}
+        className="font-nunito bg-accent-yellow mt-2 w-full cursor-pointer rounded-[15px] py-4 text-[16px] font-extrabold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Buscar
+      </button>
     </div>
   )
 }
@@ -292,6 +306,7 @@ export function PetFilterSidebar({
   const [independenceLevel, setIndependenceLevel] = useState(
     searchParams.get('independenceLevel') ?? '',
   )
+  const [species, setSpecies] = useState(searchParams.get('species') ?? '')
 
   // Seed cities list on mount when an initial state is present
   useEffect(() => {
@@ -312,6 +327,7 @@ export function PetFilterSidebar({
   const handleSearch = useCallback(() => {
     const params = new URLSearchParams()
     if (selectedCityId) params.set('cityPlaceId', selectedCityId)
+    if (species) params.set('species', species)
     if (ageCategory) params.set('ageCategory', ageCategory)
     if (energyLevel) params.set('energyLevel', energyLevel)
     if (size) params.set('size', size)
@@ -320,10 +336,30 @@ export function PetFilterSidebar({
   }, [
     router,
     selectedCityId,
+    species,
     ageCategory,
     energyLevel,
     size,
     independenceLevel,
+  ])
+
+  const isDirty = useMemo(() => {
+    return (
+      selectedCityId !== (searchParams.get('cityPlaceId') ?? '') ||
+      species !== (searchParams.get('species') ?? '') ||
+      ageCategory !== (searchParams.get('ageCategory') ?? '') ||
+      energyLevel !== (searchParams.get('energyLevel') ?? '') ||
+      size !== (searchParams.get('size') ?? '') ||
+      independenceLevel !== (searchParams.get('independenceLevel') ?? '')
+    )
+  }, [
+    selectedCityId,
+    species,
+    ageCategory,
+    energyLevel,
+    size,
+    independenceLevel,
+    searchParams,
   ])
 
   const locationRowProps = {
@@ -335,7 +371,6 @@ export function PetFilterSidebar({
     initialCityName,
     onStateChange: handleStateChange,
     onCityChange: setSelectedCityId,
-    onSearch: handleSearch,
   }
 
   const filterPanelProps = {
@@ -343,10 +378,14 @@ export function PetFilterSidebar({
     energyLevel,
     size,
     independenceLevel,
+    species,
+    isDirty,
     onAgeChange: setAgeCategory,
     onEnergyChange: setEnergyLevel,
     onSizeChange: setSize,
     onIndependenceChange: setIndependenceLevel,
+    onSpeciesChange: setSpecies,
+    onApply: handleSearch,
   }
 
   // ── Mobile top bar (hidden on lg+) ──────────────────────────────────────────
@@ -365,51 +404,16 @@ export function PetFilterSidebar({
           </button>
         </SheetTrigger>
         <SheetContent
-          side="right"
-          className="bg-brand-primary w-[320px] border-none p-0 sm:w-[360px]"
+          side="bottom"
+          className="bg-brand-primary max-h-[85dvh] rounded-t-[20px] border-none p-0 [&>button]:text-white"
         >
           <SheetHeader className="px-6 pt-6 pb-4">
-            <div className="flex items-center justify-between">
-              <SheetTitle className="font-nunito text-[20px] font-extrabold text-white">
-                Filtros
-              </SheetTitle>
-              <SheetClose className="rounded-md text-white/70 hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none">
-                <X className="size-5" aria-hidden />
-                <span className="sr-only">Fechar</span>
-              </SheetClose>
-            </div>
+            <SheetTitle className="font-nunito text-[20px] font-extrabold text-white">
+              Filtros
+            </SheetTitle>
           </SheetHeader>
           <div className="flex flex-col gap-5 overflow-y-auto px-6 pb-8">
-            <FilterSelect
-              label="Idade"
-              options={AGE_OPTIONS}
-              value={ageCategory}
-              onChange={setAgeCategory}
-            />
-            <FilterSelect
-              label="Nível de Energia"
-              options={ENERGY_OPTIONS}
-              value={energyLevel}
-              onChange={setEnergyLevel}
-            />
-            <FilterSelect
-              label="Porte do animal"
-              options={SIZE_OPTIONS}
-              value={size}
-              onChange={setSize}
-            />
-            <FilterSelect
-              label="Nível de independência"
-              options={INDEPENDENCE_OPTIONS}
-              value={independenceLevel}
-              onChange={setIndependenceLevel}
-            />
-            <button
-              onClick={handleSearch}
-              className="font-nunito bg-accent-yellow mt-2 w-full cursor-pointer rounded-[15px] py-4 text-[16px] font-extrabold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-            >
-              Aplicar filtros
-            </button>
+            <FilterPanelContent {...filterPanelProps} />
           </div>
         </SheetContent>
       </Sheet>
@@ -434,6 +438,9 @@ export function PetFilterSidebar({
 
       {/* Filters */}
       <div className="px-8 pb-10 xl:px-10">
+        <p className="font-nunito mb-5 text-[20px] font-extrabold text-white">
+          Filtros
+        </p>
         <FilterPanelContent {...filterPanelProps} />
       </div>
     </aside>
