@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Heart, Home, User } from 'lucide-react'
 import { cn } from '~/lib/utils'
+import { LogoutButton } from '~/components/features/auth/logout-button'
 
 const NAV_ITEMS = [
   { href: '/guardian/interests', label: 'Interesses', icon: Heart },
@@ -38,6 +39,7 @@ export function GuardianBottomNav() {
           </Link>
         )
       })}
+      <LogoutButton variant="bottom-nav" />
     </nav>
   )
 }

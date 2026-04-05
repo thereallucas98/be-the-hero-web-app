@@ -3,16 +3,10 @@
 import type { ComponentProps } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  ArrowLeft,
-  HandHeart,
-  Heart,
-  Megaphone,
-  PawPrint,
-  Settings,
-} from 'lucide-react'
+import { HandHeart, Heart, Megaphone, PawPrint, Settings } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { LogoIcon } from '~/components/ui/logo'
+import { LogoutButton } from '~/components/features/auth/logout-button'
 
 // ─── Nav item ─────────────────────────────────────────────────────────────────
 
@@ -49,14 +43,12 @@ function NavItem({
 
 interface WorkspaceSidebarProps extends ComponentProps<'aside'> {
   workspaceId: string
-  backHref?: string
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function WorkspaceSidebar({
   workspaceId,
-  backHref = '/',
   className,
   ...props
 }: WorkspaceSidebarProps) {
@@ -103,14 +95,7 @@ export function WorkspaceSidebar({
         })}
       </nav>
 
-      {/* Back button */}
-      <Link
-        href={backHref}
-        aria-label="Voltar"
-        className="bg-accent-yellow focus-visible:ring-accent-yellow mt-2 flex size-11 items-center justify-center rounded-[15px] focus-visible:ring-2 focus-visible:outline-none"
-      >
-        <ArrowLeft className="text-accent-navy size-5" aria-hidden />
-      </Link>
+      <LogoutButton className="mt-2" />
     </aside>
   )
 }

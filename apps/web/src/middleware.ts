@@ -1,31 +1,58 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyAccessToken } from '~/lib/session'
 
-export function middleware(req: NextRequest) {
-  const token = req.cookies.get('bth_access')?.value
+const ADMIN_ROLES = ['ADMIN', 'SUPER_ADMIN']
 
-  if (!token) {
-    const loginUrl = new URL('/login', req.url)
-    loginUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
-  }
-
+/**
+ * Decode JWT payload without verification (Edge-compatible).
+ * Full verification happens server-side in API routes / context.
+ * Middleware only needs role for route gating.
+ */
+function decodeJwtPayload(token: string): { sub: string; role: string } | null {
   try {
-    const payload = verifyAccessToken(token)
-
-    if (payload.role !== 'GUARDIAN') {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-
-    return NextResponse.next()
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const payload = JSON.parse(atob(parts[1]))
+    if (!payload.sub || !payload.role) return null
+    return { sub: payload.sub, role: payload.role }
   } catch {
-    const loginUrl = new URL('/login', req.url)
-    loginUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
+    return null
   }
 }
 
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get('bth_access')?.value
+  const pathname = req.nextUrl.pathname
+
+  if (!token) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('redirectTo', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  const payload = decodeJwtPayload(token)
+
+  if (!payload) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('redirectTo', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  if (pathname.startsWith('/guardian')) {
+    if (payload.role !== 'GUARDIAN') {
+      return NextResponse.redirect(new URL('/', req.url))
+    }
+  }
+
+  if (pathname.startsWith('/admin')) {
+    if (!ADMIN_ROLES.includes(payload.role)) {
+      return NextResponse.redirect(new URL('/', req.url))
+    }
+  }
+
+  return NextResponse.next()
+}
+
 export const config = {
-  matcher: ['/guardian/:path*'],
+  matcher: ['/guardian/:path*', '/admin/:path*'],
 }

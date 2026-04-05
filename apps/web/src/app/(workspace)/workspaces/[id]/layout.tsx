@@ -14,7 +14,7 @@ export default async function WorkspaceIdLayout({
 
   return (
     <div className="bg-background flex min-h-dvh">
-      <WorkspaceSidebar workspaceId={id} backHref="/" />
+      <WorkspaceSidebar workspaceId={id} />
       <main className="flex flex-1 flex-col">{children}</main>
     </div>
   )

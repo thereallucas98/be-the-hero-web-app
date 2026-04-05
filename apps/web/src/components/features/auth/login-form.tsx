@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -22,7 +22,6 @@ type LoginFormValues = z.infer<typeof loginSchema>
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo')
   const [showPassword, setShowPassword] = useState(false)
@@ -51,15 +50,19 @@ export function LoginForm() {
 
     const { user } = await res.json()
 
+    let destination = '/'
+
     if (redirectTo) {
-      router.push(redirectTo)
+      destination = redirectTo
+    } else if (user.role === 'GUARDIAN') {
+      destination = '/guardian/interests'
     } else if (user.role === 'PARTNER_MEMBER' && user.workspaceId) {
-      router.push(`/workspaces/${user.workspaceId}/pets`)
-    } else {
-      router.push('/')
+      destination = `/workspaces/${user.workspaceId}/pets`
+    } else if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
+      destination = '/admin/dashboard'
     }
 
-    router.refresh()
+    window.location.href = destination
   }
 
   return (
