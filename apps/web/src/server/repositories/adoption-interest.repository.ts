@@ -107,6 +107,7 @@ export interface AdoptionInterestRepository {
     input: ListMyInterestsInput,
   ): Promise<ListMyInterestsResult>
   deleteById(id: string): Promise<void>
+  existsByUserAndPet(userId: string, petId: string): Promise<boolean>
 }
 
 export function createAdoptionInterestRepository(
@@ -274,6 +275,12 @@ export function createAdoptionInterestRepository(
 
     async deleteById(id) {
       await prisma.adoptionInterest.delete({ where: { id } })
+    },
+    async existsByUserAndPet(userId, petId) {
+      const count = await prisma.adoptionInterest.count({
+        where: { userId, petId },
+      })
+      return count > 0
     },
   }
 }
