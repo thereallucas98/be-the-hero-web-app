@@ -44,7 +44,7 @@ export function AdminBottomNav() {
             aria-label={label}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex shrink-0 flex-col items-center gap-0.5 px-3 py-2 text-[10px] transition-colors focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
+              'flex shrink-0 cursor-pointer flex-col items-center gap-0.5 px-3 py-2 text-[10px] transition-colors focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
               active ? 'text-white' : 'text-white/60',
             )}
           >

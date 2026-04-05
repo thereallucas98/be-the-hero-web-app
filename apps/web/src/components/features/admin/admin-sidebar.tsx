@@ -35,7 +35,7 @@ function NavItem({
       aria-label={label}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex size-11 items-center justify-center rounded-[12px] transition-colors focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
+        'flex size-11 cursor-pointer items-center justify-center rounded-[12px] transition-colors focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
         active
           ? 'bg-white/20 text-white'
           : 'text-white/60 hover:bg-white/10 hover:text-white',

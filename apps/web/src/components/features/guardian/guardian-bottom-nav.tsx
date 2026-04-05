@@ -30,7 +30,7 @@ export function GuardianBottomNav() {
             aria-label={label}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] transition-colors focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
+              'flex cursor-pointer flex-col items-center gap-0.5 px-3 py-2 text-[10px] transition-colors focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none',
               active ? 'text-white' : 'text-white/60',
             )}
           >
