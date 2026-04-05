@@ -1,0 +1,128 @@
+type AdoptionDetail {
+  adoptedAt: DateTime
+  createdAt: DateTime
+  followUps: [FollowUp!]
+  guardian: GuardianInfo
+  guardianUserId: ID
+  id: ID
+  notes: String
+  pet: PetDetail
+  petId: ID
+  status: String
+  workspace: WorkspaceInfo
+  workspaceId: ID
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+}
+
+"""ISO 8601 date-time string"""
+scalar DateTime
+
+type FollowUp {
+  currentSubmission: FollowUpSubmission
+  id: ID
+  scheduledAt: DateTime
+  status: String
+  type: String
+}
+
+type FollowUpSubmission {
+  id: ID
+  status: String
+  submittedAt: DateTime
+}
+
+type GuardianAdoption {
+  adoptedAt: DateTime
+  followUps: [FollowUp!]
+  id: ID
+  notes: String
+  pet: Pet
+  status: String
+}
+
+type GuardianAdoptionPage {
+  items: [GuardianAdoption!]
+  page: Int
+  perPage: Int
+  total: Int
+}
+
+type GuardianInfo {
+  email: String
+  fullName: String
+  id: ID
+}
+
+type Interest {
+  channel: String
+  createdAt: DateTime
+  id: ID
+  message: String
+  pet: Pet
+}
+
+type InterestPage {
+  items: [Interest!]
+  page: Int
+  perPage: Int
+  total: Int
+}
+
+type Mutation {
+  changePassword(input: ChangePasswordInput!): Boolean
+  updateMe(input: UpdateMeInput!): User
+  withdrawInterest(interestId: ID!): Boolean
+}
+
+type Pet {
+  ageCategory: String
+  coverImage: PetImage
+  id: ID
+  name: String
+  sex: String
+  size: String
+  species: String
+}
+
+type PetDetail {
+  ageCategory: String
+  description: String
+  id: ID
+  name: String
+  sex: String
+  size: String
+  species: String
+}
+
+type PetImage {
+  url: String
+}
+
+type Query {
+  adoption(id: ID!): AdoptionDetail
+  me: User
+  myAdoptions(page: Int = 1, perPage: Int = 10): GuardianAdoptionPage
+  myInterests(page: Int = 1, perPage: Int = 10): InterestPage
+}
+
+input UpdateMeInput {
+  fullName: String
+  phone: String
+}
+
+type User {
+  email: String
+  emailVerified: Boolean
+  fullName: String
+  id: ID
+  role: String
+}
+
+type WorkspaceInfo {
+  id: ID
+  name: String
+}

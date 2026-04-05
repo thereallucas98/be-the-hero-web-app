@@ -1,0 +1,77 @@
+query MyAdoptions($page: Int, $perPage: Int) {
+  myAdoptions(page: $page, perPage: $perPage) {
+    items {
+      id
+      adoptedAt
+      status
+      notes
+      pet {
+        id
+        name
+        species
+        sex
+        size
+        ageCategory
+        coverImage {
+          url
+        }
+      }
+      followUps {
+        id
+        type
+        status
+        scheduledAt
+        currentSubmission {
+          id
+          status
+          submittedAt
+        }
+      }
+    }
+    total
+    page
+    perPage
+  }
+}
+
+query Adoption($id: ID!) {
+  adoption(id: $id) {
+    id
+    petId
+    workspaceId
+    guardianUserId
+    adoptedAt
+    notes
+    status
+    createdAt
+    pet {
+      id
+      name
+      description
+      species
+      sex
+      size
+      ageCategory
+    }
+    guardian {
+      id
+      fullName
+      email
+    }
+    workspace {
+      id
+      name
+    }
+    followUps {
+      id
+      type
+      status
+      scheduledAt
+      currentSubmission {
+        id
+        status
+        submittedAt
+      }
+    }
+  }
+}

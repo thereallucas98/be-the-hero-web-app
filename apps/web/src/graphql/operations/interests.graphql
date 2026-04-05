@@ -1,0 +1,28 @@
+query MyInterests($page: Int, $perPage: Int) {
+  myInterests(page: $page, perPage: $perPage) {
+    items {
+      id
+      message
+      channel
+      createdAt
+      pet {
+        id
+        name
+        species
+        sex
+        size
+        ageCategory
+        coverImage {
+          url
+        }
+      }
+    }
+    total
+    page
+    perPage
+  }
+}
+
+mutation WithdrawInterest($interestId: ID!) {
+  withdrawInterest(interestId: $interestId)
+}

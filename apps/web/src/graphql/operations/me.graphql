@@ -1,0 +1,23 @@
+query Me {
+  me {
+    id
+    fullName
+    email
+    role
+    emailVerified
+  }
+}
+
+mutation UpdateMe($input: UpdateMeInput!) {
+  updateMe(input: $input) {
+    id
+    fullName
+    email
+    role
+    emailVerified
+  }
+}
+
+mutation ChangePassword($input: ChangePasswordInput!) {
+  changePassword(input: $input)
+}
