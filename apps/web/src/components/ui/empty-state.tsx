@@ -10,9 +10,30 @@ import {
 } from '~/components/ui/empty'
 import { cn } from '~/lib/utils'
 
+export type EmptyIllustration = 'pet' | 'cat-lonely' | 'dog-lonely'
+
+const ILLUSTRATION_MAP: Record<
+  EmptyIllustration,
+  { src: string; width: number; height: number }
+> = {
+  pet: { src: '/assets/illustrations/pet.svg', width: 260, height: 302 },
+  'cat-lonely': {
+    src: '/assets/illustrations/cat-lonely.svg',
+    width: 260,
+    height: 100,
+  },
+  'dog-lonely': {
+    src: '/assets/illustrations/dog-lonely.svg',
+    width: 260,
+    height: 142,
+  },
+}
+
 interface EmptyStateProps {
   title: string
   description?: string
+  /** Which illustration to show. Defaults to `"pet"`. */
+  illustration?: EmptyIllustration
   /** Action buttons or links rendered below the description */
   children?: ReactNode
   className?: string
@@ -30,9 +51,12 @@ interface EmptyStateProps {
 export function EmptyState({
   title,
   description,
+  illustration = 'pet',
   children,
   className,
 }: EmptyStateProps) {
+  const img = ILLUSTRATION_MAP[illustration]
+
   return (
     <Empty
       className={cn(
@@ -43,10 +67,10 @@ export function EmptyState({
       <EmptyHeader>
         <EmptyMedia>
           <Image
-            src="/assets/illustrations/pet.svg"
+            src={img.src}
             alt=""
-            width={260}
-            height={302}
+            width={img.width}
+            height={img.height}
             priority={false}
             className="h-auto w-[160px] sm:w-[200px] md:w-[260px]"
           />
