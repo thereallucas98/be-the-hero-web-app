@@ -4,13 +4,7 @@ import { SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select'
+import { AdaptiveSelect } from '~/components/ui/adaptive-select'
 import {
   Sheet,
   SheetContent,
@@ -90,25 +84,15 @@ function FilterSelect({
       <span className="font-nunito text-[12px] font-medium text-white/80">
         {label}
       </span>
-      <Select
+      <AdaptiveSelect
+        options={options}
+        getOptionValue={(o) => (o.value === '' ? FILTER_ALL : o.value)}
+        getOptionLabel={(o) => o.label}
         value={value === '' ? FILTER_ALL : value}
         onValueChange={(v) => onChange(v === FILTER_ALL ? '' : v)}
-      >
-        <SelectTrigger className="font-nunito bg-brand-primary-dark h-auto w-full cursor-pointer rounded-[15px] border-none py-[18px] pl-5 text-[16px] font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none [&>svg]:text-white [&>svg]:opacity-100">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="bg-brand-primary-dark border-none text-white">
-          {options.map((opt) => (
-            <SelectItem
-              key={opt.value || FILTER_ALL}
-              value={opt.value === '' ? FILTER_ALL : opt.value}
-              className="focus:bg-brand-primary text-white focus:text-white"
-            >
-              {opt.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        label={label}
+        triggerClassName="font-nunito bg-brand-primary-dark h-auto w-full cursor-pointer rounded-[15px] border-none py-[18px] pl-5 text-[16px] font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none [&>svg]:text-white [&>svg]:opacity-100"
+      />
     </div>
   )
 }
@@ -144,57 +128,41 @@ function LocationRow({
       )}
     >
       {/* State picker */}
-      <Select
-        value={selectedStateId || undefined}
-        onValueChange={onStateChange}
-      >
-        <SelectTrigger
-          aria-label="Selecionar estado"
-          className={cn(
-            'shrink-0 cursor-pointer rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none [&>svg]:text-white [&>svg]:opacity-100',
-            compact
-              ? 'h-12 w-[72px] pl-3 text-[14px]'
-              : 'h-[60px] w-[90px] pl-4 text-[16px]',
-          )}
-        >
-          <SelectValue placeholder="UF" />
-        </SelectTrigger>
-        <SelectContent>
-          {states.map((s) => (
-            <SelectItem key={s.id} value={s.id}>
-              {s.code ?? s.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {/* City picker */}
-      <Select
-        value={selectedCityId || undefined}
-        onValueChange={onCityChange}
-        disabled={!selectedStateId || loadingCities}
-      >
-        <SelectTrigger
-          aria-label="Selecionar cidade"
-          className={cn(
-            'flex-1 cursor-pointer rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none disabled:opacity-50 [&>svg]:text-white [&>svg]:opacity-100',
+      <div className={cn('shrink-0', compact ? 'w-[72px]' : 'w-[90px]')}>
+        <AdaptiveSelect
+          options={states}
+          getOptionValue={(s) => s.id}
+          getOptionLabel={(s) => s.code ?? s.name}
+          value={selectedStateId || undefined}
+          onValueChange={onStateChange}
+          placeholder="UF"
+          label="Estado"
+          triggerClassName={cn(
+            'cursor-pointer rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none [&>svg]:text-white [&>svg]:opacity-100',
             compact ? 'h-12 pl-3 text-[14px]' : 'h-[60px] pl-4 text-[16px]',
           )}
-        >
-          <SelectValue
-            placeholder={
-              loadingCities ? 'Carregando...' : (initialCityName ?? 'Cidade')
-            }
-          />
-        </SelectTrigger>
-        <SelectContent>
-          {cities.map((c) => (
-            <SelectItem key={c.id} value={c.id}>
-              {c.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        />
+      </div>
+
+      {/* City picker */}
+      <div className="flex-1">
+        <AdaptiveSelect
+          options={cities}
+          getOptionValue={(c) => c.id}
+          getOptionLabel={(c) => c.name}
+          value={selectedCityId || undefined}
+          onValueChange={onCityChange}
+          placeholder={
+            loadingCities ? 'Carregando...' : (initialCityName ?? 'Cidade')
+          }
+          label="Cidade"
+          disabled={!selectedStateId || loadingCities}
+          triggerClassName={cn(
+            'w-full cursor-pointer rounded-[15px] border border-white/40 bg-transparent font-extrabold text-white shadow-none focus:ring-2 focus:ring-white focus:outline-none disabled:opacity-50 [&>svg]:text-white [&>svg]:opacity-100',
+            compact ? 'h-12 pl-3 text-[14px]' : 'h-[60px] pl-4 text-[16px]',
+          )}
+        />
+      </div>
     </div>
   )
 }
