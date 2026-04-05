@@ -284,6 +284,16 @@ pnpm lint    # Must pass (0 warnings)
 pnpm build   # Must succeed
 ```
 
+### ESLint rules to watch
+
+| Rule | What to do |
+|------|------------|
+| `@typescript-eslint/no-explicit-any` | Replace `any` with a real type or `unknown` |
+| `@typescript-eslint/consistent-type-imports` | Use `import type` for type-only imports |
+| `react-hooks/exhaustive-deps` | Add all missing deps — never add `eslint-disable` |
+| `import/no-default-export` | Use named exports — pages/layouts excepted (Next.js requires default) |
+| `no-unused-vars` | Remove unused variables and imports |
+
 ---
 
 ## Dev Environment
@@ -353,6 +363,40 @@ Each sub-step    → Claude runs curl tests + shows results table ← wait for o
 All steps done   → "✅ Implementation complete. Ready for your review."
                    + suggested commit message (one line, imperative, 72 chars max)
 ```
+
+### Code Change Flow
+
+Always follow this order when implementing changes:
+
+1. **Show code first** — make edits, let the user review before any git operations
+2. **Ask before branching/committing** — never create a branch or commit without explicit user approval
+3. **Run `pnpm lint`** — must pass (0 warnings) before committing. Fix all errors first.
+4. **Create branch + commit** — only after user says go
+5. **Fill `docs/pr-description.md` WITHOUT committing** — update the PR description file but do NOT stage or commit it
+6. **User pushes** — never push to remote
+
+### Commit Message Format
+
+```
+<type>: <description> (#<issue>)
+```
+
+Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `style`, `test`
+
+Examples:
+```
+feat: add pet adoption status filter to workspace list (#42)
+fix: correct guardian email validation on registration form (#37)
+```
+
+Rules: one line, imperative mood, 72 chars max, include issue number when one exists.
+
+### Issue Management
+
+- Set issue to **"In Progress"** in the project board when starting work; comment on the issue with what you're implementing
+- When done, update the issue with an implementation summary and set to **"Done"**
+- Add labels as applicable (e.g., `needs-qa`, `blocked`)
+- For bugs, include root cause in the closing comment
 
 ---
 
