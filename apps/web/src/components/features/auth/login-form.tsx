@@ -24,7 +24,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') ?? '/'
+  const redirectTo = searchParams.get('redirectTo')
   const [showPassword, setShowPassword] = useState(false)
 
   const {
@@ -49,7 +49,16 @@ export function LoginForm() {
       return
     }
 
-    router.push(redirectTo)
+    const { user } = await res.json()
+
+    if (redirectTo) {
+      router.push(redirectTo)
+    } else if (user.role === 'PARTNER_MEMBER' && user.workspaceId) {
+      router.push(`/workspaces/${user.workspaceId}/pets`)
+    } else {
+      router.push('/')
+    }
+
     router.refresh()
   }
 

@@ -29,6 +29,7 @@ export interface UserRepository {
     role: string
     isActive: boolean
     passwordHash: string
+    partnerMembers: Array<{ workspaceId: string }>
   } | null>
   findByIdForMe(id: string): Promise<{
     id: string
@@ -140,6 +141,11 @@ export function createUserRepository(prisma: PrismaClient): UserRepository {
           role: true,
           isActive: true,
           passwordHash: true,
+          partnerMembers: {
+            where: { isActive: true },
+            select: { workspaceId: true },
+            take: 1,
+          },
         },
       })
     },

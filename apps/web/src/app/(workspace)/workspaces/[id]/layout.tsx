@@ -13,7 +13,7 @@ export default async function WorkspaceIdLayout({
   const { id } = await params
 
   return (
-    <div className="bg-brand-primary-pale flex min-h-dvh">
+    <div className="bg-background flex min-h-dvh">
       <WorkspaceSidebar workspaceId={id} backHref="/" />
       <main className="flex flex-1 flex-col">{children}</main>
     </div>

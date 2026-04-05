@@ -9,7 +9,13 @@ export interface LoginUserInput {
 export type LoginUserResult =
   | {
       success: true
-      user: { id: string; email: string; fullName: string; role: string }
+      user: {
+        id: string
+        email: string
+        fullName: string
+        role: string
+        workspaceId: string | null
+      }
       token: string
     }
   | { success: false; code: 'INVALID_CREDENTIALS' }
@@ -41,6 +47,7 @@ export async function loginUser(
       email: user.email,
       fullName: user.fullName,
       role: user.role,
+      workspaceId: user.partnerMembers[0]?.workspaceId ?? null,
     },
     token,
   }

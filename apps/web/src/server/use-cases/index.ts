@@ -495,3 +495,6 @@ export type {
   ListCitiesInput,
   ListCitiesResult,
 } from './geo/list-cities.use-case'
+
+export { getWorkspacePetDetail } from './pets/get-workspace-pet-detail.use-case'
+export type { GetWorkspacePetDetailResult } from './pets/get-workspace-pet-detail.use-case'

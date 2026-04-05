@@ -267,6 +267,45 @@ export type UpdatePetImageResult =
       code: 'IMAGE_NOT_FOUND' | 'POSITION_ALREADY_TAKEN'
     }
 
+// ─── Workspace pet detail types ───────────────────────────────────────────────
+
+export interface WorkspacePetDetailImageItem {
+  id: string
+  url: string
+  storagePath: string
+  position: number
+  isCover: boolean
+}
+
+export interface WorkspacePetDetailRequirementItem {
+  id: string
+  category: string
+  title: string
+  description: string | null
+  isMandatory: boolean
+  order: number
+}
+
+export interface WorkspacePetDetailItem {
+  id: string
+  workspaceId: string
+  name: string
+  description: string
+  species: string
+  sex: string
+  size: string
+  ageCategory: string
+  energyLevel: string | null
+  independenceLevel: string | null
+  environment: string | null
+  adoptionRequirements: string | null
+  status: string
+  createdAt: Date
+  updatedAt: Date
+  images: WorkspacePetDetailImageItem[]
+  requirements: WorkspacePetDetailRequirementItem[]
+}
+
 export interface PetRepository {
   create(data: CreatePetData): Promise<CreatedPetItem>
   findByIdWithWorkspace(id: string): Promise<PetWithWorkspaceItem | null>
@@ -338,6 +377,10 @@ export interface PetRepository {
   removeRequirement(reqId: string, petId: string): Promise<boolean>
   findByIdForTracking(id: string): Promise<PetForTrackingItem | null>
   trackEvent(petId: string, workspaceId: string, type: string): Promise<void>
+  findByIdForWorkspace(
+    id: string,
+    workspaceId: string,
+  ): Promise<WorkspacePetDetailItem | null>
 }
 
 export function createPetRepository(prisma: PrismaClient): PetRepository {
@@ -1396,6 +1439,51 @@ export function createPetRepository(prisma: PrismaClient): PetRepository {
           type: type as 'VIEW_PET' | 'CLICK_WHATSAPP' | 'REGISTER_INTEREST',
         },
       })
+    },
+
+    async findByIdForWorkspace(id, workspaceId) {
+      const pet = await prisma.pet.findUnique({
+        where: { id, workspaceId, isActive: true },
+        select: {
+          id: true,
+          workspaceId: true,
+          name: true,
+          description: true,
+          species: true,
+          sex: true,
+          size: true,
+          ageCategory: true,
+          energyLevel: true,
+          independenceLevel: true,
+          environment: true,
+          adoptionRequirements: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          images: {
+            select: {
+              id: true,
+              url: true,
+              storagePath: true,
+              position: true,
+              isCover: true,
+            },
+            orderBy: { position: 'asc' },
+          },
+          requirements: {
+            select: {
+              id: true,
+              category: true,
+              title: true,
+              description: true,
+              isMandatory: true,
+              order: true,
+            },
+            orderBy: { order: 'asc' },
+          },
+        },
+      })
+      return pet ?? null
     },
   }
 }
