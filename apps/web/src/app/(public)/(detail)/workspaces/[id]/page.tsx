@@ -99,6 +99,8 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
               <>
                 <Separator className="my-6" />
                 <WorkspaceCampaignsPreview
+                  workspaceId={workspace.id}
+                  workspaceName={workspace.name}
                   campaigns={workspace.activeCampaigns}
                 />
               </>
