@@ -3,7 +3,14 @@
 import type { ComponentProps } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ArrowLeft, HandHeart, Heart, PawPrint, Settings } from 'lucide-react'
+import {
+  ArrowLeft,
+  HandHeart,
+  Heart,
+  Megaphone,
+  PawPrint,
+  Settings,
+} from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { LogoIcon } from '~/components/ui/logo'
 
@@ -59,6 +66,7 @@ export function WorkspaceSidebar({
     { segment: 'pets', label: 'Pets', icon: PawPrint },
     { segment: 'interests', label: 'Interesses', icon: Heart },
     { segment: 'adoptions', label: 'Adoções', icon: HandHeart },
+    { segment: 'campaigns', label: 'Campanhas', icon: Megaphone },
     { segment: 'settings', label: 'Configurações', icon: Settings },
   ]
 
