@@ -17,9 +17,13 @@ const STATUS_TABS = [
 interface DonationItem {
   id: string
   amount: string
+  currency: string
   donorName: string
   donorEmail: string
+  paymentMethod: string
+  proofUrl: string | null
   status: string
+  reviewNote: string | null
   createdAt: string
 }
 
@@ -34,6 +38,7 @@ export default function AdminDonationsPage() {
   const [status, setStatus] = useState('PENDING_REVIEW')
   const [page, setPage] = useState(1)
   const [rejectTarget, setRejectTarget] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const perPage = 20
   const queryClient = useQueryClient()
   const queryKey = ['adminDonations', status, page]
@@ -134,43 +139,93 @@ export default function AdminDonationsPage() {
             {items.map((donation) => (
               <div
                 key={donation.id}
-                className="border-border bg-card flex items-center justify-between gap-4 rounded-xl border p-4 shadow-sm"
+                className="border-border bg-card rounded-xl border p-4 shadow-sm"
               >
-                <div>
-                  <h3 className="text-foreground text-sm font-semibold">
-                    {donation.donorName}
-                  </h3>
-                  <p className="text-muted-foreground text-xs">
-                    {donation.donorEmail}
-                  </p>
-                  <span className="text-foreground text-sm font-medium">
-                    {Number(donation.amount).toLocaleString('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                    })}
-                  </span>
+                <div
+                  className="flex cursor-pointer items-center justify-between gap-4"
+                  onClick={() =>
+                    setExpandedId(
+                      expandedId === donation.id ? null : donation.id,
+                    )
+                  }
+                >
+                  <div>
+                    <h3 className="text-foreground text-sm font-semibold">
+                      {donation.donorName}
+                    </h3>
+                    <p className="text-muted-foreground text-xs">
+                      {donation.donorEmail}
+                    </p>
+                    <span className="text-foreground text-sm font-medium">
+                      {Number(donation.amount).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                    </span>
+                  </div>
+                  {status === 'PENDING_REVIEW' && (
+                    <div className="flex shrink-0 gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-green-600 text-green-600 hover:bg-green-50"
+                        onClick={() => approveMutation.mutate(donation.id)}
+                        disabled={approveMutation.isPending}
+                      >
+                        <Check className="size-4" aria-hidden />
+                        Aprovar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setRejectTarget(donation.id)}
+                      >
+                        <X className="size-4" aria-hidden />
+                        Rejeitar
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                {status === 'PENDING_REVIEW' && (
-                  <div className="flex shrink-0 gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-green-600 text-green-600 hover:bg-green-50"
-                      onClick={() => approveMutation.mutate(donation.id)}
-                      disabled={approveMutation.isPending}
-                    >
-                      <Check className="size-4" aria-hidden />
-                      Aprovar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => setRejectTarget(donation.id)}
-                    >
-                      <X className="size-4" aria-hidden />
-                      Rejeitar
-                    </Button>
+                {expandedId === donation.id && (
+                  <div className="border-border mt-3 border-t pt-3">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">Método:</span>{' '}
+                        <span className="text-foreground">
+                          {donation.paymentMethod}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Data:</span>{' '}
+                        <span className="text-foreground">
+                          {new Date(donation.createdAt).toLocaleString('pt-BR')}
+                        </span>
+                      </div>
+                      {donation.proofUrl && (
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">
+                            Comprovante:
+                          </span>{' '}
+                          <a
+                            href={donation.proofUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            Ver comprovante
+                          </a>
+                        </div>
+                      )}
+                      {donation.reviewNote && (
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">Nota:</span>{' '}
+                          <span className="text-foreground">
+                            {donation.reviewNote}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

@@ -18,9 +18,12 @@ interface SubmissionItem {
   id: string
   status: string
   submittedAt: string
+  photoUrl: string | null
+  message: string | null
   followUp: {
     id: string
     type: string
+    scheduledAt: string
     adoption: {
       id: string
       pet: { id: string; name: string }
@@ -41,6 +44,7 @@ export default function AdminFollowUpsPage() {
   const [status, setStatus] = useState('SUBMITTED')
   const [page, setPage] = useState(1)
   const [rejectTarget, setRejectTarget] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const perPage = 20
   const queryClient = useQueryClient()
   const queryKey = ['adminFollowUps', status, page]
@@ -149,43 +153,89 @@ export default function AdminFollowUpsPage() {
             {items.map((sub) => (
               <div
                 key={sub.id}
-                className="border-border bg-card flex items-center justify-between gap-4 rounded-xl border p-4 shadow-sm"
+                className="border-border bg-card rounded-xl border p-4 shadow-sm"
               >
-                <div>
-                  <h3 className="text-foreground text-sm font-semibold">
-                    {sub.followUp?.adoption?.pet?.name ?? 'Pet'} —{' '}
-                    {sub.followUp?.adoption?.guardian?.fullName ?? 'Tutor'}
-                  </h3>
-                  <p className="text-muted-foreground text-xs">
-                    {sub.followUp?.type} •{' '}
-                    {sub.followUp?.adoption?.workspace?.name}
-                  </p>
-                  <span className="text-muted-foreground text-xs">
-                    Enviado em{' '}
-                    {new Date(sub.submittedAt).toLocaleDateString('pt-BR')}
-                  </span>
+                <div
+                  className="flex cursor-pointer items-center justify-between gap-4"
+                  onClick={() =>
+                    setExpandedId(expandedId === sub.id ? null : sub.id)
+                  }
+                >
+                  <div>
+                    <h3 className="text-foreground text-sm font-semibold">
+                      {sub.followUp?.adoption?.pet?.name ?? 'Pet'} —{' '}
+                      {sub.followUp?.adoption?.guardian?.fullName ?? 'Tutor'}
+                    </h3>
+                    <p className="text-muted-foreground text-xs">
+                      {sub.followUp?.type} •{' '}
+                      {sub.followUp?.adoption?.workspace?.name}
+                    </p>
+                    <span className="text-muted-foreground text-xs">
+                      Enviado em{' '}
+                      {new Date(sub.submittedAt).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+                  {status === 'SUBMITTED' && (
+                    <div className="flex shrink-0 gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-green-600 text-green-600 hover:bg-green-50"
+                        onClick={() => approveMutation.mutate(sub.id)}
+                        disabled={approveMutation.isPending}
+                      >
+                        <Check className="size-4" aria-hidden />
+                        Aprovar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setRejectTarget(sub.id)}
+                      >
+                        <X className="size-4" aria-hidden />
+                        Rejeitar
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                {status === 'SUBMITTED' && (
-                  <div className="flex shrink-0 gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-green-600 text-green-600 hover:bg-green-50"
-                      onClick={() => approveMutation.mutate(sub.id)}
-                      disabled={approveMutation.isPending}
-                    >
-                      <Check className="size-4" aria-hidden />
-                      Aprovar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => setRejectTarget(sub.id)}
-                    >
-                      <X className="size-4" aria-hidden />
-                      Rejeitar
-                    </Button>
+                {expandedId === sub.id && (
+                  <div className="border-border mt-3 border-t pt-3">
+                    <div className="flex flex-col gap-2 text-xs">
+                      {sub.followUp?.scheduledAt && (
+                        <div>
+                          <span className="text-muted-foreground">
+                            Previsto para:
+                          </span>{' '}
+                          <span className="text-foreground">
+                            {new Date(
+                              sub.followUp.scheduledAt,
+                            ).toLocaleDateString('pt-BR')}
+                          </span>
+                        </div>
+                      )}
+                      {sub.message && (
+                        <div>
+                          <span className="text-muted-foreground">
+                            Mensagem:
+                          </span>{' '}
+                          <span className="text-foreground">{sub.message}</span>
+                        </div>
+                      )}
+                      {sub.photoUrl && (
+                        <div>
+                          <span className="text-muted-foreground">Foto:</span>{' '}
+                          <a
+                            href={sub.photoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            Ver foto
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

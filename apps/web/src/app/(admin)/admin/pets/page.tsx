@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { PawPrint, Check, X } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -139,8 +140,8 @@ export default function AdminPetsPage() {
                 key={pet.id}
                 className="border-border bg-card flex items-center justify-between gap-4 rounded-xl border p-4 shadow-sm"
               >
-                <div>
-                  <h3 className="text-foreground text-sm font-semibold">
+                <Link href={`/admin/pets/${pet.id}`} className="min-w-0 flex-1">
+                  <h3 className="text-foreground text-sm font-semibold hover:underline">
                     {pet.name}
                   </h3>
                   <div className="mt-1 flex items-center gap-1.5">
@@ -151,7 +152,7 @@ export default function AdminPetsPage() {
                       {pet.workspace.name}
                     </span>
                   </div>
-                </div>
+                </Link>
                 {status === 'PENDING_REVIEW' && (
                   <div className="flex shrink-0 gap-2">
                     <Button
