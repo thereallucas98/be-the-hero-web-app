@@ -27,7 +27,9 @@ This file is loaded automatically at the start of every conversation.
 | RBAC | CASL via `@bethehero/auth` package |
 | Validation | Zod 4 |
 | Forms | React Hook Form 7 + `@hookform/resolvers` (zodResolver) |
-| Data fetching | `@tanstack/react-query` 5 |
+| GraphQL Server | `graphql-yoga` + `@pothos/core` + `@pothos/plugin-simple-objects` |
+| GraphQL Client | `graphql-request` + `@graphql-codegen` (types) |
+| Data fetching | `@tanstack/react-query` 5 (REST for workspace/admin, GraphQL for guardian) |
 | State | Zustand 5 (client/UI state only) |
 | UI | **shadcn/ui** (Radix UI primitives, New York style) + TailwindCSS 4 |
 | Styling utils | `class-variance-authority` (`cva`) + `cn()` from `~/lib/utils` |
@@ -43,15 +45,27 @@ This file is loaded automatically at the start of every conversation.
 
 ```
 apps/web/src/
-  app/api/           # API routes (thin layer)
+  app/
+    api/             # REST API routes (thin layer)
+    api/graphql/     # GraphQL endpoint (Yoga handler)
+    (public)/        # Public pages (landing, pets, campaigns, workspaces)
+    (auth)/          # Auth pages (login, register, verify, reset)
+    (guardian)/      # Guardian portal (interests, adoptions, profile)
+    (workspace)/     # Workspace portal (dashboard, pets, campaigns, settings)
+    (admin)/         # Admin panel (dashboard, queues, coverage, logs)
   server/
+    graphql/         # Pothos schema, context, types, queries, mutations
     repositories/    # Data access (Prisma) — interface + factory fn
     use-cases/       # Business logic — return discriminated unions
     schemas/         # Zod validation schemas
-  lib/               # Utilities (auth, db, swagger, cookies)
+  graphql/
+    hooks/           # React Query hooks (useMe, useMyInterests, etc.)
+    operations/      # .graphql operation files
+  lib/               # Utilities (auth, db, graphql-client, swagger, cookies)
   components/
-    ui/              # Primitive/shared components (Button, Card, Input…)
-    features/        # Feature-specific components (pets/, workspaces/, admin/…)
+    ui/              # Primitive/shared components (Button, Card, Input, MoneyInput…)
+    features/        # Feature-specific (guardian/, workspaces/, admin/, campaigns/, auth/)
+  providers/         # QueryProvider
 packages/
   auth/              # CASL RBAC definitions (@bethehero/auth)
   env/               # Env validation (@bethehero/env)
@@ -267,11 +281,12 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 ## Commands
 
 ```bash
-pnpm dev              # Start dev server (may use :3001 if :3000 is taken)
+pnpm dev              # Start dev server (port 3001)
 pnpm build            # Prisma generate + Next.js build
 pnpm lint             # tsc --noEmit + ESLint (max-warnings: 0)
 pnpm lint-fix         # Auto-fix lint
 pnpm prettier-format  # Format code
+pnpm codegen          # Export GraphQL schema + generate TypeScript types
 pnpm db:generate      # Generate Prisma client
 cd apps/web && pnpm db:migrate   # Run migrations (must cd into apps/web first)
 pnpm db:push          # Push schema without migration (dev)
@@ -301,8 +316,10 @@ pnpm build   # Must succeed
 - **Database**: PostgreSQL via Docker — `docker compose up -d` (from repo root)
 - **Container name**: `bethehero-postgres` | **DB name**: `pronai` | **User**: `postgres` | **Password**: `docker`
 - **Swagger UI**: `http://localhost:3001/api-docs` (all API docs live here)
+- **GraphiQL**: `http://localhost:3001/api/graphql` (dev only)
 - **DB direct access**: `docker exec bethehero-postgres psql -U postgres -d pronai -c "..."`
 - **Cookie jar for tests**: `/tmp/bth_cookies.txt`
+- **Test users**: `guardian@bth.dev`, `partner_test@example.com`, `admin@bth.dev`, `superadmin@bth.dev` — all use `Pass1234!`
 
 ### API Testing (QA gates — Claude runs these, not the user)
 

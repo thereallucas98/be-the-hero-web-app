@@ -1,209 +1,115 @@
-# Feature Development Workflow
+# Development Workflow — BeTheHero
 
 **Build features with Claude Code using a phased approach**
 
 ---
 
-## 💬 How to Start a Feature
+## How to Start a Feature
 
-### Step 1: Clarify (Chat with Claude)
+### Step 1: Clarify
 
-```
-Enter PM/PO mode.
-
-Feature: [Describe what you want to build]
-```
-
-Claude will:
-- Explore the codebase
-- Ask clarifying questions
-- Generate a task brief at `frontend/docs/tasks/<feature-name>/brief.md`
+Describe what you want to build. Claude will explore the codebase, ask clarifying questions, and generate a task brief.
 
 ### Step 2: Approve Plan
 
-Claude will explore, research, and create a plan. When asked:
+Claude explores, researches, and creates a plan. Review and approve before execution.
 
-```
-Claude: "Implementation plan ready. Approve? (y/n)"
-You: y
-```
+### Step 3: Execute
 
-### Step 3: Let Claude Code
-
-Claude writes the code automatically.
+Claude writes the code. Each sub-step includes QA validation.
 
 ### Step 4: Review & Commit
 
-Review the changes, then commit when ready.
+Review changes, run browser QA checklist, then commit.
 
 ---
 
-## 🎯 The 6-Phase Workflow
+## The 6-Phase Workflow
 
 ```
-Phase 0: Clarify    → Chat with Claude (PM/PO mode)
-Phase 1: Explore    → Claude reads existing code
-Phase 2: Research   → Claude analyzes approach
-Phase 3: Plan       → Claude creates plan → YOU APPROVE ✅
-Phase 4: Execute    → Claude writes code
-Phase 5: Review     → You review and commit
+Phase 0: Clarify    → Define scope, acceptance criteria
+Phase 1: Explore    → Read existing code, identify integration points
+Phase 2: Research   → Analyze approach options, make decisions
+Phase 3: Plan       → Create plan + todo → YOU APPROVE
+Phase 4: Execute    → Write code, lint, build
+Phase 5: Validate   → Browser QA checklist, commit
 ```
 
-**Your job**: Answer questions (Phase 0), Approve plan (Phase 3), Review and commit (Phase 5)
-
-**Claude's job**: Everything else
+**Every task must produce 6 docs:**
+1. `brief.md` — User story, scope, acceptance criteria
+2. `exploration.md` — Current state, key files, risks
+3. `research.md` — Decision analysis
+4. `plan.md` — Ordered sub-steps
+5. `todo.md` — Granular checklist
+6. `validation.md` — QA results, browser checklist
 
 ---
 
-## 🔥 Real Example
-
-```
-You: "Enter PM/PO mode. Feature: Add search bar to Digital Agents page"
-
-Claude: [Explores code, asks questions]
-        Q1: Should search be real-time?
-        Q2: Which tabs to search? [Reports] [Missions] [About]
-
-You: [Answer questions]
-
-Claude: ✅ Task brief generated at frontend/docs/tasks/digital-agents-search/brief.md
-
-Claude: [Phase 1-4 automatically]
-        ✅ Done! Lint passing, build succeeds.
-
-You: [Review changes and commit]
-```
-
----
-
-## 📋 Common Commands
+## Commands
 
 ```bash
-# Development (hierarchical: remotes boot first, then host)
-pnpm dev              # Host + Agents remote
-pnpm dev:host         # Host only (no MF remotes)
-pnpm dev:avo          # Host + Agents + AVO remotes
+# Development
+pnpm dev              # Dev server (port 3001)
+pnpm build            # Production build
+pnpm lint             # tsc + ESLint (0 warnings)
+pnpm lint-fix         # Auto-fix
+pnpm prettier-format  # Format
+pnpm codegen          # Generate GraphQL types
 
-# Check status
-git status
-pnpm lint
-pnpm build
+# Database
+cd apps/web && pnpm db:migrate   # Run migrations
+pnpm db:generate                  # Generate Prisma client
+pnpm db:studio                    # Prisma Studio UI
 
-# Validate code
-pnpm lint:fix
-pnpm test:unit
+# Docker
+docker compose up -d              # Start PostgreSQL
 ```
 
 ---
 
-## 🤔 FAQ
-
-**Q: Do I need to read all the docs?**
-A: No, just this page.
-
-**Q: Can I skip PM/PO mode?**
-A: Yes for trivial changes (1-2 files). Use it for complex features.
-
-**Q: When should I use PM/PO mode?**
-A: Use it when:
-- Requirements are vague
-- Backend changes might be needed
-- Feature is complex (3+ files)
-
----
-
-## 📂 File Structure
+## Project Structure
 
 ```
-Manufacturing-AI/
-├── frontend/
-│   ├── docs/
-│   │   ├── README.md (this file)
-│   │   ├── CLAUDE-INSTRUCTIONS.md (for AI)
-│   │   ├── tasks/<feature>/brief.md (generated)
-│   │   ├── tasks/<feature>/YYYY-MM-DD-phase.md (logs)
-│   │   └── _templates/ (templates)
-│   └── src/ (your code)
+docs/
+  README.md                       (this file)
+  CLAUDE-INSTRUCTIONS.md          (AI workflow instructions)
+  FRONTEND-ROADMAP.md             (sprint tracker — all complete)
+  FRONTEND-WORKFLOW.md            (Figma-to-code process)
+  _templates/                     (task document templates)
+  tasks/<feature-slug>/           (task documentation per feature)
+    brief.md
+    exploration.md
+    research.md
+    plan.md
+    todo.md
+    validation.md
 ```
 
 ---
 
-## ⚡ Cheat Sheet
+## Completed Sprints
 
-### Start Feature
-```
-"Enter PM/PO mode. Feature: [description]"
-```
-
-### Check Status
-```bash
-git status                  # Current status
-pnpm lint && pnpm build     # Validate
-```
-
-### Commit Template
-```bash
-git commit -m "<type>: <summary>
-
-<optional details>
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
-```
-
-Types: `feat`, `fix`, `refactor`, `docs`, `test`, `style`, `chore`
+| Sprint | Scope |
+|---|---|
+| F0 | Design system (13+ components) |
+| F1 | Public pages (landing, pets, campaigns, workspace profiles) |
+| F2 | Auth (login, register, verify, reset, logout) |
+| F3 | Guardian portal (interests, adoptions, profile — GraphQL) |
+| F4 | Workspace portal (dashboard, pets, interests, campaigns, settings) |
+| F5 | Admin panel (dashboard, 5 approval queues, coverage, audit logs) |
 
 ---
 
-## 🚨 Troubleshooting
+## Commit Message Format
 
-### Lint fails
-```bash
-pnpm lint:fix
+```
+<type>: <description>
 ```
 
-### Build fails
-```bash
-rm -rf node_modules .cache
-pnpm install
-pnpm build
-```
+Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `style`, `test`
 
 ---
 
-## 📖 For Claude: AI Instructions
+## For Claude: AI Instructions
 
-Claude should read: **[CLAUDE-INSTRUCTIONS.md](CLAUDE-INSTRUCTIONS.md)**
-
-That file contains:
-- PM/PO mode protocols
-- Phase responsibilities
-- What Claude can/cannot do
-- Documentation requirements
-
----
-
-## 📋 Templates
-
-- **[Task Brief Template](_templates/task-brief-template.md)** - PM/PO phase output
-- **[Phase Template](_templates/phase-template.md)** - Implementation phase docs
-- **[Claude Context Template](_templates/claude-context-template.txt)** - Task constraints
-
----
-
-## 🎬 Timeline Example
-
-```
-09:00  PM/PO mode (Feature) - 10 min
-09:10  Phases 1-3 (auto) - 40 min
-09:50  YOU: Approve plan
-09:50  Phase 4: Claude codes (auto) - 2 hours
-12:00  YOU: review + commit - 10 min
-```
-
----
-
-**That's it! Start your first feature now:**
-
-```
-"Enter PM/PO mode. Feature: [your feature description]"
-```
+Read: **[CLAUDE-INSTRUCTIONS.md](CLAUDE-INSTRUCTIONS.md)**
