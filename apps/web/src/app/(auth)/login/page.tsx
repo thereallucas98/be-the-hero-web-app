@@ -19,7 +19,7 @@ export default async function LoginPage() {
       case 'PARTNER_MEMBER': {
         const ws = principal.memberships[0]
         if (ws) {
-          redirect(`/workspaces/${ws.workspaceId}/pets`)
+          redirect(`/workspaces/${ws.workspaceId}/dashboard`)
         }
         redirect('/')
         break

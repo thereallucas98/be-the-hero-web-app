@@ -57,7 +57,7 @@ export function LoginForm() {
     } else if (user.role === 'GUARDIAN') {
       destination = '/guardian/interests'
     } else if (user.role === 'PARTNER_MEMBER' && user.workspaceId) {
-      destination = `/workspaces/${user.workspaceId}/pets`
+      destination = `/workspaces/${user.workspaceId}/dashboard`
     } else if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
       destination = '/admin/dashboard'
     }

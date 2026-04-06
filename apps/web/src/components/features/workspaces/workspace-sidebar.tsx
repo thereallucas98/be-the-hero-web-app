@@ -3,7 +3,14 @@
 import type { ComponentProps } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { HandHeart, Heart, Megaphone, PawPrint, Settings } from 'lucide-react'
+import {
+  BarChart3,
+  HandHeart,
+  Heart,
+  Megaphone,
+  PawPrint,
+  Settings,
+} from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { LogoIcon } from '~/components/ui/logo'
 import { LogoutButton } from '~/components/features/auth/logout-button'
@@ -55,6 +62,7 @@ export function WorkspaceSidebar({
   const pathname = usePathname()
 
   const navItems = [
+    { segment: 'dashboard', label: 'Métricas', icon: BarChart3 },
     { segment: 'pets', label: 'Pets', icon: PawPrint },
     { segment: 'interests', label: 'Interesses', icon: Heart },
     { segment: 'adoptions', label: 'Adoções', icon: HandHeart },
