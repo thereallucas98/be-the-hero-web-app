@@ -46,7 +46,7 @@ function NavItem({
   )
 }
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Métricas', icon: BarChart3 },
   { href: '/admin/pets', label: 'Pets', icon: PawPrint },
   { href: '/admin/workspaces', label: 'Workspaces', icon: Building2 },
@@ -54,13 +54,27 @@ const NAV_ITEMS = [
   { href: '/admin/donations', label: 'Doações', icon: HandCoins },
   { href: '/admin/follow-ups', label: 'Follow-ups', icon: ClipboardCheck },
   { href: '/admin/coverage', label: 'Cobertura', icon: MapPin },
-  { href: '/admin/audit-logs', label: 'Logs', icon: FileText },
-] as const
+]
 
-interface AdminSidebarProps extends ComponentProps<'aside'> {}
+const AUDIT_LOGS_ITEM = {
+  href: '/admin/audit-logs',
+  label: 'Logs',
+  icon: FileText,
+}
 
-export function AdminSidebar({ className, ...props }: AdminSidebarProps) {
+interface AdminSidebarProps extends ComponentProps<'aside'> {
+  showAuditLogs?: boolean
+}
+
+export function AdminSidebar({
+  showAuditLogs,
+  className,
+  ...props
+}: AdminSidebarProps) {
   const pathname = usePathname()
+  const navItems = showAuditLogs
+    ? [...BASE_NAV_ITEMS, AUDIT_LOGS_ITEM]
+    : BASE_NAV_ITEMS
 
   return (
     <aside
@@ -79,7 +93,7 @@ export function AdminSidebar({ className, ...props }: AdminSidebarProps) {
         className="flex flex-1 flex-col items-center gap-1"
         aria-label="Menu admin"
       >
-        {NAV_ITEMS.map(({ href, label, icon }) => (
+        {navItems.map(({ href, label, icon }) => (
           <NavItem
             key={href}
             href={href}
