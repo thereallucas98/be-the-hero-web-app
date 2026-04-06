@@ -4,6 +4,7 @@ import { use, useState } from 'react'
 import { Heart } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { api } from '~/lib/api-client'
 import {
   WorkspaceInterestCard,
   type WorkspaceInterestItem,
@@ -47,25 +48,16 @@ export default function WorkspaceInterestsPage({ params }: InterestsPageProps) {
   const queryKey = ['workspaceInterests', workspaceId, page]
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      api.get<InterestsResponse>(
         `/api/workspaces/${workspaceId}/interests?page=${page}&perPage=${perPage}`,
-        { credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao carregar interesses')
-      return res.json() as Promise<InterestsResponse>
-    },
+      ),
   })
 
   // ─── Dismiss mutation ────────────────────────────────────────────────────────
   const dismissMutation = useMutation({
-    mutationFn: async (interestId: string) => {
-      const res = await fetch(
-        `/api/workspaces/${workspaceId}/interests/${interestId}`,
-        { method: 'DELETE', credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao dispensar interesse')
-    },
+    mutationFn: (interestId: string) =>
+      api.delete(`/api/workspaces/${workspaceId}/interests/${interestId}`),
     onMutate: async (interestId) => {
       await queryClient.cancelQueries({ queryKey })
       const previous = queryClient.getQueryData<InterestsResponse>(queryKey)
@@ -93,27 +85,17 @@ export default function WorkspaceInterestsPage({ params }: InterestsPageProps) {
 
   // ─── Convert mutation ────────────────────────────────────────────────────────
   const convertMutation = useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       interestId,
       notes,
     }: {
       interestId: string
       notes: string
-    }) => {
-      const res = await fetch(
+    }) =>
+      api.post(
         `/api/workspaces/${workspaceId}/interests/${interestId}/convert`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes: notes || undefined }),
-        },
-      )
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Erro ao converter interesse')
-      }
-    },
+        { notes: notes || undefined },
+      ),
     onSuccess: () => {
       setConvertTarget(null)
       toast.success('Adoção registrada com sucesso')

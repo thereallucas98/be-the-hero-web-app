@@ -6,6 +6,7 @@ import { ArrowLeft, FileText } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import * as ProgressPrimitive from '@radix-ui/react-progress'
+import { api } from '~/lib/api-client'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
@@ -80,43 +81,23 @@ export default function CampaignDetailPage({
   // ─── Campaign detail ─────────────────────────────────────────────────────────
   const { data: campaign, isLoading } = useQuery({
     queryKey: ['campaign', campaignId],
-    queryFn: async () => {
-      const res = await fetch(`/api/campaigns/${campaignId}`, {
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao carregar campanha')
-      return res.json() as Promise<CampaignDetail>
-    },
+    queryFn: () => api.get<CampaignDetail>(`/api/campaigns/${campaignId}`),
   })
 
   // ─── Donations ───────────────────────────────────────────────────────────────
   const { data: donations } = useQuery({
     queryKey: ['campaignDonations', campaignId, donationsPage],
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      api.get<DonationsResponse>(
         `/api/campaigns/${campaignId}/donations?page=${donationsPage}&perPage=10`,
-        { credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao carregar doações')
-      return res.json() as Promise<DonationsResponse>
-    },
+      ),
     enabled: !!campaign,
   })
 
   // ─── Edit mutation ───────────────────────────────────────────────────────────
   const editMutation = useMutation({
-    mutationFn: async (data: CampaignFormData) => {
-      const res = await fetch(`/api/campaigns/${campaignId}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Erro ao atualizar campanha')
-      }
-    },
+    mutationFn: (data: CampaignFormData) =>
+      api.patch(`/api/campaigns/${campaignId}`, data),
     onSuccess: () => {
       setEditOpen(false)
       queryClient.invalidateQueries({ queryKey: ['campaign', campaignId] })
@@ -127,16 +108,8 @@ export default function CampaignDetailPage({
 
   // ─── Submit for review ───────────────────────────────────────────────────────
   const submitMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(
-        `/api/campaigns/${campaignId}/submit-for-review`,
-        { method: 'POST', credentials: 'include' },
-      )
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Erro ao submeter para revisão')
-      }
-    },
+    mutationFn: () =>
+      api.post(`/api/campaigns/${campaignId}/submit-for-review`),
     onSuccess: () => {
       toast.success('Campanha submetida para revisão')
       queryClient.invalidateQueries({ queryKey: ['campaign', campaignId] })

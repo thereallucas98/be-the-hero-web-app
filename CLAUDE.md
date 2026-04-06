@@ -35,7 +35,7 @@ This file is loaded automatically at the start of every conversation.
 | Styling utils | `class-variance-authority` (`cva`) + `cn()` from `~/lib/utils` |
 | Icons | `lucide-react` or `phosphor-icons` |
 | Toasts | `sonner` |
-| HTTP | Native `fetch` — **no Axios** |
+| HTTP | `api` client (`~/lib/api-client`) — typed wrapper over native `fetch`, **no Axios** |
 | Error boundaries | React 19 built-in (`error.tsx`) — **`react-error-boundary` is NOT installed** |
 | Routing | Next.js App Router — **no TanStack Router / React Router** |
 

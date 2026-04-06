@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import { RejectDialog } from '~/components/features/admin/reject-dialog'
+import { api } from '~/lib/api-client'
 import { cn } from '~/lib/utils'
 
 const STATUS_TABS = [
@@ -45,23 +46,15 @@ export default function AdminDonationsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      api.get<DonationsResponse>(
         `/api/admin/donations?status=${status}&page=${page}&perPage=${perPage}`,
-        { credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao carregar doações')
-      return res.json() as Promise<DonationsResponse>
-    },
+      ),
   })
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/admin/donations/${id}/approve`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao aprovar')
+      await api.post(`/api/admin/donations/${id}/approve`)
     },
     onSuccess: () => {
       toast.success('Doação aprovada')
@@ -77,13 +70,7 @@ export default function AdminDonationsPage() {
       id: string
       reviewNote: string
     }) => {
-      const res = await fetch(`/api/admin/donations/${id}/reject`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewNote }),
-      })
-      if (!res.ok) throw new Error('Erro ao rejeitar')
+      await api.post(`/api/admin/donations/${id}/reject`, { reviewNote })
     },
     onSuccess: () => {
       setRejectTarget(null)

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { FileText } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
+import { api } from '~/lib/api-client'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -74,7 +75,7 @@ export default function AdminAuditLogsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
+    queryFn: () => {
       const params = new URLSearchParams({
         page: String(page),
         perPage: String(perPage),
@@ -84,11 +85,7 @@ export default function AdminAuditLogsPage() {
       if (dateFrom) params.set('dateFrom', dateFrom)
       if (dateTo) params.set('dateTo', dateTo)
 
-      const res = await fetch(`/api/admin/audit-logs?${params}`, {
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao carregar logs')
-      return res.json() as Promise<AuditLogsResponse>
+      return api.get<AuditLogsResponse>(`/api/admin/audit-logs?${params}`)
     },
   })
 

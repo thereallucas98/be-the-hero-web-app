@@ -9,6 +9,7 @@ import * as ProgressPrimitive from '@radix-ui/react-progress'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { RejectDialog } from '~/components/features/admin/reject-dialog'
+import { api } from '~/lib/api-client'
 
 interface CampaignDetail {
   id: string
@@ -41,22 +42,12 @@ export default function AdminCampaignDetailPage({
 
   const { data: campaign, isLoading } = useQuery({
     queryKey: ['adminCampaignDetail', id],
-    queryFn: async () => {
-      const res = await fetch(`/api/campaigns/${id}`, {
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao carregar campanha')
-      return res.json() as Promise<CampaignDetail>
-    },
+    queryFn: () => api.get<CampaignDetail>(`/api/campaigns/${id}`),
   })
 
   const approveMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/admin/campaigns/${id}/approve`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao aprovar')
+      await api.post(`/api/admin/campaigns/${id}/approve`)
     },
     onSuccess: () => {
       toast.success('Campanha aprovada')
@@ -69,13 +60,7 @@ export default function AdminCampaignDetailPage({
 
   const rejectMutation = useMutation({
     mutationFn: async (reviewNote: string) => {
-      const res = await fetch(`/api/admin/campaigns/${id}/reject`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewNote }),
-      })
-      if (!res.ok) throw new Error('Erro ao rejeitar')
+      await api.post(`/api/admin/campaigns/${id}/reject`, { reviewNote })
     },
     onSuccess: () => {
       setRejectOpen(false)

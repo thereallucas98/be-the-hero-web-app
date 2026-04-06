@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { RejectDialog } from '~/components/features/admin/reject-dialog'
+import { api } from '~/lib/api-client'
 import { cn } from '~/lib/utils'
 
 const STATUS_TABS = [
@@ -44,23 +45,15 @@ export default function AdminPetsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      api.get<PetsResponse>(
         `/api/pets?status=${status}&page=${page}&perPage=${perPage}`,
-        { credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao carregar pets')
-      return res.json() as Promise<PetsResponse>
-    },
+      ),
   })
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/admin/pets/${id}/approve`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao aprovar')
+      await api.post(`/api/admin/pets/${id}/approve`)
     },
     onSuccess: () => {
       toast.success('Pet aprovado')
@@ -76,13 +69,7 @@ export default function AdminPetsPage() {
       id: string
       reviewNote: string
     }) => {
-      const res = await fetch(`/api/admin/pets/${id}/reject`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewNote }),
-      })
-      if (!res.ok) throw new Error('Erro ao rejeitar')
+      await api.post(`/api/admin/pets/${id}/reject`, { reviewNote })
     },
     onSuccess: () => {
       setRejectTarget(null)

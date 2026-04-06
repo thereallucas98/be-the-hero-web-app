@@ -11,6 +11,7 @@ import {
   CampaignFormDialog,
   type CampaignFormData,
 } from '~/components/features/workspaces/campaign-form-dialog'
+import { api } from '~/lib/api-client'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/utils'
 
@@ -45,34 +46,21 @@ export default function WorkspaceCampaignsPage({ params }: CampaignsPageProps) {
 
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
+    queryFn: () => {
       const params = new URLSearchParams({
         page: String(page),
         perPage: String(perPage),
       })
       if (status) params.set('status', status)
-      const res = await fetch(
+      return api.get<CampaignsResponse>(
         `/api/workspaces/${workspaceId}/campaigns?${params}`,
-        { credentials: 'include' },
       )
-      if (!res.ok) throw new Error('Erro ao carregar campanhas')
-      return res.json() as Promise<CampaignsResponse>
     },
   })
 
   const createMutation = useMutation({
-    mutationFn: async (formData: CampaignFormData) => {
-      const res = await fetch(`/api/workspaces/${workspaceId}/campaigns`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Erro ao criar campanha')
-      }
-    },
+    mutationFn: (formData: CampaignFormData) =>
+      api.post(`/api/workspaces/${workspaceId}/campaigns`, formData),
     onSuccess: () => {
       setCreateOpen(false)
       queryClient.invalidateQueries({ queryKey: ['workspaceCampaigns'] })

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { MapPin, Plus, Trash2 } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { api } from '~/lib/api-client'
 import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 import {
@@ -58,10 +59,8 @@ export default function AdminCoveragePage() {
   const { data: me } = useQuery({
     queryKey: ['me'],
     queryFn: async () => {
-      const res = await fetch('/api/me', { credentials: 'include' })
-      if (!res.ok) throw new Error('Erro ao carregar usuário')
-      const data = await res.json()
-      return data.user as MeUser
+      const data = await api.get<{ user: MeUser }>('/api/me')
+      return data.user
     },
   })
 
@@ -69,30 +68,24 @@ export default function AdminCoveragePage() {
 
   const { data: coverage, isLoading } = useQuery({
     queryKey: ['adminCoverage'],
-    queryFn: async () => {
-      const res = await fetch('/api/admin/coverage', {
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao carregar cobertura')
-      return res.json() as Promise<CoverageItem[]>
-    },
+    queryFn: () => api.get<CoverageItem[]>('/api/admin/coverage'),
     enabled: !!me,
   })
 
   const { data: states } = useQuery({
     queryKey: ['geoStates'],
-    queryFn: async () => {
-      const res = await fetch('/api/geo/states')
-      if (!res.ok) throw new Error('Erro ao carregar estados')
-      return res.json() as Promise<GeoStateItem[]>
-    },
+    queryFn: () => api.get<GeoStateItem[]>('/api/geo/states'),
   })
 
   const fetchCities = useCallback(async (stateId: string) => {
-    const res = await fetch(`/api/geo/cities?stateId=${stateId}`)
-    if (!res.ok) return
-    const data: GeoCityItem[] = await res.json()
-    setCities(data)
+    try {
+      const data = await api.get<GeoCityItem[]>(
+        `/api/geo/cities?stateId=${stateId}`,
+      )
+      setCities(data)
+    } catch {
+      // silently ignore fetch errors for cities
+    }
   }, [])
 
   useEffect(() => {
@@ -106,16 +99,7 @@ export default function AdminCoveragePage() {
   const addMutation = useMutation({
     mutationFn: async (cityId: string) => {
       if (!me?.id) throw new Error('Usuário não carregado')
-      const res = await fetch('/api/admin/coverage', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminUserId: me.id, cityId }),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Erro ao adicionar cobertura')
-      }
+      await api.post('/api/admin/coverage', { adminUserId: me.id, cityId })
     },
     onSuccess: () => {
       toast.success('Cobertura adicionada')
@@ -126,14 +110,7 @@ export default function AdminCoveragePage() {
 
   const removeMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/admin/coverage/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(body?.message ?? 'Erro ao remover cobertura')
-      }
+      await api.delete(`/api/admin/coverage/${id}`)
     },
     onSuccess: () => {
       setRemoveTarget(null)

@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Building2, HandCoins, Megaphone, PawPrint } from 'lucide-react'
+import { api } from '~/lib/api-client'
 
 interface PlatformMetrics {
   totalPets: number
@@ -32,13 +33,7 @@ const CAMPAIGN_STATUS_LABEL: Record<string, string> = {
 export default function AdminDashboardPage() {
   const { data: metrics, isLoading } = useQuery({
     queryKey: ['platformMetrics'],
-    queryFn: async () => {
-      const res = await fetch('/api/admin/metrics', {
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao carregar métricas')
-      return res.json() as Promise<PlatformMetrics>
-    },
+    queryFn: () => api.get<PlatformMetrics>('/api/admin/metrics'),
   })
 
   if (isLoading) {

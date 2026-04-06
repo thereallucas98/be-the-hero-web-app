@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import { RejectDialog } from '~/components/features/admin/reject-dialog'
+import { api } from '~/lib/api-client'
 import { cn } from '~/lib/utils'
 
 const STATUS_TABS = [
@@ -51,26 +52,15 @@ export default function AdminFollowUpsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      api.get<SubmissionsResponse>(
         `/api/admin/follow-up-submissions?status=${status}&page=${page}&perPage=${perPage}`,
-        { credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao carregar submissões')
-      return res.json() as Promise<SubmissionsResponse>
-    },
+      ),
   })
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(
-        `/api/admin/follow-up-submissions/${id}/approve`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        },
-      )
-      if (!res.ok) throw new Error('Erro ao aprovar')
+      await api.post(`/api/admin/follow-up-submissions/${id}/approve`)
     },
     onSuccess: () => {
       toast.success('Submissão aprovada')
@@ -86,13 +76,9 @@ export default function AdminFollowUpsPage() {
       id: string
       reviewNote: string
     }) => {
-      const res = await fetch(`/api/admin/follow-up-submissions/${id}/reject`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewNote }),
+      await api.post(`/api/admin/follow-up-submissions/${id}/reject`, {
+        reviewNote,
       })
-      if (!res.ok) throw new Error('Erro ao rejeitar')
     },
     onSuccess: () => {
       setRejectTarget(null)

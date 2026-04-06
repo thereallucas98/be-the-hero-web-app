@@ -13,6 +13,7 @@ import {
   PawPrint,
   Plus,
 } from 'lucide-react'
+import { api } from '~/lib/api-client'
 
 const PET_STATUS_LABEL: Record<string, string> = {
   DRAFT: 'Rascunho',
@@ -41,13 +42,8 @@ export default function WorkspaceDashboardPage({ params }: DashboardPageProps) {
 
   const { data: metrics, isLoading } = useQuery({
     queryKey: ['workspaceMetrics', workspaceId],
-    queryFn: async () => {
-      const res = await fetch(`/api/workspaces/${workspaceId}/metrics`, {
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao carregar métricas')
-      return res.json() as Promise<WorkspaceMetrics>
-    },
+    queryFn: () =>
+      api.get<WorkspaceMetrics>(`/api/workspaces/${workspaceId}/metrics`),
   })
 
   if (isLoading) {

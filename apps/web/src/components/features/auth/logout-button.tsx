@@ -2,6 +2,7 @@
 
 import { LogOut } from 'lucide-react'
 import { useCallback } from 'react'
+import { api } from '~/lib/api-client'
 import { cn } from '~/lib/utils'
 
 interface LogoutButtonProps {
@@ -14,10 +15,7 @@ export function LogoutButton({
   variant = 'sidebar',
 }: LogoutButtonProps) {
   const handleLogout = useCallback(async () => {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
+    await api.post('/api/auth/logout')
     window.location.href = '/login'
   }, [])
 

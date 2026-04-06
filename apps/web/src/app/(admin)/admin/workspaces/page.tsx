@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { RejectDialog } from '~/components/features/admin/reject-dialog'
+import { api } from '~/lib/api-client'
 import { cn } from '~/lib/utils'
 
 const STATUS_TABS = [
@@ -49,23 +50,15 @@ export default function AdminWorkspacesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      api.get<WorkspacesResponse>(
         `/api/admin/workspaces?verificationStatus=${status}&page=${page}&perPage=${perPage}`,
-        { credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao carregar workspaces')
-      return res.json() as Promise<WorkspacesResponse>
-    },
+      ),
   })
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/admin/workspaces/${id}/approve`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao aprovar')
+      await api.post(`/api/admin/workspaces/${id}/approve`)
     },
     onSuccess: () => {
       toast.success('Workspace aprovado')
@@ -81,13 +74,7 @@ export default function AdminWorkspacesPage() {
       id: string
       reviewNote: string
     }) => {
-      const res = await fetch(`/api/admin/workspaces/${id}/reject`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewNote }),
-      })
-      if (!res.ok) throw new Error('Erro ao rejeitar')
+      await api.post(`/api/admin/workspaces/${id}/reject`, { reviewNote })
     },
     onSuccess: () => {
       setRejectTarget(null)

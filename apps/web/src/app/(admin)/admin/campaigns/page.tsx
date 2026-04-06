@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import { RejectDialog } from '~/components/features/admin/reject-dialog'
+import { api } from '~/lib/api-client'
 import { cn } from '~/lib/utils'
 
 const STATUS_TABS = [
@@ -42,23 +43,15 @@ export default function AdminCampaignsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      api.get<CampaignsResponse>(
         `/api/admin/campaigns?status=${status}&page=${page}&perPage=${perPage}`,
-        { credentials: 'include' },
-      )
-      if (!res.ok) throw new Error('Erro ao carregar campanhas')
-      return res.json() as Promise<CampaignsResponse>
-    },
+      ),
   })
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/admin/campaigns/${id}/approve`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Erro ao aprovar')
+      await api.post(`/api/admin/campaigns/${id}/approve`)
     },
     onSuccess: () => {
       toast.success('Campanha aprovada')
@@ -74,13 +67,7 @@ export default function AdminCampaignsPage() {
       id: string
       reviewNote: string
     }) => {
-      const res = await fetch(`/api/admin/campaigns/${id}/reject`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewNote }),
-      })
-      if (!res.ok) throw new Error('Erro ao rejeitar')
+      await api.post(`/api/admin/campaigns/${id}/reject`, { reviewNote })
     },
     onSuccess: () => {
       setRejectTarget(null)
